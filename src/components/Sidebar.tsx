@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, 
   Package, 
   Users, 
   ShoppingBag, 
-  DollarSign, 
-  TrendingUp, 
   HelpCircle, 
   LogOut,
   ChevronDown,
@@ -13,22 +12,34 @@ import {
 } from 'lucide-react';
 
 interface SidebarProps {
-  activeItem: string;
-  setActiveItem: (item: string) => void;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const menuItems = [
-    { id: 'home', icon: Home, label: 'Home', hasDropdown: false },
-    { id: 'orders', icon: ShoppingBag, label: 'Orders', hasDropdown: true },
-    { id: 'products', icon: Package, label: 'Products', hasDropdown: true },
-    { id: 'customers', icon: Users, label: 'Customers', hasDropdown: true },
+    { id: 'dashboard', path: '/', icon: Home, label: 'Dashboard', hasDropdown: false },
+    { id: 'orders', path: '/orders', icon: ShoppingBag, label: 'Orders', hasDropdown: true },
+    { id: 'products', path: '/products', icon: Package, label: 'Products', hasDropdown: true },
+    { id: 'customers', path: '/customers', icon: Users, label: 'Customers', hasDropdown: true },
     // { id: 'shop', icon: ShoppingBag, label: 'Shop', hasDropdown: true },
     // { id: 'income', icon: DollarSign, label: 'Income', hasDropdown: true },
     // { id: 'promote', icon: TrendingUp, label: 'Promote', hasDropdown: true },
   ];
+
+  // Determine active item based on current location
+  const activeItem = useMemo(() => {
+    const item = menuItems.find(m => m.path === location.pathname);
+    return item?.id || 'dashboard';
+  }, [location.pathname]);
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    onClose(); // Close mobile menu when item is selected
+  };
 
   return (
     <>
@@ -75,10 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
                   ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 shadow-sm border border-blue-100' 
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
-              onClick={() => {
-                setActiveItem(item.id);
-                onClose(); // Close mobile menu when item is selected
-              }}
+              onClick={() => handleNavigate(item.path)}
             >
               <div className="flex items-center gap-3">
                 <Icon size={20} className={`transition-colors ${
