@@ -5,6 +5,8 @@ import {
   Package, 
   Users, 
   ShoppingBag, 
+  Truck,
+  ListTree,
   HelpCircle, 
   LogOut,
   ChevronDown,
@@ -24,7 +26,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { id: 'dashboard', path: '/', icon: Home, label: 'Dashboard', hasDropdown: false },
     { id: 'orders', path: '/orders', icon: ShoppingBag, label: 'Orders', hasDropdown: true },
     { id: 'products', path: '/products', icon: Package, label: 'Products', hasDropdown: true },
+    { id: 'categories', path: '/categories', icon: ListTree, label: 'Categories', hasDropdown: true },
     { id: 'customers', path: '/customers', icon: Users, label: 'Customers', hasDropdown: true },
+    { id: 'delivery', path: '/delivery-personnel', icon: Truck, label: 'Delivery Personnel', hasDropdown: false },
     // { id: 'shop', icon: ShoppingBag, label: 'Shop', hasDropdown: true },
     // { id: 'income', icon: DollarSign, label: 'Income', hasDropdown: true },
     // { id: 'promote', icon: TrendingUp, label: 'Promote', hasDropdown: true },
@@ -68,10 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         
       <div className="p-6 border-b border-gray-50">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-xl">D</span>
-          </div>
-          <span className="text-2xl font-bold text-gray-900 tracking-tight">Duka</span>
+          <img src="/images/logo.png" alt="Lumo Electrical Logo" className="h-10 sm:h-12 w-auto ml-2" />
         </div>
       </div>
       

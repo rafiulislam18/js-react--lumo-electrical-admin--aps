@@ -1,4 +1,5 @@
 import React from 'react';
+import { DollarSign } from 'lucide-react';
 
 const Chart: React.FC = () => {
   const data = [
@@ -21,9 +22,14 @@ const Chart: React.FC = () => {
   return (
     <div className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 lg:mb-8 gap-4">
-        <h3 className="text-xl lg:text-2xl font-bold text-gray-900">Total Income</h3>
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-green-100 rounded-lg">
+            <DollarSign size={20} className="text-green-600" />
+          </div>
+          <h3 className="text-xl lg:text-2xl font-bold text-gray-900">Revenue Chart</h3>
+        </div>
         <select className="bg-gray-50 border border-gray-200 rounded-xl px-3 lg:px-4 py-2 lg:py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200">
-          <option>All Time</option>
+          <option>Last 12 months</option>
           <option>Last 30 days</option>
           <option>Last 7 days</option>
         </select>
@@ -31,7 +37,7 @@ const Chart: React.FC = () => {
       
       <div className="relative">
         {/* Y-axis labels */}
-        <div className="absolute left-0 top-0 h-40 sm:h-48 lg:h-56 flex flex-col justify-between text-xs text-gray-400 font-medium">
+        <div className="absolute left-0 top-0 h-48 lg:h-56 flex flex-col justify-between text-xs text-gray-400 font-medium">
           <span>400k</span>
           <span>300k</span>
           <span>200k</span>
