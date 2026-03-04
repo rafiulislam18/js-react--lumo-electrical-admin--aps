@@ -22,25 +22,7 @@ const Dashboard: React.FC = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6">
         {/* Left content area */}
-        <div className="md:col-span-2 space-y-4 md:space-y-6 order-1">
-          {/* New Orders Section */}
-          <NewOrders />
-
-          {/* Low Stock Alert */}
-          <LowStockAlert />
-
-          {/* New Questions */}
-          <NewQuestions />
-
-          {/* New Reviews */}
-          <NewReviews />
-
-          {/* Popular Products */}
-          <PopularProducts />
-        </div>
-
-        {/* Right content area - Charts */}
-        <div className="md:col-span-3 space-y-4 md:space-y-6 order-2 md:order-2">
+        <div className="md:col-span-3 space-y-4 md:space-y-6 order-2 md:order-1">
           {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-3">
             <RevenueStats />
@@ -59,6 +41,24 @@ const Dashboard: React.FC = () => {
 
           {/* Customer Order Breakdown */}
           <CustomerOrderChart />
+
+          {/* Popular Products */}
+          <PopularProducts />
+        </div>
+
+        {/* Right content area - Charts */}
+        <div className="md:col-span-2 space-y-4 md:space-y-6 order-2">
+          {/* New Orders Section */}
+          <NewOrders />
+
+          {/* Low Stock Alert */}
+          <LowStockAlert />
+
+          {/* New Questions */}
+          <NewQuestions />
+
+          {/* New Reviews */}
+          <NewReviews />
         </div>
       </div>
     </>

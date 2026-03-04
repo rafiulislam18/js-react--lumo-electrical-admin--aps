@@ -63,9 +63,9 @@ const LowStockAlert: React.FC = () => {
         })}
       </div>
 
-      <button className="w-full mt-4 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200">
+      {/* <button className="w-full mt-4 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200">
         Reorder Stock
-      </button>
+      </button> */}
     </div>
   );
 };
