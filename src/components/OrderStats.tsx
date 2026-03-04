@@ -8,20 +8,20 @@ const OrderStats: React.FC = () => {
   const isPositive = parseFloat(percentageChange) >= 0;
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-      <div className="flex items-center justify-between mb-3">
+    <div className="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+      <div className="flex items-center justify-between mb-2">
         <p className="text-xs text-gray-600 font-medium uppercase tracking-wide">Orders</p>
-        <div className="p-1.5 bg-blue-100 rounded-lg">
-          <ShoppingBag size={16} className="text-blue-600" />
+        <div className="p-1 bg-blue-100 rounded-lg">
+          <ShoppingBag size={14} className="text-blue-600" />
         </div>
       </div>
 
-      <div className="mb-3">
-        <p className="text-2xl font-bold text-gray-900">{ordersThisMonth.toLocaleString()}</p>
-        <p className="text-xs text-gray-500 mt-1">This Month</p>
+      <div className="mb-2">
+        <p className="text-lg font-bold text-gray-900">{ordersThisMonth.toLocaleString()}</p>
+        <p className="text-xs text-gray-500 mt-0.5">This Month</p>
       </div>
 
-      <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-semibold w-fit ${
+      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold w-fit ${
         isPositive 
           ? 'bg-emerald-100 text-emerald-700' 
           : 'bg-red-100 text-red-700'
