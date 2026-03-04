@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, Plus, Bell, Menu } from 'lucide-react';
+import NotificationPanel from './NotificationPanel';
 
 interface HeaderProps {
   onMenuClick: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
   return (
     <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-3 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 sticky top-0 z-10">
       <div className="flex items-center justify-between gap-2 sm:gap-4 lg:gap-0">
@@ -46,10 +49,16 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             <span className="hidden sm:inline text-xs sm:text-sm lg:text-base">Create Product</span>
           </button>
           
-          <button className="p-1.5 sm:p-2 lg:p-3 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg sm:rounded-xl transition-all duration-200 relative flex-shrink-0">
-            <Bell size={20} />
-            <span className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 sm:w-3 h-2 sm:h-3 bg-red-500 rounded-full"></span>
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+              className="p-1.5 sm:p-2 lg:p-3 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg sm:rounded-xl transition-all duration-200 relative flex-shrink-0"
+            >
+              <Bell size={20} />
+              <span className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 sm:w-3 h-2 sm:h-3 bg-red-500 rounded-full"></span>
+            </button>
+            <NotificationPanel isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
+          </div>
           
           <div className="w-7 sm:w-8 h-7 sm:h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-orange-400 to-pink-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg cursor-pointer hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex-shrink-0">
             <span className="text-white font-semibold text-xs sm:text-xs lg:text-sm">U</span>

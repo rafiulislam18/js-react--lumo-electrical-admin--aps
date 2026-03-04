@@ -94,7 +94,7 @@ const NewOrders: React.FC = () => {
                 onChange={(e) => handleAssign(order.id, e.target.value)}
                 className="flex-1 text-xs border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-300 transition-colors"
               >
-                <option value="" disabled>Select staff...</option>
+                <option value="" disabled>Select courier...</option>
                 {deliveryPersonnel.map(person => (
                   <option key={person.id} value={person.id}>
                     {person.name}

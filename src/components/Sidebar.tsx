@@ -23,15 +23,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
 
   const menuItems = [
-    { id: 'dashboard', path: '/', icon: Home, label: 'Dashboard', hasDropdown: false },
-    { id: 'orders', path: '/orders', icon: ShoppingBag, label: 'Orders', hasDropdown: true },
-    { id: 'products', path: '/products', icon: Package, label: 'Products', hasDropdown: true },
-    { id: 'categories', path: '/categories', icon: ListTree, label: 'Categories', hasDropdown: true },
-    { id: 'customers', path: '/customers', icon: Users, label: 'Customers', hasDropdown: true },
-    { id: 'delivery', path: '/delivery-personnel', icon: Truck, label: 'Delivery Personnel', hasDropdown: false },
-    // { id: 'shop', icon: ShoppingBag, label: 'Shop', hasDropdown: true },
-    // { id: 'income', icon: DollarSign, label: 'Income', hasDropdown: true },
-    // { id: 'promote', icon: TrendingUp, label: 'Promote', hasDropdown: true },
+    { id: 'dashboard', path: '/', icon: Home, label: 'Dashboard' },
+    { id: 'orders', path: '/orders', icon: ShoppingBag, label: 'Orders' },
+    { id: 'products', path: '/products', icon: Package, label: 'Products' },
+    { id: 'categories', path: '/categories', icon: ListTree, label: 'Categories' },
+    { id: 'customers', path: '/customers', icon: Users, label: 'Customers' },
+    { id: 'delivery', path: '/delivery-personnel', icon: Truck, label: 'Delivery Personnel' },
+    // { id: 'shop', icon: ShoppingBag, label: 'Shop' },
+    // { id: 'income', icon: DollarSign, label: 'Income' },
+    // { id: 'promote', icon: TrendingUp, label: 'Promote' },
   ];
 
   // Determine active item based on current location
@@ -95,11 +95,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 }`} />
                 <span className="font-medium text-sm">{item.label}</span>
               </div>
-              {item.hasDropdown && (
-                <ChevronDown size={16} className={`transition-colors ${
-                  activeItem === item.id ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-600'
-                }`} />
-              )}
             </div>
           );
         })}
