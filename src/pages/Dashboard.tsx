@@ -19,19 +19,29 @@ const Dashboard: React.FC = () => {
         <p className="text-sm sm:text-base text-gray-600 font-medium">Welcome back! Here's what's happening with your business today.</p>
       </div>
       
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6">
         {/* Left content area */}
-        <div className="xl:col-span-3 space-y-4 lg:space-y-6 order-1 xl:order-1">
+        <div className="md:col-span-2 space-y-4 md:space-y-6 order-1">
+          {/* New Orders Section */}
+          <NewOrders />
+
+          {/* Low Stock Alert */}
+          <LowStockAlert />
+
+          {/* Popular Products */}
+          <PopularProducts />
+
+          {/* Comments */}
+          <Comments />
+        </div>
+
+        {/* Right content area - Charts */}
+        <div className="md:col-span-3 space-y-4 md:space-y-6 order-2 md:order-2">
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-3">
             <RevenueStats />
             <OrderStats />
             <CustomerStats />
-          </div>
-
-          {/* New Orders Section */}
-          <div className="xl:hidden">
-            <NewOrders />
           </div>
 
           {/* Revenue Chart */}
@@ -45,16 +55,6 @@ const Dashboard: React.FC = () => {
 
           {/* Customer Order Breakdown */}
           <CustomerOrderChart />
-        </div>
-        
-        {/* Right sidebar */}
-        <div className="space-y-4 lg:space-y-6 order-2 xl:order-2">
-          <div className="hidden xl:block">
-            <NewOrders />
-          </div>
-          <LowStockAlert />
-          <PopularProducts />
-          <Comments />
         </div>
       </div>
     </>
