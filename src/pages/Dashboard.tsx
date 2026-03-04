@@ -1,7 +1,8 @@
 import React from 'react';
 import Chart from '../components/Chart';
 import PopularProducts from '../components/PopularProducts';
-import Comments from '../components/Comments';
+import NewQuestions from '../components/NewQuestions';
+import NewReviews from '../components/NewReviews';
 import RevenueStats from '../components/RevenueStats';
 import OrderStats from '../components/OrderStats';
 import CustomerStats from '../components/CustomerStats';
@@ -28,11 +29,14 @@ const Dashboard: React.FC = () => {
           {/* Low Stock Alert */}
           <LowStockAlert />
 
+          {/* New Questions */}
+          <NewQuestions />
+
+          {/* New Reviews */}
+          <NewReviews />
+
           {/* Popular Products */}
           <PopularProducts />
-
-          {/* Comments */}
-          <Comments />
         </div>
 
         {/* Right content area - Charts */}
