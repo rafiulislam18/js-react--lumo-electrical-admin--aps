@@ -21,7 +21,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }
     { id: 'N001', type: 'success', title: 'Order Delivered', message: 'Order #ORD001 successfully delivered', timestamp: '2m ago', read: false, icon: '✓' },
     { id: 'N002', type: 'warning', title: 'Low Stock Alert', message: 'LED Bulb 60W stock running low', timestamp: '15m ago', read: false, icon: '⚠️' },
     { id: 'N003', type: 'info', title: 'New Review', message: 'Fatima Ali gave 5-star review', timestamp: '1h ago', read: false, icon: 'ℹ️' },
-    { id: 'N004', type: 'success', title: 'Payment Received', message: 'Payment of ৳12,500 processed', timestamp: '2h ago', read: true, icon: '✓' },
+    { id: 'N004', type: 'success', title: 'Payment Received', message: 'Payment of $100 processed', timestamp: '2h ago', read: true, icon: '✓' },
     { id: 'N005', type: 'warning', title: 'Delayed Delivery', message: 'Order #ORD003 delayed', timestamp: '3h ago', read: true, icon: '⚠️' },
   ]);
 

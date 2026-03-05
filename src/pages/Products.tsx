@@ -76,7 +76,7 @@ const Products: React.FC = () => {
             <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg">
               <div>
                 <p className="text-xs text-gray-600">Price</p>
-                <p className="font-bold text-gray-900">৳{product.price.toLocaleString()}</p>
+                <p className="font-bold text-gray-900">${product.price.toLocaleString()}</p>
               </div>
               <div className="text-right">
                 <p className="text-xs text-gray-600">Stock</p>

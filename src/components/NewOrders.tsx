@@ -79,7 +79,7 @@ const NewOrders: React.FC = () => {
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="font-bold text-sm text-gray-900">৳{order.total.toLocaleString()}</p>
+                <p className="font-bold text-sm text-gray-900">${order.total.toLocaleString()}</p>
               </div>
             </div>
 

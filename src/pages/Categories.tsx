@@ -44,7 +44,7 @@ const Categories: React.FC = () => {
         </div>
         <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
           <p className="text-xs text-orange-700 font-semibold mb-1">Total Revenue</p>
-          <p className="text-xl lg:text-2xl font-bold text-orange-900">৳16.2M</p>
+          <p className="text-xl lg:text-2xl font-bold text-orange-900">$16.2k</p>
         </div>
       </div>
 
@@ -92,7 +92,7 @@ const Categories: React.FC = () => {
                   <TrendingUp size={14} className="text-green-600" />
                   <p className="text-xs text-gray-600">Revenue</p>
                 </div>
-                <p className="font-bold text-lg text-gray-900">৳{(category.revenue / 100000).toFixed(1)}L</p>
+                <p className="font-bold text-lg text-gray-900">${(category.revenue / 1000).toFixed(1)}K</p>
               </div>
             </div>
 

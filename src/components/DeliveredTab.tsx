@@ -55,7 +55,7 @@ const DeliveredTab: React.FC<DeliveredTabProps> = ({ orders }) => {
                 </div>
                 <div className="bg-gray-50 rounded p-2">
                   <p className="text-xs text-gray-600">Amount</p>
-                  <p className="text-sm font-bold text-gray-900">৳{(order.total / 1000).toFixed(0)}K</p>
+                  <p className="text-sm font-bold text-gray-900">${(order.total / 1000).toFixed(0)}K</p>
                 </div>
                 <div className="bg-gray-50 rounded p-2">
                   <p className="text-xs text-gray-600">Delivered</p>
