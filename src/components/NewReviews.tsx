@@ -1,68 +1,22 @@
 import React, { useState } from 'react';
-import { Star, Send } from 'lucide-react';
+import { Star, Send, Tag } from 'lucide-react';
 
 const NewReviews: React.FC = () => {
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
 
   const reviews = [
-    {
-      id: 1,
-      product: 'LED Bulb 60W',
-      review: 'Excellent quality and fast delivery. Highly recommend!',
-      rating: 5,
-      date: '3 hours ago'
-    },
-    {
-      id: 2,
-      product: 'Power Strip 6 Outlet',
-      review: 'Great products! Good customer service and quality.',
-      rating: 5,
-      date: '6 hours ago'
-    },
-    {
-      id: 3,
-      product: 'Electrical Wire 10 AWG',
-      review: 'Very good quality wire, exactly as described.',
-      rating: 4,
-      date: '10 hours ago'
-    },
-    {
-      id: 4,
-      product: 'Circuit Breaker 20A',
-      review: 'Professional grade equipment. Works perfectly.',
-      rating: 5,
-      date: '1 day ago'
-    },
-    {
-      id: 5,
-      product: 'LED Lighting Fixture',
-      review: 'Love the design and brightness. Best purchase!',
-      rating: 5,
-      date: '2 days ago'
-    },
-    {
-      id: 6,
-      product: 'Power Outlet 120V',
-      review: 'Safe and reliable. Perfect for my home setup.',
-      rating: 5,
-      date: '2 days ago'
-    },
-    {
-      id: 7,
-      product: 'Cable Management Kit',
-      review: 'Keeps my cables organized and neat.',
-      rating: 4,
-      date: '3 days ago'
-    },
-    {
-      id: 8,
-      product: 'Electrical Panel 200A',
-      review: 'Heavy duty and built to last. Excellent value.',
-      rating: 5,
-      date: '3 days ago'
-    }
+    { id: 1, product: 'LED Bulb 60W', review: 'Excellent quality and fast delivery. Highly recommend!', rating: 5, date: '3 hours ago' },
+    { id: 2, product: 'Power Strip 6 Outlet', review: 'Great products! Good customer service and quality.', rating: 5, date: '6 hours ago' },
+    { id: 3, product: 'Electrical Wire 10 AWG', review: 'Very good quality wire, exactly as described.', rating: 4, date: '10 hours ago' },
+    { id: 4, product: 'Circuit Breaker 20A', review: 'Professional grade equipment. Works perfectly.', rating: 5, date: '1 day ago' },
+    { id: 5, product: 'LED Lighting Fixture', review: 'Love the design and brightness. Best purchase!', rating: 5, date: '2 days ago' },
+    { id: 6, product: 'Power Outlet 120V', review: 'Safe and reliable. Perfect for my home setup.', rating: 5, date: '2 days ago' },
+    { id: 7, product: 'Cable Management Kit', review: 'Keeps my cables organized and neat.', rating: 4, date: '3 days ago' },
+    { id: 8, product: 'Electrical Panel 200A', review: 'Heavy duty and built to last. Excellent value.', rating: 5, date: '3 days ago' },
   ];
+
+  const avgRating = (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1);
 
   const handleReply = (id: number) => {
     if (replyingTo === id) {
@@ -83,80 +37,121 @@ const NewReviews: React.FC = () => {
   };
 
   const handleTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Allow Ctrl+Enter or Cmd+Enter to send
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       handleSendReply();
     }
-    // Regular Enter key creates a new line (default behavior)
   };
 
-  return (
-    <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 flex flex-col">
-      <div className="flex items-center gap-3 mb-4 sm:mb-6">
-        <div className="p-2.5 bg-yellow-100 rounded-lg">
-          <Star size={18} className="text-yellow-600" />
-        </div>
-        <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">New Reviews</h3>
-      </div>
-      
-      {/* Scrollable content */}
-      <div className="overflow-y-auto flex-1 min-h-96 max-h-96">
-        <div className="space-y-3 sm:space-y-4 pr-2">
-          {reviews.map((item) => (
-            <div key={item.id} className="border-b border-gray-100 pb-3 sm:pb-4 last:border-b-0">
-              <p className="text-xs sm:text-sm text-gray-700 leading-relaxed font-medium">
-                {item.review}
-              </p>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
-                <p className="text-xs text-yellow-600 font-semibold">
-                  Product: <span className="text-yellow-700">{item.product}</span>
-                </p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <div className="flex items-center gap-0.5">
-                    {[...Array(item.rating)].map((_, i) => (
-                      <Star key={i} size={12} className="fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-400 whitespace-nowrap">{item.date}</p>
-                  <button
-                    onClick={() => handleReply(item.id)}
-                    className="text-xs font-semibold text-yellow-600 hover:text-yellow-800 transition-colors"
-                  >
-                    Reply
-                  </button>
-                </div>
-              </div>
+  const getProductInitial = (product: string) => product.charAt(0).toUpperCase();
 
-              {/* Reply Box */}
-              {replyingTo === item.id && (
-                <div className="mt-3 pt-3 pl-1 border-t border-gray-100">
-                  <textarea
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    onKeyDown={handleTextareaKeyDown}
-                    placeholder="Type your reply here... (Ctrl+Enter to send)"
-                    className="w-full p-2 text-xs sm:text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                    rows={3}
-                  />
-                  <div className="flex gap-2 mt-2">
-                    <button
-                      onClick={handleSendReply}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-yellow-600 text-white text-xs font-semibold rounded-lg hover:bg-yellow-700 transition-colors"
-                    >
-                      <Send size={14} />
-                      Send
-                    </button>
-                    <button
-                      onClick={() => handleReply(item.id)}
-                      className="px-3 py-1.5 bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-300 transition-colors"
-                    >
-                      Cancel
-                    </button>
+  return (
+    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6">
+      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-yellow-50/70 blur-3xl" />
+
+      <div className="relative flex flex-col">
+        <div className="mb-5 flex items-center gap-3 sm:mb-6">
+          <div className="rounded-xl bg-gradient-to-br from-yellow-100 to-amber-100 p-2.5 shadow-sm ring-1 ring-yellow-200/50">
+            <Star size={18} className="text-yellow-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-base font-bold text-gray-900 sm:text-lg lg:text-xl">New Reviews</h3>
+            <p className="mt-0.5 flex items-center gap-1 text-xs font-medium text-gray-500">
+              <Star size={10} className="fill-yellow-400 text-yellow-400" />
+              <span className="font-bold text-gray-700">{avgRating}</span>
+              <span>average rating</span>
+            </p>
+          </div>
+          <span className="rounded-full bg-gradient-to-br from-yellow-500 to-amber-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
+            {reviews.length}
+          </span>
+        </div>
+
+        <div className="flex-1 overflow-y-auto pr-1" style={{ maxHeight: '24rem', minHeight: '24rem' }}>
+          <div className="space-y-3">
+            {reviews.map((item) => (
+              <div
+                key={item.id}
+                className="group/r rounded-xl border border-gray-100 bg-white p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-yellow-200 hover:shadow-md sm:p-4"
+              >
+                <div className="flex gap-3">
+                  {/* Avatar */}
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 text-sm font-bold text-white shadow-sm">
+                    {getProductInitial(item.product)}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1.5 flex items-center justify-between gap-2">
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        <Tag size={11} className="flex-shrink-0 text-yellow-600" />
+                        <p className="truncate text-xs font-bold text-yellow-700">{item.product}</p>
+                      </div>
+                      {/* Star rating */}
+                      <div className="flex flex-shrink-0 items-center gap-0.5 rounded-md bg-yellow-50 px-1.5 py-0.5 ring-1 ring-yellow-200">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            size={10}
+                            className={
+                              i < item.rating
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'fill-gray-200 text-gray-200'
+                            }
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs leading-relaxed text-gray-700 sm:text-sm">
+                      &ldquo;{item.review}&rdquo;
+                    </p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <p className="text-[0.65rem] font-medium text-gray-400">{item.date}</p>
+                      <button
+                        onClick={() => handleReply(item.id)}
+                        className={`rounded-md px-2.5 py-1 text-xs font-bold transition-all duration-200 ${
+                          replyingTo === item.id
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'text-yellow-600 hover:bg-yellow-50'
+                        }`}
+                      >
+                        {replyingTo === item.id ? 'Cancel' : 'Reply'}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              )}
-            </div>
-          ))}
+
+                {/* Reply Box */}
+                {replyingTo === item.id && (
+                  <div className="mt-3 border-t border-gray-100 pt-3">
+                    <textarea
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      onKeyDown={handleTextareaKeyDown}
+                      placeholder="Type your reply... (Ctrl+Enter to send)"
+                      className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50/50 p-2.5 text-xs transition-all focus:border-yellow-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400/30 sm:text-sm"
+                      rows={3}
+                      autoFocus
+                    />
+                    <div className="mt-2 flex justify-end gap-2">
+                      <button
+                        onClick={() => handleReply(item.id)}
+                        className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 transition-colors hover:bg-gray-100"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSendReply}
+                        disabled={!replyText.trim()}
+                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-yellow-500 to-amber-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                      >
+                        <Send size={13} />
+                        Send
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

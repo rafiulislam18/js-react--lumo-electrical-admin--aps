@@ -63,7 +63,7 @@ const Customers: React.FC = () => {
         </div>
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
           <p className="text-xs text-purple-700 font-semibold mb-1">Total Revenue</p>
-          <p className="text-xl lg:text-2xl font-bold text-purple-900">$8.2K</p>
+          <p className="text-xl lg:text-2xl font-bold text-purple-900">R8.2K</p>
         </div>
       </div>
 
@@ -119,7 +119,7 @@ const Customers: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-xs text-gray-600">Total Spent</p>
-                  <p className="font-bold text-gray-900">${(customer.totalSpent / 1000).toFixed(0)}K</p>
+                  <p className="font-bold text-gray-900">R{(customer.totalSpent / 1000).toFixed(0)}K</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-600">Last Order</p>

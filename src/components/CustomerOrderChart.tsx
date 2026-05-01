@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users } from 'lucide-react';
+import { Users, ShoppingCart, UserX } from 'lucide-react';
 
 const CustomerOrderChart: React.FC = () => {
   const totalCustomers = 10243;
@@ -9,104 +9,115 @@ const CustomerOrderChart: React.FC = () => {
   const withOrdersPercent = (customersWithOrders / totalCustomers) * 100;
   const withoutOrdersPercent = (customersWithoutOrders / totalCustomers) * 100;
 
-  // SVG circle parameters
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
   const withOrdersStrokeDashoffset = circumference - (withOrdersPercent / 100) * circumference;
 
   return (
-    <div className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="p-2.5 bg-purple-100 rounded-lg">
-          <Users size={20} className="text-purple-600" />
-        </div>
-        <h3 className="text-xl lg:text-2xl font-bold text-gray-900">Customers Breakdown</h3>
-      </div>
+    <div className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
+      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-purple-50/70 blur-3xl" />
 
-      <div className="flex flex-col sm:flex-row lg:flex-row items-center justify-center gap-10 sm:gap-20">
-        {/* Circular Chart */}
-        <div className="flex flex-col items-center">
-          <div className="relative w-48 h-48">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
-              {/* Background circle */}
-              <circle
-                cx="80"
-                cy="80"
-                r={radius}
-                fill="none"
-                stroke="#e5e7eb"
-                strokeWidth="16"
-              />
-              {/* Customers with orders segment */}
-              <circle
-                cx="80"
-                cy="80"
-                r={radius}
-                fill="none"
-                stroke="url(#gradientWith)"
-                strokeWidth="16"
-                strokeDasharray={circumference}
-                strokeDashoffset={withOrdersStrokeDashoffset}
-                strokeLinecap="round"
-                className="transition-all duration-500"
-              />
-              {/* Gradient definition */}
-              <defs>
-                <linearGradient id="gradientWith" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#10b981" />
-                  <stop offset="100%" stopColor="#059669" />
-                </linearGradient>
-              </defs>
-            </svg>
-            {/* Center content */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-3xl font-bold text-gray-900">{withOrdersPercent.toFixed(0)}%</p>
-              <p className="text-xs text-gray-500 mt-1">With Orders This Month</p>
-            </div>
+      <div className="relative">
+        <div className="mb-6 flex items-start gap-3">
+          <div className="rounded-xl bg-gradient-to-br from-purple-100 to-fuchsia-100 p-2.5 shadow-sm ring-1 ring-purple-200/50">
+            <Users size={20} className="text-purple-600" />
           </div>
-          <p className="text-center text-sm text-gray-600 mt-6">
-            Out of <span className="font-semibold">{totalCustomers.toLocaleString()}</span> total customers
-          </p>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 lg:text-xl">Customers Breakdown</h3>
+            <p className="mt-0.5 text-xs font-medium text-gray-500">Engagement split for this month</p>
+          </div>
         </div>
 
-        {/* Legend and Stats */}
-        <div className="pl-4 pb-4 sm:pl-0 sm:pb-0 space-y-6 w-full sm:w-auto">
-          {/* Customers with orders */}
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 mt-1">
-              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-emerald-500 to-green-600" />
+        <div className="flex flex-col items-center justify-center gap-8 sm:flex-row sm:gap-12 lg:gap-16">
+          {/* Circular Chart */}
+          <div className="flex flex-col items-center">
+            <div className="relative h-52 w-52">
+              {/* Soft glow */}
+              <div className="absolute inset-4 rounded-full bg-gradient-to-br from-emerald-200/40 to-green-200/40 blur-xl" />
+              <svg className="relative h-full w-full -rotate-90 transform" viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r={radius} fill="none" stroke="#f3f4f6" strokeWidth="16" />
+                <circle
+                  cx="80"
+                  cy="80"
+                  r={radius}
+                  fill="none"
+                  stroke="url(#gradientWith)"
+                  strokeWidth="16"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={withOrdersStrokeDashoffset}
+                  strokeLinecap="round"
+                  className="transition-all duration-700"
+                  style={{ filter: 'drop-shadow(0 2px 6px rgba(16, 185, 129, 0.35))' }}
+                />
+                <defs>
+                  <linearGradient id="gradientWith" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#34d399" />
+                    <stop offset="100%" stopColor="#059669" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <p className="bg-gradient-to-br from-emerald-600 to-green-700 bg-clip-text text-4xl font-extrabold text-transparent">
+                  {withOrdersPercent.toFixed(0)}%
+                </p>
+                <p className="mt-1 text-[0.65rem] font-semibold uppercase tracking-wider text-gray-500">
+                  With Orders
+                </p>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-gray-900">Placed Orders This Month</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {customersWithOrders.toLocaleString()}
-                <span className="text-sm font-normal text-gray-500"> Customers</span>
-              </p>
-              <p className="text-xs text-gray-500 mt-1">{withOrdersPercent.toFixed(1)}% of total</p>
-            </div>
-          </div>
-
-          {/* Customers without orders */}
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 mt-1">
-              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-gray-300 to-gray-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-gray-900">Not Ordered Yet</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {customersWithoutOrders.toLocaleString()}
-                <span className="text-sm font-normal text-gray-500"> Customers</span>
-              </p>
-              <p className="text-xs text-gray-500 mt-1">{withoutOrdersPercent.toFixed(1)}% of total</p>
-            </div>
-          </div>
-
-          {/* Additional insight */}
-          {/* <div className="bg-purple-50 rounded-lg p-4 border border-purple-100 mt-6">
-            <p className="text-xs text-purple-700">
-              <span className="font-semibold">{withOrdersPercent.toFixed(0)}%</span> of your customers have already engaged with your products
+            <p className="mt-5 text-center text-sm text-gray-600">
+              Out of <span className="font-bold text-gray-900">{totalCustomers.toLocaleString()}</span> total
             </p>
-          </div> */}
+          </div>
+
+          {/* Legend */}
+          <div className="w-full space-y-3 sm:w-auto sm:min-w-[220px]">
+            {/* Customers with orders */}
+            <div className="rounded-xl border-l-4 border-emerald-500 bg-gradient-to-br from-emerald-50 to-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
+              <div className="mb-2 flex items-center gap-2">
+                <div className="rounded-md bg-emerald-100 p-1">
+                  <ShoppingCart size={14} className="text-emerald-700" />
+                </div>
+                <p className="text-sm font-semibold text-gray-900">Placed Orders</p>
+              </div>
+              <p className="text-2xl font-extrabold text-gray-900">
+                {customersWithOrders.toLocaleString()}
+                <span className="ml-1 text-xs font-medium text-gray-500">customers</span>
+              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-green-600"
+                    style={{ width: `${withOrdersPercent}%` }}
+                  />
+                </div>
+                <p className="text-xs font-bold text-emerald-700">{withOrdersPercent.toFixed(1)}%</p>
+              </div>
+            </div>
+
+            {/* Customers without orders */}
+            <div className="rounded-xl border-l-4 border-gray-300 bg-gradient-to-br from-gray-50 to-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
+              <div className="mb-2 flex items-center gap-2">
+                <div className="rounded-md bg-gray-100 p-1">
+                  <UserX size={14} className="text-gray-600" />
+                </div>
+                <p className="text-sm font-semibold text-gray-900">Not Ordered Yet</p>
+              </div>
+              <p className="text-2xl font-extrabold text-gray-900">
+                {customersWithoutOrders.toLocaleString()}
+                <span className="ml-1 text-xs font-medium text-gray-500">customers</span>
+              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-gray-300 to-gray-400"
+                    style={{ width: `${withoutOrdersPercent}%` }}
+                  />
+                </div>
+                <p className="text-xs font-bold text-gray-600">{withoutOrdersPercent.toFixed(1)}%</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

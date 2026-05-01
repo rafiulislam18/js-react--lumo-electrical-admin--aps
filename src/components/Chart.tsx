@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, TrendingUp } from 'lucide-react';
 
 const Chart: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -34,7 +34,7 @@ const Chart: React.FC = () => {
       { month: 'Dec', value: 310 },
     ],
     '30days': Array.from({ length: 30 }, (_, i) => ({
-      month: `Day ${i + 1}`,
+      month: `${i + 1}`,
       value: Math.floor(Math.random() * 250 + 50)
     })),
     '7days': [
@@ -51,110 +51,136 @@ const Chart: React.FC = () => {
   const data = dataByRange[timeRange as keyof typeof dataByRange];
 
   const maxValue = Math.max(...data.map(d => d.value));
-  const chartHeight = isMobile ? 120 : isTablet ? 180 : 224;
-  
-  // Responsive label display for x-axis
+  const totalRevenue = data.reduce((sum, d) => sum + d.value, 0);
+  const avgRevenue = (totalRevenue / data.length).toFixed(0);
+  const chartHeight = isMobile ? 140 : isTablet ? 200 : 240;
+
   const getLabelInterval = () => {
     const dataLength = data.length;
-    if (window.innerWidth < 480) {
+    if (isMobile) {
       if (dataLength > 20) return 5;
       if (dataLength > 10) return 2;
       return 1;
     }
-    if (window.innerWidth < 640) return 1;
+    if (dataLength > 20) return 3;
     return 1;
   };
-  
-  const labelInterval = getLabelInterval();
-  const visibleLabels = data.map((item, idx) => idx % labelInterval === 0 || idx === data.length - 1 ? item.month : '');
 
-  // Responsive Y-axis font size
-  const yAxisFontSize = isMobile ? '0.6rem' : isTablet ? '0.75rem' : '0.875rem';
-  
-  // Responsive X-axis font size and spacing
-  const xAxisFontSize = isMobile ? '0.5rem' : isTablet ? '0.625rem' : '0.75rem';
-  const xAxisBottomOffset = isMobile ? '-1.75rem' : isTablet ? '-2.25rem' : '-2.75rem';
-  const xAxisPaddingBottom = isMobile ? '2.5rem' : isTablet ? '3.5rem' : '4rem';
+  const labelInterval = getLabelInterval();
 
   return (
-    <div className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 lg:mb-8 gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-green-100 rounded-lg">
-            <DollarSign size={20} className="text-green-600" />
-          </div>
-          <h3 className="text-xl lg:text-2xl font-bold text-gray-900">Revenue Chart</h3>
-        </div>
-        <select 
-          value={timeRange}
-          onChange={(e) => {
-            setTimeRange(e.target.value);
-            setHoveredBar(null);
-          }}
-          className="bg-gray-50 border border-gray-200 rounded-xl px-3 lg:px-4 py-2 lg:py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200"
-        >
-          <option value="12months">Last 12 months</option>
-          <option value="30days">Last 30 days</option>
-          <option value="7days">Last 7 days</option>
-        </select>
-      </div>
-      
+    <div className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
+      {/* Subtle decorative gradient */}
+      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-emerald-50/70 blur-3xl" />
+
       <div className="relative">
-        {/* Y-axis labels */}
-        <div className="absolute left-0 top-0 flex flex-col justify-between text-gray-400 font-medium" style={{ height: chartHeight, fontSize: yAxisFontSize }}>
-          <span>400k</span>
-          <span>300k</span>
-          <span>200k</span>
-          <span>100k</span>
-          <span>0k</span>
-        </div>
-        
-        {/* Chart area */}
-        <div className={`${isMobile ? 'ml-5 pl-1.5' : isTablet ? 'ml-8 pl-2.5' : 'ml-10 pl-3'}`}>
-          <div className="flex items-end justify-between gap-0.5 sm:gap-1.5 lg:gap-2 relative" style={{ height: chartHeight }}>
-            {data.map((item, index) => (
-              <div 
-                key={index} 
-                className="flex flex-col items-center flex-1 group relative"
-                onMouseEnter={() => setHoveredBar(index)}
-                onMouseLeave={() => setHoveredBar(null)}
-              >
-                <div 
-                  className="bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg w-full transition-all duration-500 hover:from-green-600 hover:to-green-500 cursor-pointer shadow-sm hover:shadow-md transform hover:scale-105"
-                  style={{ 
-                    height: `${(item.value / maxValue) * chartHeight}px`,
-                    minHeight: '3px'
-                  }}
-                />
-                {hoveredBar === index && (
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                    {item.month}: ${item.value}k
-                  </div>
-                )}
-              </div>
-            ))}
+        <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between lg:mb-7">
+          <div className="flex items-start gap-3">
+            <div className="rounded-xl bg-gradient-to-br from-emerald-100 to-green-100 p-2.5 shadow-sm ring-1 ring-emerald-200/50">
+              <DollarSign size={20} className="text-emerald-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 lg:text-xl">Revenue Chart</h3>
+              <p className="mt-0.5 text-xs font-medium text-gray-500">Track revenue performance over time</p>
+            </div>
           </div>
-          
-          {/* X-axis labels - rotated 90 degrees */}
-          <div className="flex justify-between relative" style={{ paddingBottom: xAxisPaddingBottom, minHeight: isMobile ? '70px' : isTablet ? '90px' : '110px' }}>
-            {data.map((item, index) => (
-              <div key={index} className="flex justify-center flex-1 relative">
-                {visibleLabels[index] && (
-                  <span 
-                    className="text-gray-400 font-medium origin-bottom-center absolute whitespace-nowrap"
-                    style={{ 
-                      fontSize: xAxisFontSize,
-                      transform: 'rotate(270deg)',
-                      bottom: xAxisBottomOffset,
-                      left: '0%',
-                      transformOrigin: 'center center'
-                    }}
-                  >
-                    {visibleLabels[index]}
-                  </span>
-                )}
+          <select
+            value={timeRange}
+            onChange={(e) => {
+              setTimeRange(e.target.value);
+              setHoveredBar(null);
+            }}
+            className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium transition-all duration-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 lg:px-4 lg:py-2.5"
+          >
+            <option value="12months">Last 12 months</option>
+            <option value="30days">Last 30 days</option>
+            <option value="7days">Last 7 days</option>
+          </select>
+        </div>
+
+        {/* Mini stats */}
+        <div className="mb-6 grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-3">
+            <p className="text-xs font-medium text-gray-600">Total</p>
+            <p className="mt-0.5 text-xl font-extrabold text-emerald-700">${totalRevenue.toLocaleString()}k</p>
+          </div>
+          <div className="rounded-xl border border-gray-100 bg-gradient-to-br from-gray-50 to-white p-3">
+            <p className="flex items-center gap-1 text-xs font-medium text-gray-600">
+              <TrendingUp size={12} className="text-emerald-600" />
+              Average
+            </p>
+            <p className="mt-0.5 text-xl font-extrabold text-gray-900">${avgRevenue}k</p>
+          </div>
+        </div>
+
+        <div className="relative">
+          {/* Y-axis labels */}
+          <div
+            className="absolute left-0 top-0 flex flex-col justify-between text-[0.65rem] font-semibold text-gray-400 sm:text-xs"
+            style={{ height: chartHeight }}
+          >
+            <span>{maxValue}k</span>
+            <span>{Math.round(maxValue * 0.75)}k</span>
+            <span>{Math.round(maxValue * 0.5)}k</span>
+            <span>{Math.round(maxValue * 0.25)}k</span>
+            <span>0</span>
+          </div>
+
+          {/* Chart area */}
+          <div className={`${isMobile ? 'ml-7' : isTablet ? 'ml-10' : 'ml-12'}`}>
+            {/* Gridlines + bars wrapper */}
+            <div className="relative" style={{ height: chartHeight }}>
+              {/* Horizontal gridlines */}
+              <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <div key={i} className="border-t border-dashed border-gray-100" />
+                ))}
               </div>
-            ))}
+
+              {/* Bars */}
+              <div className="relative flex h-full items-end justify-between gap-0.5 sm:gap-1.5 lg:gap-2">
+                {data.map((item, index) => (
+                  <div
+                    key={index}
+                    className="group/bar relative flex flex-1 flex-col items-center"
+                    onMouseEnter={() => setHoveredBar(index)}
+                    onMouseLeave={() => setHoveredBar(null)}
+                  >
+                    <div
+                      className={`w-full cursor-pointer rounded-t-lg bg-gradient-to-t from-emerald-500 via-emerald-400 to-green-300 shadow-sm transition-all duration-300 hover:shadow-emerald-300 hover:shadow-md ${
+                        hoveredBar === index ? 'from-emerald-600 via-emerald-500 to-green-400' : ''
+                      }`}
+                      style={{
+                        height: `${(item.value / maxValue) * chartHeight}px`,
+                        minHeight: '3px',
+                      }}
+                    />
+                    {hoveredBar === index && (
+                      <div className="absolute -top-12 left-1/2 z-20 -translate-x-1/2 transform whitespace-nowrap rounded-lg bg-gray-900 px-2.5 py-1.5 text-xs text-white shadow-lg">
+                        <p className="font-semibold">{item.month}</p>
+                        <p className="text-emerald-300">${item.value}k</p>
+                        <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* X-axis labels */}
+            <div className="mt-2 flex justify-between gap-0.5 sm:gap-1.5 lg:gap-2">
+              {data.map((item, index) => (
+                <div key={index} className="flex flex-1 justify-center">
+                  <span
+                    className={`text-[0.6rem] font-semibold sm:text-xs ${
+                      hoveredBar === index ? 'text-emerald-600' : 'text-gray-400'
+                    }`}
+                  >
+                    {index % labelInterval === 0 || index === data.length - 1 ? item.month : ''}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
