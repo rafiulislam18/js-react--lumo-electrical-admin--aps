@@ -1,20 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HelpCircle, Send, MessageSquare, Tag } from 'lucide-react';
 
+interface Question {
+  id: number;
+  product: string;
+  question: string;
+  asker_name: string;
+  date: string;
+  is_answered: boolean;
+}
+
 const NewQuestions: React.FC = () => {
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const questions = [
-    { id: 1, product: 'Electrical Panel 200A', question: 'What are the specifications and maximum capacity?', date: '2 hours ago' },
-    { id: 2, product: 'LED Lighting Fixture', question: 'Is there a warranty on the lighting fixtures?', date: '5 hours ago' },
-    { id: 3, product: 'Power Strip 6 Outlet', question: 'Can I use this with high-power appliances?', date: '8 hours ago' },
-    { id: 4, product: 'Circuit Breaker 20A', question: 'What is the installation process?', date: '12 hours ago' },
-    { id: 5, product: 'Electrical Wire 10 AWG', question: 'How many meters does one roll contain?', date: '1 day ago' },
-    { id: 6, product: 'LED Bulb 60W', question: 'What is the lifespan of these LED bulbs?', date: '1 day ago' },
-    { id: 7, product: 'Power Outlet 120V', question: 'Is this outlet compatible with all devices?', date: '2 days ago' },
-    { id: 8, product: 'Cable Management Kit', question: 'How much cable length can this kit manage?', date: '2 days ago' },
-  ];
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    fetchNewQuestions();
+  }, []);
+
+  const fetchNewQuestions = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/analytics/new-questions/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setQuestions(data.questions);
+      }
+    } catch (error) {
+      console.error('Failed to fetch new questions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleReply = (id: number) => {
     if (replyingTo === id) {
@@ -26,11 +52,31 @@ const NewQuestions: React.FC = () => {
     }
   };
 
-  const handleSendReply = () => {
-    if (replyText.trim()) {
-      console.log(`Reply sent for question ${replyingTo}:`, replyText);
-      setReplyText('');
-      setReplyingTo(null);
+  const handleSendReply = async () => {
+    if (replyText.trim() && replyingTo !== null) {
+      try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch(`${API_URL}/analytics/questions/${replyingTo}/answer/`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ answer: replyText.trim() }),
+        });
+
+        if (response.ok) {
+          setQuestions(prev =>
+            prev.map(q =>
+              q.id === replyingTo ? { ...q, is_answered: true } : q
+            )
+          );
+          setReplyText('');
+          setReplyingTo(null);
+        }
+      } catch (error) {
+        console.error('Failed to submit answer:', error);
+      }
     }
   };
 
@@ -83,17 +129,21 @@ const NewQuestions: React.FC = () => {
                       {item.question}
                     </p>
                     <div className="mt-2 flex items-center justify-between">
-                      <p className="text-[0.65rem] font-medium text-gray-400">{item.date}</p>
-                      <button
-                        onClick={() => handleReply(item.id)}
-                        className={`rounded-md px-2.5 py-1 text-xs font-bold transition-all duration-200 ${
-                          replyingTo === item.id
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'text-blue-600 hover:bg-blue-50'
-                        }`}
-                      >
-                        {replyingTo === item.id ? 'Cancel' : 'Reply'}
-                      </button>
+                      <p className="text-[0.65rem] font-medium text-gray-400">
+                        {item.is_answered ? '✓ Answered' : new Date(item.date).toLocaleDateString()}
+                      </p>
+                      {!item.is_answered && (
+                        <button
+                          onClick={() => handleReply(item.id)}
+                          className={`rounded-md px-2.5 py-1 text-xs font-bold transition-all duration-200 ${
+                            replyingTo === item.id
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'text-blue-600 hover:bg-blue-50'
+                          }`}
+                        >
+                          {replyingTo === item.id ? 'Cancel' : 'Reply'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

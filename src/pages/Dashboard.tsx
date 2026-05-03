@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'stats' | 'actions'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'actions'>('actions');
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -58,36 +58,25 @@ const Dashboard: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2.5">
             <div className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white/80 px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm backdrop-blur">
               <CalendarDays size={16} className="text-blue-600" />
-              <span className="hidden sm:inline">{today}</span>
-              <span className="sm:hidden">
+              <span className="">{today}</span>
+              {/* <span className="hidden">
                 {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-              </span>
+              </span> */}
             </div>
-            <button className="group inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/30">
+            {/* <button className="group inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/30">
               <TrendingUp size={16} />
               <span>View Reports</span>
               <ArrowUpRight
                 size={14}
                 className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
               />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
 
       {/* Tab Navigation - Only visible on small screens */}
       <div className="md:hidden mb-5 flex gap-2 rounded-xl border border-gray-100 bg-gray-100/80 p-1 shadow-inner backdrop-blur">
-        <button
-          onClick={() => setActiveTab('stats')}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
-            activeTab === 'stats'
-              ? 'bg-white text-blue-600 shadow-md'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          <BarChart3 size={16} />
-          <span>Stats & Charts</span>
-        </button>
         <button
           onClick={() => setActiveTab('actions')}
           className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
@@ -98,6 +87,17 @@ const Dashboard: React.FC = () => {
         >
           <Zap size={16} />
           <span>Take Actions</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('stats')}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
+            activeTab === 'stats'
+              ? 'bg-white text-blue-600 shadow-md'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <BarChart3 size={16} />
+          <span>Stats & Charts</span>
         </button>
       </div>
 

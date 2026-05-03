@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, Users } from 'lucide-react';
 
 const NewCustomersChart: React.FC = () => {
@@ -23,12 +23,15 @@ const NewCustomersChart: React.FC = () => {
 
   useEffect(() => {
     fetchNewCustomersChart();
-  }, []);
+  }, [timeRange]);
 
   const fetchNewCustomersChart = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/analytics/new-customers-chart/`, {
+      const period = timeRange === 'monthly' ? 'monthly' : timeRange;
+      const url = `${API_URL}/analytics/new-customers-chart/?period=${period}`;
+
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -37,7 +40,7 @@ const NewCustomersChart: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setChartData(data.data.map((item: any) => ({
-          label: item.month,
+          label: item.label || item.month,
           value: item.customers,
         })));
       }
@@ -46,39 +49,43 @@ const NewCustomersChart: React.FC = () => {
     }
   };
 
-  const dataByRange = useMemo(() => ({
-    monthly: chartData.length > 0 ? chartData : [
-      { label: 'Jan', value: 134 },
-      { label: 'Feb', value: 201 },
-      { label: 'Mar', value: 156 },
-      { label: 'Apr', value: 189 },
-      { label: 'May', value: 142 },
-      { label: 'Jun', value: 198 },
-      { label: 'Jul', value: 165 },
-      { label: 'Aug', value: 213 },
-      { label: 'Sep', value: 178 },
-      { label: 'Oct', value: 245 },
-      { label: 'Nov', value: 267 },
-      { label: 'Dec', value: 309 },
-    ],
-    '30days': Array.from({ length: 30 }, (_, i) => ({
-      label: `${i + 1}`,
-      value: Math.floor(Math.random() * 40 + 10)
-    })),
-    '7days': [
-      { label: 'Mon', value: 8 },
-      { label: 'Tue', value: 12 },
-      { label: 'Wed', value: 10 },
-      { label: 'Thu', value: 14 },
-      { label: 'Fri', value: 11 },
-      { label: 'Sat', value: 9 },
-      { label: 'Sun', value: 7 },
-    ],
-  }), []);
+  const data = chartData.length > 0 ? chartData : [];
 
-  const data = dataByRange[timeRange as keyof typeof dataByRange];
-  const maxValue = Math.max(...data.map(d => d.value));
-  const totalNewCustomers = data.reduce((sum, d) => sum + d.value, 0);
+  if (data.length === 0) {
+    return (
+      <div className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
+        <div className="relative">
+          <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between lg:mb-7">
+            <div className="flex items-start gap-3">
+              <div className="rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 p-2.5 shadow-sm ring-1 ring-purple-200/50">
+                <Users size={20} className="text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 lg:text-xl">New Customers Trend</h3>
+                <p className="mt-0.5 text-xs font-medium text-gray-500">Track new customer acquisition</p>
+              </div>
+            </div>
+            <select
+              value={timeRange}
+              onChange={(e) => {
+                setTimeRange(e.target.value);
+                setHoveredBar(null);
+              }}
+              className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium transition-all duration-200 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/30 lg:px-4 lg:py-2.5"
+            >
+              <option value="monthly">Last 12 months</option>
+              <option value="30days">Last 30 days</option>
+              <option value="7days">Last 7 days</option>
+            </select>
+          </div>
+          <div className="py-12 text-center text-gray-500">Loading chart data...</div>
+        </div>
+      </div>
+    );
+  }
+
+  const maxValue = Math.max(...data.map((d: any) => d.value));
+  const totalNewCustomers = data.reduce((sum: number, d: any) => sum + d.value, 0);
   const averagePerPeriod = (totalNewCustomers / data.length).toFixed(0);
   const chartHeight = isMobile ? 130 : isTablet ? 180 : 200;
 
@@ -162,7 +169,7 @@ const NewCustomersChart: React.FC = () => {
               </div>
 
               <div className="relative flex h-full items-end justify-between gap-0.5 sm:gap-1.5 lg:gap-2">
-                {data.map((item, index) => (
+                {data.map((item: any, index: number) => (
                   <div
                     key={index}
                     className="group/bar relative flex flex-1 flex-col items-center"
@@ -191,7 +198,7 @@ const NewCustomersChart: React.FC = () => {
             </div>
 
             <div className="mt-2 flex justify-between gap-0.5 sm:gap-1.5 lg:gap-2">
-              {data.map((item, index) => (
+              {data.map((item: any, index: number) => (
                 <div key={index} className="flex flex-1 justify-center">
                   <span
                     className={`text-[0.6rem] font-semibold sm:text-xs ${

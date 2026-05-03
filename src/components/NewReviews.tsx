@@ -1,22 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, Send, Tag } from 'lucide-react';
 
+interface Review {
+  id: number;
+  product: string;
+  comment: string;
+  rating: number;
+  reviewer_name: string;
+  date: string;
+}
+
 const NewReviews: React.FC = () => {
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [avgRating, setAvgRating] = useState<number>(0);
 
-  const reviews = [
-    { id: 1, product: 'LED Bulb 60W', review: 'Excellent quality and fast delivery. Highly recommend!', rating: 5, date: '3 hours ago' },
-    { id: 2, product: 'Power Strip 6 Outlet', review: 'Great products! Good customer service and quality.', rating: 5, date: '6 hours ago' },
-    { id: 3, product: 'Electrical Wire 10 AWG', review: 'Very good quality wire, exactly as described.', rating: 4, date: '10 hours ago' },
-    { id: 4, product: 'Circuit Breaker 20A', review: 'Professional grade equipment. Works perfectly.', rating: 5, date: '1 day ago' },
-    { id: 5, product: 'LED Lighting Fixture', review: 'Love the design and brightness. Best purchase!', rating: 5, date: '2 days ago' },
-    { id: 6, product: 'Power Outlet 120V', review: 'Safe and reliable. Perfect for my home setup.', rating: 5, date: '2 days ago' },
-    { id: 7, product: 'Cable Management Kit', review: 'Keeps my cables organized and neat.', rating: 4, date: '3 days ago' },
-    { id: 8, product: 'Electrical Panel 200A', review: 'Heavy duty and built to last. Excellent value.', rating: 5, date: '3 days ago' },
-  ];
+  const API_URL = import.meta.env.VITE_API_URL;
 
-  const avgRating = (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1);
+  useEffect(() => {
+    fetchNewReviews();
+  }, []);
+
+  const fetchNewReviews = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/analytics/new-reviews/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setReviews(data.reviews);
+        setAvgRating(data.avg_rating);
+      }
+    } catch (error) {
+      console.error('Failed to fetch new reviews:', error);
+    }
+  };
 
   const handleReply = (id: number) => {
     if (replyingTo === id) {
@@ -30,7 +53,6 @@ const NewReviews: React.FC = () => {
 
   const handleSendReply = () => {
     if (replyText.trim()) {
-      console.log(`Reply sent for review ${replyingTo}:`, replyText);
       setReplyText('');
       setReplyingTo(null);
     }
@@ -101,10 +123,10 @@ const NewReviews: React.FC = () => {
                       </div>
                     </div>
                     <p className="text-xs leading-relaxed text-gray-700 sm:text-sm">
-                      &ldquo;{item.review}&rdquo;
+                      &ldquo;{item.comment}&rdquo;
                     </p>
                     <div className="mt-2 flex items-center justify-between">
-                      <p className="text-[0.65rem] font-medium text-gray-400">{item.date}</p>
+                      <p className="text-[0.65rem] font-medium text-gray-400">{new Date(item.date).toLocaleDateString()}</p>
                       <button
                         onClick={() => handleReply(item.id)}
                         className={`rounded-md px-2.5 py-1 text-xs font-bold transition-all duration-200 ${

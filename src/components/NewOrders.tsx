@@ -4,10 +4,12 @@ import { Truck, Send, Clock, User, DollarSign } from 'lucide-react';
 interface Order {
   id: number;
   customer_name: string;
+  customer_email: string;
   order_date: string;
   total: string;
   status: string;
   items_count: number;
+  delivery_address: string;
 }
 
 interface DeliveryPersonnel {
@@ -19,18 +21,19 @@ interface DeliveryPersonnel {
 const NewOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [deliveryPersonnel, setDeliveryPersonnel] = useState<DeliveryPersonnel[]>([]);
+  const [assigning, setAssigning] = useState<number | null>(null);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetchNewOrders();
+    fetchUnassignedOrders();
     fetchDeliveryPersonnel();
   }, []);
 
-  const fetchNewOrders = async () => {
+  const fetchUnassignedOrders = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/analytics/new-orders-alerts/`, {
+      const response = await fetch(`${API_URL}/analytics/unassigned-paid-orders/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -41,7 +44,7 @@ const NewOrders: React.FC = () => {
         setOrders(data.orders);
       }
     } catch (error) {
-      console.error('Failed to fetch new orders:', error);
+      console.error('Failed to fetch unassigned orders:', error);
     }
   };
 
@@ -69,11 +72,40 @@ const NewOrders: React.FC = () => {
     setSelectedAssignments(prev => ({ ...prev, [orderId]: personnelId }));
   };
 
-  const handleConfirmAssignment = (orderId: number) => {
-    if (selectedAssignments[orderId]) {
-      const personnel = deliveryPersonnel.find(p => p.id === parseInt(selectedAssignments[orderId]));
+  const handleConfirmAssignment = async (orderId: number) => {
+    if (!selectedAssignments[orderId]) return;
+
+    setAssigning(orderId);
+    try {
+      const token = localStorage.getItem('access_token');
+      const personnelId = parseInt(selectedAssignments[orderId]);
+      const personnel = deliveryPersonnel.find(p => p.id === personnelId);
       const personName = personnel ? `${personnel.first_name} ${personnel.last_name}` : 'Unknown';
-      alert(`Order ${orderId} assigned to ${personName}`);
+
+      const response = await fetch(`${API_URL}/orders/${orderId}/assign-delivery-personnel/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ assigned_delivery_personnel: personnelId }),
+      });
+
+      if (response.ok) {
+        setOrders(prev => prev.filter(o => o.id !== orderId));
+        setSelectedAssignments(prev => {
+          const updated = { ...prev };
+          delete updated[orderId];
+          return updated;
+        });
+      } else {
+        alert(`Failed to assign order ${orderId} to ${personName}`);
+      }
+    } catch (error) {
+      console.error('Failed to assign delivery personnel:', error);
+      alert('Error assigning order');
+    } finally {
+      setAssigning(null);
     }
   };
 
@@ -138,7 +170,6 @@ const NewOrders: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex flex-shrink-0 items-center gap-1 rounded-lg bg-gray-50 px-2 py-1 ring-1 ring-gray-100">
-                    <DollarSign size={12} className="text-emerald-600" />
                     <p className="text-sm font-extrabold text-gray-900">R{parseFloat(order.total).toLocaleString()}</p>
                   </div>
                 </div>
@@ -161,11 +192,11 @@ const NewOrders: React.FC = () => {
                   </select>
                   <button
                     onClick={() => handleConfirmAssignment(order.id)}
-                    disabled={!selectedAssignments[order.id]}
+                    disabled={!selectedAssignments[order.id] || assigning === order.id}
                     className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 px-3 py-2 text-xs font-bold text-white shadow-sm transition-all hover:shadow-md hover:shadow-blue-300 disabled:cursor-not-allowed disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none"
                   >
                     <Send size={13} />
-                    <span className="hidden sm:inline">Assign</span>
+                    <span className="hidden sm:inline">{assigning === order.id ? 'Assigning...' : 'Assign'}</span>
                   </button>
                 </div>
               </div>

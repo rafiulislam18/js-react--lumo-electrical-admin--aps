@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 
+const formatCurrency = (value: number): string => {
+  if (value >= 1000000000) {
+    return (value / 1000000000).toFixed(1) + 'B';
+  } else if (value >= 1000000) {
+    return (value / 1000000).toFixed(1) + 'M';
+  } else if (value >= 1000) {
+    return (value / 1000).toFixed(1) + 'K';
+  } else {
+    return value.toFixed(0);
+  }
+};
+
 const RevenueStats: React.FC = () => {
   const [overallTotal, setOverallTotal] = useState(0);
   const [revenueThisMonth, setRevenueThisMonth] = useState(0);
@@ -56,7 +68,7 @@ const RevenueStats: React.FC = () => {
         <div className="mb-3 border-b border-dashed border-gray-200 pb-3">
           <p className="mb-0.5 text-xs font-medium text-gray-500">Total</p>
           <p className="bg-gradient-to-br from-gray-900 to-gray-700 bg-clip-text text-2xl font-extrabold text-transparent">
-            R{(overallTotal / 1000000).toFixed(1)}M
+            R{formatCurrency(overallTotal)}
           </p>
         </div>
 
@@ -64,11 +76,11 @@ const RevenueStats: React.FC = () => {
         <div className="mb-3 grid grid-cols-2 divide-x divide-gray-100 gap-3">
           <div>
             <p className="mb-1 text-xs font-medium text-gray-500">This Month</p>
-            <p className="text-sm font-bold text-gray-900">R{(revenueThisMonth / 1000000).toFixed(1)}M</p>
+            <p className="text-sm font-bold text-gray-900">R{formatCurrency(revenueThisMonth)}</p>
           </div>
           <div className="pl-3">
             <p className="mb-1 text-xs font-medium text-gray-500">Last Month</p>
-            <p className="text-sm font-bold text-gray-500">R{(revenueLastMonth / 1000000).toFixed(1)}M</p>
+            <p className="text-sm font-bold text-gray-500">R{formatCurrency(revenueLastMonth)}</p>
           </div>
         </div>
 

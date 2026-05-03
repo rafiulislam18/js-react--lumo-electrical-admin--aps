@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Users, ShoppingCart } from 'lucide-react';
 
+interface BreakdownItem {
+  type: string;
+  count: number;
+  percentage: number;
+}
+
 const CustomerOrderChart: React.FC = () => {
-  const [breakdownData, setBreakdownData] = useState<Array<{ type: string; orders: number; percentage: number }>>([]);
+  const [breakdownData, setBreakdownData] = useState<BreakdownItem[]>([]);
+  const [totalCustomers, setTotalCustomers] = useState(0);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -22,19 +29,19 @@ const CustomerOrderChart: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setBreakdownData(data.breakdown);
+        setTotalCustomers(data.total_customers || 0);
       }
     } catch (error) {
       console.error('Failed to fetch customer order breakdown:', error);
     }
   };
 
-  // Use API data if available, otherwise use defaults
-  const retailData = breakdownData.find(d => d.type === 'Retail') || { type: 'Retail', orders: 7892, percentage: 77 };
-  const tradeData = breakdownData.find(d => d.type === 'Trade') || { type: 'Trade', orders: 2351, percentage: 23 };
+  // Find the data for "Ordered This Month"
+  const orderedData = breakdownData.find(d => d.type === 'Ordered This Month') || { type: 'Ordered This Month', count: 0, percentage: 0 };
+  const notOrderedData = breakdownData.find(d => d.type.includes("Didn't Order")) || { type: "Didn't Order", count: 0, percentage: 0 };
 
-  const withOrdersPercent = retailData.percentage;
-  const withoutOrdersPercent = tradeData.percentage;
-  const totalOrders = retailData.orders + tradeData.orders;
+  const withOrdersPercent = orderedData.percentage;
+  const withoutOrdersPercent = notOrderedData.percentage;
 
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
@@ -93,23 +100,23 @@ const CustomerOrderChart: React.FC = () => {
               </div>
             </div>
             <p className="mt-5 text-center text-sm text-gray-600">
-              Out of <span className="font-bold text-gray-900">{totalOrders.toLocaleString()}</span> total orders
+              Out of <span className="font-bold text-gray-900">{totalCustomers.toLocaleString()}</span> total customers
             </p>
           </div>
 
           {/* Legend */}
           <div className="w-full space-y-3 sm:w-auto sm:min-w-[220px]">
-            {/* Retail Orders */}
+            {/* Ordered This Month */}
             <div className="rounded-xl border-l-4 border-emerald-500 bg-gradient-to-br from-emerald-50 to-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
               <div className="mb-2 flex items-center gap-2">
                 <div className="rounded-md bg-emerald-100 p-1">
                   <ShoppingCart size={14} className="text-emerald-700" />
                 </div>
-                <p className="text-sm font-semibold text-gray-900">Retail Orders</p>
+                <p className="text-sm font-semibold text-gray-900">Ordered This Month</p>
               </div>
               <p className="text-2xl font-extrabold text-gray-900">
-                {retailData.orders.toLocaleString()}
-                <span className="ml-1 text-xs font-medium text-gray-500">orders</span>
+                {orderedData.count.toLocaleString()}
+                <span className="ml-1 text-xs font-medium text-gray-500">customers</span>
               </p>
               <div className="mt-2 flex items-center gap-2">
                 <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
@@ -122,16 +129,16 @@ const CustomerOrderChart: React.FC = () => {
               </div>
             </div>
 
-            {/* Trade Orders */}
+            {/* Didn't Order */}
             <div className="rounded-xl border-l-4 border-blue-300 bg-gradient-to-br from-blue-50 to-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
               <div className="mb-2 flex items-center gap-2">
                 <div className="rounded-md bg-blue-100 p-1">
                   <ShoppingCart size={14} className="text-blue-600" />
                 </div>
-                <p className="text-sm font-semibold text-gray-900">Trade Orders</p>
+                <p className="text-sm font-semibold text-gray-900">Didn't Order</p>
               </div>
               <p className="text-2xl font-extrabold text-gray-900">
-                {tradeData.orders.toLocaleString()}
+                {notOrderedData.count.toLocaleString()}
                 <span className="ml-1 text-xs font-medium text-gray-500">customers</span>
               </p>
               <div className="mt-2 flex items-center gap-2">

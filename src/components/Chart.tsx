@@ -1,5 +1,17 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DollarSign, TrendingUp } from 'lucide-react';
+
+const formatNumber = (value: number): string => {
+  if (value >= 1000000000) {
+    return (value / 1000000000).toFixed(1) + 'B';
+  } else if (value >= 1000000) {
+    return (value / 1000000).toFixed(1) + 'M';
+  } else if (value >= 1000) {
+    return (value / 1000).toFixed(1) + 'K';
+  } else {
+    return value.toFixed(0);
+  }
+};
 
 const Chart: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -23,12 +35,15 @@ const Chart: React.FC = () => {
 
   useEffect(() => {
     fetchRevenueChart();
-  }, []);
+  }, [timeRange]);
 
   const fetchRevenueChart = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/analytics/revenue-chart/`, {
+      const period = timeRange === '12months' ? 'monthly' : timeRange;
+      const url = `${API_URL}/analytics/revenue-chart/?period=${period}`;
+
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -37,8 +52,8 @@ const Chart: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setChartData(data.data.map((item: any) => ({
-          month: item.month,
-          value: parseFloat(item.revenue) / 1000000, // Convert to millions
+          month: item.label || item.month,
+          value: parseFloat(item.revenue),
         })));
       }
     } catch (error) {
@@ -46,37 +61,40 @@ const Chart: React.FC = () => {
     }
   };
 
-  const dataByRange = useMemo(() => ({
-    '12months': chartData.length > 0 ? chartData : [
-      { month: 'Jan', value: 180 },
-      { month: 'Feb', value: 280 },
-      { month: 'Mar', value: 320 },
-      { month: 'Apr', value: 250 },
-      { month: 'May', value: 90 },
-      { month: 'Jun', value: 160 },
-      { month: 'Jul', value: 120 },
-      { month: 'Aug', value: 200 },
-      { month: 'Sep', value: 180 },
-      { month: 'Oct', value: 300 },
-      { month: 'Nov', value: 320 },
-      { month: 'Dec', value: 310 },
-    ],
-    '30days': Array.from({ length: 30 }, (_, i) => ({
-      month: `${i + 1}`,
-      value: Math.floor(Math.random() * 250 + 50)
-    })),
-    '7days': [
-      { month: 'Mon', value: 92 },
-      { month: 'Tue', value: 156 },
-      { month: 'Wed', value: 198 },
-      { month: 'Thu', value: 142 },
-      { month: 'Fri', value: 267 },
-      { month: 'Sat', value: 245 },
-      { month: 'Sun', value: 178 },
-    ]
-  }), [chartData]);
+  const data = chartData.length > 0 ? chartData : [];
 
-  const data = dataByRange[timeRange as keyof typeof dataByRange];
+  if (data.length === 0) {
+    return (
+      <div className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
+        <div className="relative">
+          <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between lg:mb-7">
+            <div className="flex items-start gap-3">
+              <div className="rounded-xl bg-gradient-to-br from-emerald-100 to-green-100 p-2.5 shadow-sm ring-1 ring-emerald-200/50">
+                <DollarSign size={20} className="text-emerald-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 lg:text-xl">Revenue Chart</h3>
+                <p className="mt-0.5 text-xs font-medium text-gray-500">Track revenue performance over time</p>
+              </div>
+            </div>
+            <select
+              value={timeRange}
+              onChange={(e) => {
+                setTimeRange(e.target.value);
+                setHoveredBar(null);
+              }}
+              className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium transition-all duration-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 lg:px-4 lg:py-2.5"
+            >
+              <option value="12months">Last 12 months</option>
+              <option value="30days">Last 30 days</option>
+              <option value="7days">Last 7 days</option>
+            </select>
+          </div>
+          <div className="py-12 text-center text-gray-500">Loading chart data...</div>
+        </div>
+      </div>
+    );
+  }
 
   const maxValue = Math.max(...data.map(d => d.value));
   const totalRevenue = data.reduce((sum, d) => sum + d.value, 0);
@@ -130,14 +148,14 @@ const Chart: React.FC = () => {
         <div className="mb-6 grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-3">
             <p className="text-xs font-medium text-gray-600">Total</p>
-            <p className="mt-0.5 text-xl font-extrabold text-emerald-700">${totalRevenue.toLocaleString()}k</p>
+            <p className="mt-0.5 text-xl font-extrabold text-emerald-700">${formatNumber(totalRevenue)}</p>
           </div>
           <div className="rounded-xl border border-gray-100 bg-gradient-to-br from-gray-50 to-white p-3">
             <p className="flex items-center gap-1 text-xs font-medium text-gray-600">
               <TrendingUp size={12} className="text-emerald-600" />
               Average
             </p>
-            <p className="mt-0.5 text-xl font-extrabold text-gray-900">${avgRevenue}k</p>
+            <p className="mt-0.5 text-xl font-extrabold text-gray-900">${formatNumber(parseFloat(avgRevenue))}</p>
           </div>
         </div>
 
@@ -147,11 +165,11 @@ const Chart: React.FC = () => {
             className="absolute left-0 top-0 flex flex-col justify-between text-[0.65rem] font-semibold text-gray-400 sm:text-xs"
             style={{ height: chartHeight }}
           >
-            <span>{maxValue}k</span>
-            <span>{Math.round(maxValue * 0.75)}k</span>
-            <span>{Math.round(maxValue * 0.5)}k</span>
-            <span>{Math.round(maxValue * 0.25)}k</span>
-            <span>0</span>
+            <span>${formatNumber(maxValue)}</span>
+            <span>${formatNumber(maxValue * 0.75)}</span>
+            <span>${formatNumber(maxValue * 0.5)}</span>
+            <span>${formatNumber(maxValue * 0.25)}</span>
+            <span>$0</span>
           </div>
 
           {/* Chart area */}
@@ -186,7 +204,7 @@ const Chart: React.FC = () => {
                     {hoveredBar === index && (
                       <div className="absolute -top-12 left-1/2 z-20 -translate-x-1/2 transform whitespace-nowrap rounded-lg bg-gray-900 px-2.5 py-1.5 text-xs text-white shadow-lg">
                         <p className="font-semibold">{item.month}</p>
-                        <p className="text-emerald-300">${item.value}k</p>
+                        <p className="text-emerald-300">${formatNumber(item.value)}</p>
                         <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
                       </div>
                     )}

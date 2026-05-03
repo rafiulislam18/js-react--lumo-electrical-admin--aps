@@ -46,6 +46,7 @@ const PopularProducts: React.FC = () => {
     'from-slate-300 via-slate-400 to-slate-500 shadow-slate-300/50',
     'from-orange-300 via-orange-400 to-amber-600 shadow-orange-300/50',
     'from-emerald-300 via-emerald-400 to-green-600 shadow-emerald-300/50',
+    'from-emerald-300 via-emerald-400 to-green-600 shadow-emerald-300/50',
   ];
 
   return (

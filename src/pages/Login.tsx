@@ -60,44 +60,60 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-      {/* Decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-96 h-96 bg-blue-600 rounded-full opacity-10 -top-20 -right-20"></div>
-        <div className="absolute w-96 h-96 bg-purple-600 rounded-full opacity-10 -bottom-32 -left-20"></div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900"></div>
+
+      {/* Decorative animated elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Top right blue orb */}
+        <div className="absolute w-96 h-96 bg-blue-500 rounded-full opacity-20 -top-48 -right-48 blur-3xl animate-pulse"></div>
+        {/* Bottom left indigo orb */}
+        <div className="absolute w-80 h-80 bg-indigo-500 rounded-full opacity-15 -bottom-40 -left-40 blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        {/* Center cyan accent */}
+        <div className="absolute w-72 h-72 bg-cyan-400 rounded-full opacity-10 top-1/3 right-1/3 blur-3xl"></div>
+
+        {/* Animated grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:50px_50px] opacity-50"></div>
+
+        {/* Floating shapes for depth */}
+        <div className="absolute top-20 left-20 w-2 h-2 bg-blue-400 rounded-full opacity-60"></div>
+        <div className="absolute top-1/4 right-1/3 w-1 h-1 bg-cyan-300 rounded-full opacity-50"></div>
+        <div className="absolute bottom-1/4 left-1/4 w-1.5 h-1.5 bg-indigo-400 rounded-full opacity-40"></div>
+        <div className="absolute top-1/2 right-20 w-1 h-1 bg-blue-300 rounded-full opacity-70"></div>
       </div>
 
       {/* Login Card */}
-      <div className="relative w-full max-w-md">
-        <div className="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-12 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-xl mb-4">
-              <svg
-                className="w-8 h-8 text-blue-600"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
-              </svg>
+      <div className="relative w-full max-w-md z-10">
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden backdrop-blur-xl">
+          {/* Header with gradient */}
+          <div className="relative bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-16 text-center overflow-hidden">
+            {/* Accent elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-5 rounded-full -ml-12 -mb-12"></div>
+
+            <div className="relative z-10">
+              <div className="inline-flex items-center justify-center h-20 mb-6 p-2">
+                <img src="/images/logo-light.png" alt="Lumo Electrical" className="h-16" />
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-3">Admin Dashboard</h1>
+              <p className="text-blue-100 font-medium">Lumo Electrical Management System</p>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Admin Panel</h1>
-            <p className="text-blue-200">Lumo Electrical</p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleLogin} className="px-8 py-8 space-y-6">
+          <form onSubmit={handleLogin} className="px-8 py-10 space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="flex items-center gap-3 p-4 bg-red-900 bg-opacity-20 border border-red-500 rounded-lg">
-                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                <p className="text-sm text-red-200">{error}</p>
+              <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl shadow-sm">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700 font-medium">{error}</p>
               </div>
             )}
 
             {/* Username Field */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+            <div className="space-y-2.5">
+              <label htmlFor="username" className="block text-sm font-semibold text-gray-700">
                 Username
               </label>
               <input
@@ -106,15 +122,15 @@ const Login: React.FC = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all"
+                className="w-full px-4 py-3.5 bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition-all duration-200 shadow-sm hover:bg-gray-100"
                 disabled={loading}
                 required
               />
             </div>
 
             {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+            <div className="space-y-2.5">
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
                 Password
               </label>
               <div className="relative">
@@ -124,14 +140,14 @@ const Login: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all"
+                  className="w-full px-4 py-3.5 bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition-all duration-200 shadow-sm hover:bg-gray-100"
                   disabled={loading}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-200 rounded-lg"
                   disabled={loading}
                 >
                   {showPassword ? (
@@ -147,31 +163,31 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading || !username || !password}
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl mt-8"
             >
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Logging in...
+                  <span>Logging in...</span>
                 </>
               ) : (
-                'Sign In'
+                <span>Sign In</span>
               )}
             </button>
           </form>
 
           {/* Footer */}
-          <div className="px-8 py-4 bg-gray-700 bg-opacity-50 border-t border-gray-700 text-center text-sm text-gray-400">
-            <p>Admin access only. Unauthorized access is prohibited.</p>
+          <div className="px-8 py-5 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200 text-center">
+            <p className="text-xs font-medium text-gray-600 tracking-wide">
+              🔒 Secure Admin Access • Authorized Users Only
+            </p>
           </div>
         </div>
 
-        {/* Info Box */}
-        <div className="mt-6 p-4 bg-blue-900 bg-opacity-30 border border-blue-700 rounded-lg">
-          <p className="text-sm text-blue-200 text-center">
-            Demo credentials available in development environment
-          </p>
-        </div>
+        {/* Optional: Subtle tip below card */}
+        {/* <div className="mt-6 text-center">
+          <p className="text-xs text-gray-500">Protected by JWT Authentication</p>
+        </div> */}
       </div>
     </div>
   );

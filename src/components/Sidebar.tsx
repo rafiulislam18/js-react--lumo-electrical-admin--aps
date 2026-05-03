@@ -133,13 +133,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       </nav>
       
       <div className="p-4 space-y-2 border-t border-gray-50">
-        <div className="flex items-center justify-between px-4 py-3.5 rounded-xl cursor-pointer text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 group">
+        {/* <div className="flex items-center justify-between px-4 py-3.5 rounded-xl cursor-pointer text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 group">
           <div className="flex items-center gap-3">
             <HelpCircle size={20} className="group-hover:text-gray-700 transition-colors" />
             <span className="font-medium text-sm">Help</span>
           </div>
           <span className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs px-2.5 py-1 rounded-full font-semibold shadow-sm">8</span>
-        </div>
+        </div> */}
         
         <button
           onClick={handleLogout}
