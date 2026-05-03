@@ -1,13 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { 
-  Home, 
-  Package, 
-  Users, 
-  ShoppingBag, 
+import {
+  Home,
+  Package,
+  Users,
+  ShoppingBag,
   Truck,
   ListTree,
-  HelpCircle, 
+  HelpCircle,
   LogOut,
   ChevronDown,
   X
@@ -21,6 +21,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const menuItems = [
     { id: 'dashboard', path: '/', icon: Home, label: 'Dashboard' },
@@ -42,7 +43,38 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   const handleNavigate = (path: string) => {
     navigate(path);
-    onClose(); // Close mobile menu when item is selected
+    onClose();
+  };
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      const API_URL = import.meta.env.VITE_API_URL;
+      const refresh_token = localStorage.getItem('refresh_token');
+
+      await fetch(`${API_URL}/users/admin/logout/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh: refresh_token }),
+      });
+
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+
+      navigate('/login');
+    } catch (err) {
+      console.error('Logout error:', err);
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      navigate('/login');
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -109,10 +141,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <span className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs px-2.5 py-1 rounded-full font-semibold shadow-sm">8</span>
         </div>
         
-        <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group">
+        <button
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           <LogOut size={20} className="group-hover:text-red-600 transition-colors" />
-          <span className="font-medium text-sm">Logout</span>
-        </div>
+          <span className="font-medium text-sm">{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
+        </button>
       </div>
       </div>
     </>

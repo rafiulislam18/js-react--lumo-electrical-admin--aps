@@ -1,152 +1,350 @@
-import React, { useState } from 'react';
-import { Truck, Star, Phone, MapPin, Plus, Edit2, Trash2, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Truck,
+  Phone,
+  Mail,
+  Plus,
+  Trash2,
+  AlertCircle,
+  Loader,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  User,
+} from 'lucide-react';
+import CreateDeliveryPersonnelModal from '../components/CreateDeliveryPersonnelModal';
 
-interface DeliveryPerson {
-  id: string;
-  name: string;
-  phone: string;
+interface DeliveryPersonnel {
+  id: number;
+  first_name: string;
+  last_name: string;
   email: string;
-  area: string;
-  avatar: string;
-  deliveriesCompleted: number;
-  successRate: number;
-  rating: number;
-  status: 'active' | 'inactive' | 'on-delivery';
-  joinDate: string;
+  phone: string;
+  created_at: string;
+  is_active: boolean;
 }
 
-const DeliveryPersonnel: React.FC = () => {
-  const [deliveryPersonnel] = useState<DeliveryPerson[]>([
-    { id: 'DP001', name: 'Raihan Ahmed', phone: '+880 1700 111111', email: 'raihan@delivery.com', area: 'Dhaka North', avatar: '👨‍💼', deliveriesCompleted: 324, successRate: 98.5, rating: 4.8, status: 'active', joinDate: '2022-03-15' },
-    { id: 'DP002', name: 'Karim Hassan', phone: '+880 1700 222222', email: 'karim@delivery.com', area: 'Dhaka South', avatar: '👨‍💼', deliveriesCompleted: 287, successRate: 96.2, rating: 4.6, status: 'on-delivery', joinDate: '2022-05-20' },
-    { id: 'DP003', name: 'Arif Khan', phone: '+880 1700 333333', email: 'arif@delivery.com', area: 'Chittagong', avatar: '👨‍💼', deliveriesCompleted: 145, successRate: 94.0, rating: 4.4, status: 'active', joinDate: '2023-01-10' },
-    { id: 'DP004', name: 'Nasir Ali', phone: '+880 1700 444444', email: 'nasir@delivery.com', area: 'Sylhet', avatar: '👨‍💼', deliveriesCompleted: 89, successRate: 91.2, rating: 4.2, status: 'inactive', joinDate: '2023-06-05' },
-    { id: 'DP005', name: 'Rony Islam', phone: '+880 1700 555555', email: 'rony@delivery.com', area: 'Khulna', avatar: '👨‍💼', deliveriesCompleted: 212, successRate: 97.3, rating: 4.7, status: 'active', joinDate: '2022-09-12' },
-    { id: 'DP006', name: 'Hasan Uddin', phone: '+880 1700 666666', email: 'hasan@delivery.com', area: 'Rajshahi', avatar: '👨‍💼', deliveriesCompleted: 156, successRate: 95.8, rating: 4.5, status: 'active', joinDate: '2023-02-28' },
-  ]);
+interface DeliveryPersonnelListResponse {
+  count: number;
+  page: number;
+  page_size: number;
+  results: DeliveryPersonnel[];
+}
 
-  const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'active': return 'bg-green-100 text-green-800 border border-green-300';
-      case 'on-delivery': return 'bg-blue-100 text-blue-800 border border-blue-300';
-      case 'inactive': return 'bg-gray-100 text-gray-800 border border-gray-300';
-      default: return 'bg-gray-100 text-gray-800';
+const DeliveryPersonnelPage: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [personnel, setPersonnel] = useState<DeliveryPersonnel[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch delivery personnel whenever page or search changes
+  useEffect(() => {
+    fetchPersonnel();
+  }, [currentPage, pageSize, debouncedSearch, refreshTrigger]);
+
+  const fetchPersonnel = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem('access_token');
+
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        page_size: pageSize.toString(),
+      });
+
+      if (debouncedSearch) {
+        params.append('search', debouncedSearch);
+      }
+
+      const response = await fetch(`${API_URL}/users/admin/delivery-personnel/?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          const refreshToken = localStorage.getItem('refresh_token');
+          if (refreshToken) {
+            const refreshResponse = await fetch(`${API_URL}/users/token/refresh/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ refresh: refreshToken }),
+            });
+
+            if (refreshResponse.ok) {
+              const refreshData = await refreshResponse.json();
+              localStorage.setItem('access_token', refreshData.access);
+              return fetchPersonnel();
+            }
+          }
+        }
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to fetch delivery personnel'}`);
+      }
+
+      const data: DeliveryPersonnelListResponse = await response.json();
+      setPersonnel(data.results || []);
+      setTotalCount(data.count || 0);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load delivery personnel';
+      setError(message);
+      console.error('Fetch error:', err);
+    } finally {
+      setLoading(false);
     }
+  }, [currentPage, pageSize, debouncedSearch, API_URL]);
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  const handlePersonnelCreated = () => {
+    setShowModal(false);
+    setRefreshTrigger(prev => prev + 1);
   };
 
-  const getRating = (rating: number) => {
-    return '⭐'.repeat(Math.floor(rating)) + (rating % 1 >= 0.5 ? '✨' : '');
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: '2-digit',
+    });
   };
+
+  const activeCount = personnel.filter(p => p.is_active).length;
+  const inactiveCount = personnel.filter(p => !p.is_active).length;
 
   return (
     <>
-      <div className="mb-6 lg:mb-10">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 tracking-tight">Delivery Personnel</h1>
-        <p className="text-sm sm:text-base text-gray-600 font-medium">Manage and track your delivery team.</p>
+      <div className="mb-6 lg:mb-8">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 tracking-tight">
+          Delivery Personnel
+        </h1>
+        <p className="text-sm sm:text-base text-gray-600 font-medium">
+          Manage your delivery team members.
+        </p>
       </div>
 
-      {/* Team Stats */}
+      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 lg:mb-8">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-          <p className="text-xs text-blue-700 font-semibold mb-1">Total Personnel</p>
-          <p className="text-xl lg:text-2xl font-bold text-blue-900">6</p>
+          <div className="flex items-center gap-1.5 mb-1">
+            <Truck size={14} className="text-blue-700" />
+            <p className="text-xs text-blue-700 font-semibold">Total Personnel</p>
+          </div>
+          <p className="text-xl lg:text-2xl font-bold text-blue-900">{totalCount}</p>
         </div>
         <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-          <p className="text-xs text-green-700 font-semibold mb-1">Active Now</p>
-          <p className="text-xl lg:text-2xl font-bold text-green-900">4</p>
+          <div className="flex items-center gap-1.5 mb-1">
+            <User size={14} className="text-green-700" />
+            <p className="text-xs text-green-700 font-semibold">Active</p>
+          </div>
+          <p className="text-xl lg:text-2xl font-bold text-green-900">{activeCount}</p>
         </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
-          <p className="text-xs text-yellow-700 font-semibold mb-1">On Delivery</p>
-          <p className="text-xl lg:text-2xl font-bold text-yellow-900">1</p>
+        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+          <div className="flex items-center gap-1.5 mb-1">
+            <AlertCircle size={14} className="text-orange-700" />
+            <p className="text-xs text-orange-700 font-semibold">Inactive</p>
+          </div>
+          <p className="text-xl lg:text-2xl font-bold text-orange-900">{inactiveCount}</p>
         </div>
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-          <p className="text-xs text-purple-700 font-semibold mb-1">Total Deliveries</p>
-          <p className="text-xl lg:text-2xl font-bold text-purple-900">1.2K</p>
+          <div className="flex items-center gap-1.5 mb-1">
+            <Phone size={14} className="text-purple-700" />
+            <p className="text-xs text-purple-700 font-semibold">Contact Methods</p>
+          </div>
+          <p className="text-xl lg:text-2xl font-bold text-purple-900">{totalCount}</p>
         </div>
       </div>
 
-      {/* Add Personnel Button */}
+      {/* Search and Add Button */}
       <div className="mb-6 lg:mb-8">
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors">
-          <Plus size={18} />
-          Add Personnel
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <input
+              type="text"
+              placeholder="Search by name, email, or phone..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-2.5 bg-white rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
+            />
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap"
+          >
+            <Plus size={18} />
+            Add Personnel
+          </button>
+        </div>
       </div>
 
-      {/* Personnel List */}
-      <div className="space-y-4">
-        {deliveryPersonnel.map(person => (
-          <div key={person.id} className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-all duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
-              <div className="flex items-start gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
-                  {person.avatar}
+      {/* Error State */}
+      {error && (
+        <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+          <p className="text-sm text-red-700">{error}</p>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader className="w-8 h-8 text-blue-600 animate-spin mb-3" />
+          <p className="text-gray-600">Loading delivery personnel...</p>
+        </div>
+      ) : personnel.length === 0 ? (
+        <div className="text-center py-12">
+          <Truck className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <p className="text-gray-600 text-lg">No delivery personnel found</p>
+          {debouncedSearch && <p className="text-gray-500 text-sm mt-2">Try adjusting your search</p>}
+        </div>
+      ) : (
+        <>
+          {/* Personnel List */}
+          <div className="space-y-3 mb-8">
+            {personnel.map((person) => (
+              <div key={person.id} className="bg-white rounded-lg border border-gray-100 overflow-hidden hover:shadow-md transition-all">
+                <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+                  {/* Personnel Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start gap-2 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900">
+                          {person.first_name} {person.last_name}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">ID: {person.id}</p>
+                      </div>
+                      <span
+                        className={`text-xs font-bold px-2.5 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 ${
+                          person.is_active
+                            ? 'bg-green-100 text-green-700 border border-green-300'
+                            : 'bg-gray-100 text-gray-700 border border-gray-300'
+                        }`}
+                      >
+                        {person.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1 text-xs text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Mail size={12} className="text-blue-600" />
+                        {person.email}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Phone size={12} className="text-blue-600" />
+                        {person.phone}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Join Date and Actions (hidden on mobile) */}
+                  <div className="hidden sm:flex flex-col items-end gap-2">
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500 mb-0.5">Joined</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {formatDate(person.created_at)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Delete Button */}
+                  <button className="px-3 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                    <Trash2 size={16} />
+                  </button>
                 </div>
-                <div>
-                  <h3 className="font-bold text-lg text-gray-900">{person.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">{person.id}</p>
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <MapPin size={14} className="text-blue-600" />
-                      {person.area}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Phone size={14} className="text-blue-600" />
-                      {person.phone}
-                    </div>
+
+                {/* Mobile Details */}
+                <div className="sm:hidden px-4 pb-3 flex gap-4 text-xs border-t border-gray-50">
+                  <div>
+                    <p className="text-gray-500 mb-1">Joined</p>
+                    <p className="font-bold text-gray-900">{formatDate(person.created_at)}</p>
                   </div>
                 </div>
               </div>
-              <span className={`text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap ${getStatusColor(person.status)}`}>
-                {person.status}
-              </span>
-            </div>
-
-            {/* Performance Metrics */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 p-4 bg-gray-50 rounded-lg">
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Deliveries</p>
-                <p className="font-bold text-lg text-gray-900">{person.deliveriesCompleted}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Success Rate</p>
-                <p className="font-bold text-lg text-green-600">{person.successRate}%</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Rating</p>
-                <p className="font-bold text-lg text-yellow-600">{person.rating}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Joined</p>
-                <p className="font-bold text-lg text-gray-900">{new Date(person.joinDate).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}</p>
-              </div>
-            </div>
-
-            {/* Rating Stars */}
-            <div className="flex items-center justify-between mb-4 p-3 bg-yellow-50 rounded-lg">
-              <div className="text-sm text-yellow-700 font-semibold">Customer Rating</div>
-              <div className="text-lg">{getRating(person.rating)}</div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2">
-              <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium text-sm">
-                <Truck size={16} />
-                Assign
-              </button>
-              <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors font-medium text-sm">
-                <TrendingUp size={16} />
-                Performance
-              </button>
-              <button className="flex items-center justify-center px-4 py-2.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
-                <Trash2 size={16} />
-              </button>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
+
+          {/* Pagination Info and Controls */}
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-gray-600">
+              Showing <span className="font-semibold">{(currentPage - 1) * pageSize + 1}</span> to{' '}
+              <span className="font-semibold">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
+              <span className="font-semibold">{totalCount}</span> personnel
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Previous page"
+                >
+                  <ChevronLeft size={18} className="text-gray-600" />
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`min-w-10 h-10 rounded-lg font-medium transition-all ${
+                        currentPage === page
+                          ? 'bg-blue-600 text-white'
+                          : 'border border-gray-200 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Next page"
+                >
+                  <ChevronRight size={18} className="text-gray-600" />
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Create Modal */}
+      {showModal && (
+        <CreateDeliveryPersonnelModal
+          onClose={() => setShowModal(false)}
+          onSuccess={handlePersonnelCreated}
+        />
+      )}
     </>
   );
 };
 
-export default DeliveryPersonnel;
+export default DeliveryPersonnelPage;

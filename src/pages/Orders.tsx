@@ -1,137 +1,386 @@
-import React, { useState } from 'react';
-import { Search, Package, Truck, CheckCircle2 } from 'lucide-react';
-import NewOrdersTab from '../components/NewOrdersTab';
-import OutForDeliveryTab from '../components/OutForDeliveryTab';
-import DeliveredTab from '../components/DeliveredTab';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Search,
+  Truck,
+  CheckCircle2,
+  ShoppingBag,
+  DollarSign,
+  Clock,
+  AlertCircle,
+  Loader,
+  ChevronLeft,
+  ChevronRight,
+  Package,
+} from 'lucide-react';
 
-interface Order {
-  id: string;
-  customerName: string;
-  customerEmail: string;
-  orderDate: string;
-  total: number;
-  status: 'pending' | 'confirmed' | 'shipped' | 'delivered';
-  items: number;
-  deliveryAddress: string;
-  estimatedDelivery?: string;
+export interface AdminOrder {
+  id: number;
+  ordered_by?: number;
+  created_at: string;
+  total: string;
+  paid: boolean;
+  items_count: number;
+  status: 'order_placed' | 'out_for_delivery' | 'delivered';
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  delivery_address: string;
+  delivery_city: string;
+  delivery_province: string;
+  delivery_postal_code: string;
+  comment?: string;
+  subtotal: string;
+  tax: string;
+  shipping: string;
+  updated_at: string;
+  payfast_payment_id?: string;
 }
 
-type TabType = 'new' | 'out-for-delivery' | 'delivered';
+interface OrderListResponse {
+  count: number;
+  page: number;
+  page_size: number;
+  results: AdminOrder[];
+}
 
 const Orders: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('new');
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const orders: Order[] = [
-    { id: 'ORD001', customerName: 'Ahmed Khan', customerEmail: 'ahmed@email.com', orderDate: '2024-01-15', total: 12500, status: 'delivered', items: 3, deliveryAddress: 'Dhaka, Bangladesh', estimatedDelivery: '2024-01-18' },
-    { id: 'ORD002', customerName: 'Fatima Ali', customerEmail: 'fatima@email.com', orderDate: '2024-01-18', total: 8750, status: 'shipped', items: 2, deliveryAddress: 'Chittagong, Bangladesh', estimatedDelivery: '2024-01-22' },
-    { id: 'ORD003', customerName: 'Hassan Ahmed', customerEmail: 'hassan@email.com', orderDate: '2024-01-19', total: 15300, status: 'confirmed', items: 5, deliveryAddress: 'Sylhet, Bangladesh', estimatedDelivery: '2024-01-25' },
-    { id: 'ORD004', customerName: 'Amina Khan', customerEmail: 'amina@email.com', orderDate: '2024-01-20', total: 5600, status: 'pending', items: 1, deliveryAddress: 'Rajshahi, Bangladesh', estimatedDelivery: '2024-01-28' },
-    { id: 'ORD005', customerName: 'Ibrahim Hasan', customerEmail: 'ibrahim@email.com', orderDate: '2024-01-20', total: 21200, status: 'shipped', items: 6, deliveryAddress: 'Khulna, Bangladesh', estimatedDelivery: '2024-01-24' },
-    { id: 'ORD006', customerName: 'Zainab Begum', customerEmail: 'zainab@email.com', orderDate: '2024-01-21', total: 9800, status: 'delivered', items: 3, deliveryAddress: 'Gazipur, Bangladesh', estimatedDelivery: '2024-01-23' },
-  ];
+  const API_URL = import.meta.env.VITE_API_URL;
 
-  const getTabOrders = () => {
-    let filtered = orders;
-    
-    if (activeTab === 'new') {
-      filtered = orders.filter(o => o.status === 'pending' || o.status === 'confirmed');
-    } else if (activeTab === 'out-for-delivery') {
-      filtered = orders.filter(o => o.status === 'shipped');
-    } else if (activeTab === 'delivered') {
-      filtered = orders.filter(o => o.status === 'delivered');
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch orders whenever page or search changes
+  useEffect(() => {
+    fetchOrders();
+  }, [currentPage, pageSize, debouncedSearch]);
+
+  const fetchOrders = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem('access_token');
+
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        page_size: pageSize.toString(),
+      });
+
+      if (debouncedSearch) {
+        params.append('search', debouncedSearch);
+      }
+
+      const response = await fetch(`${API_URL}/orders/admin/list/?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          const refreshToken = localStorage.getItem('refresh_token');
+          if (refreshToken) {
+            const refreshResponse = await fetch(`${API_URL}/users/token/refresh/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ refresh: refreshToken }),
+            });
+
+            if (refreshResponse.ok) {
+              const refreshData = await refreshResponse.json();
+              localStorage.setItem('access_token', refreshData.access);
+              return fetchOrders();
+            }
+          }
+        }
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to fetch orders'}`);
+      }
+
+      const data: OrderListResponse = await response.json();
+      setOrders(data.results || []);
+      setTotalCount(data.count || 0);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load orders';
+      setError(message);
+      console.error('Fetch error:', err);
+    } finally {
+      setLoading(false);
     }
+  }, [currentPage, pageSize, debouncedSearch, API_URL]);
 
-    return filtered.filter(order =>
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customerName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'order_placed':
+        return 'bg-blue-100 text-blue-700 border border-blue-300';
+      case 'out_for_delivery':
+        return 'bg-orange-100 text-orange-700 border border-orange-300';
+      case 'delivered':
+        return 'bg-green-100 text-green-700 border border-green-300';
+      default:
+        return 'bg-gray-100 text-gray-700';
+    }
   };
 
-  const filteredOrders = getTabOrders();
-
-  const getTabStats = () => {
-    const newCount = orders.filter(o => o.status === 'pending' || o.status === 'confirmed').length;
-    const outForDeliveryCount = orders.filter(o => o.status === 'shipped').length;
-    const deliveredCount = orders.filter(o => o.status === 'delivered').length;
-    return { newCount, outForDeliveryCount, deliveredCount };
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'order_placed':
+        return <ShoppingBag size={16} />;
+      case 'out_for_delivery':
+        return <Truck size={16} />;
+      case 'delivered':
+        return <CheckCircle2 size={16} />;
+      default:
+        return <Clock size={16} />;
+    }
   };
 
-  const stats = getTabStats();
+  const formatStatus = (status: string) => {
+    switch (status) {
+      case 'order_placed':
+        return 'Order Placed';
+      case 'out_for_delivery':
+        return 'Out for Delivery';
+      case 'delivered':
+        return 'Delivered';
+      default:
+        return status;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   return (
     <>
-      <div className="mb-4 lg:mb-6">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 tracking-tight">Orders</h1>
-        <p className="text-sm text-gray-600 font-medium">Manage all orders in one place.</p>
+      <div className="mb-6 lg:mb-8">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 tracking-tight">
+          Orders
+        </h1>
+        <p className="text-sm sm:text-base text-gray-600 font-medium">
+          Manage and track customer orders.
+        </p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex flex-col sm:flex-row gap-1.5 mb-6">
-        <button
-          onClick={() => setActiveTab('new')}
-          className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center gap-1.5 justify-center sm:justify-start text-sm ${
-            activeTab === 'new'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-300 hover:text-blue-600'
-          }`}
-        >
-          <Package size={16} />
-          <span>New Orders</span>
-          <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeTab === 'new' ? 'bg-blue-400' : 'bg-gray-100 text-gray-700'}`}>
-            {stats.newCount}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('out-for-delivery')}
-          className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center gap-1.5 justify-center sm:justify-start text-sm ${
-            activeTab === 'out-for-delivery'
-              ? 'bg-purple-600 text-white shadow-md'
-              : 'bg-white text-gray-700 border border-gray-200 hover:border-purple-300 hover:text-purple-600'
-          }`}
-        >
-          <Truck size={16} />
-          <span>Our For Delivery</span>
-          <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeTab === 'out-for-delivery' ? 'bg-purple-400' : 'bg-gray-100 text-gray-700'}`}>
-            {stats.outForDeliveryCount}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('delivered')}
-          className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center gap-1.5 justify-center sm:justify-start text-sm ${
-            activeTab === 'delivered'
-              ? 'bg-green-600 text-white shadow-md'
-              : 'bg-white text-gray-700 border border-gray-200 hover:border-green-300 hover:text-green-600'
-          }`}
-        >
-          <CheckCircle2 size={16} />
-          <span>Delivered</span>
-          <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeTab === 'delivered' ? 'bg-green-400' : 'bg-gray-100 text-gray-700'}`}>
-            {stats.deliveredCount}
-          </span>
-        </button>
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 lg:mb-8">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+          <div className="flex items-center gap-1.5 mb-1">
+            <ShoppingBag size={14} className="text-blue-700" />
+            <p className="text-xs text-blue-700 font-semibold">Total Orders</p>
+          </div>
+          <p className="text-xl lg:text-2xl font-bold text-blue-900">{totalCount}</p>
+        </div>
+        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Clock size={14} className="text-orange-700" />
+            <p className="text-xs text-orange-700 font-semibold">Placed</p>
+          </div>
+          <p className="text-xl lg:text-2xl font-bold text-orange-900">
+            {orders.filter((o) => o.status === 'order_placed').length}
+          </p>
+        </div>
+        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Truck size={14} className="text-yellow-700" />
+            <p className="text-xs text-yellow-700 font-semibold">In Transit</p>
+          </div>
+          <p className="text-xl lg:text-2xl font-bold text-yellow-900">
+            {orders.filter((o) => o.status === 'out_for_delivery').length}
+          </p>
+        </div>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+          <div className="flex items-center gap-1.5 mb-1">
+            <CheckCircle2 size={14} className="text-green-700" />
+            <p className="text-xs text-green-700 font-semibold">Delivered</p>
+          </div>
+          <p className="text-xl lg:text-2xl font-bold text-green-900">
+            {orders.filter((o) => o.status === 'delivered').length}
+          </p>
+        </div>
       </div>
 
       {/* Search */}
-      <div className="mb-6">
+      <div className="mb-6 lg:mb-8">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <input
             type="text"
-            placeholder="Search orders..."
+            placeholder="Search by order ID, customer name, or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
+            className="w-full pl-12 pr-4 py-2.5 bg-white rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
           />
         </div>
       </div>
 
-      {/* Tab Content */}
-      {activeTab === 'new' && <NewOrdersTab orders={filteredOrders} />}
-      {activeTab === 'out-for-delivery' && <OutForDeliveryTab orders={filteredOrders} />}
-      {activeTab === 'delivered' && <DeliveredTab orders={filteredOrders} />}
+      {/* Error State */}
+      {error && (
+        <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+          <p className="text-sm text-red-700">{error}</p>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader className="w-8 h-8 text-blue-600 animate-spin mb-3" />
+          <p className="text-gray-600">Loading orders...</p>
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="text-center py-12">
+          <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <p className="text-gray-600 text-lg">No orders found</p>
+          {debouncedSearch && <p className="text-gray-500 text-sm mt-2">Try adjusting your search</p>}
+        </div>
+      ) : (
+        <>
+          {/* Orders Table */}
+          <div className="space-y-3 mb-8">
+            {orders.map((order) => (
+              <div key={order.id} className="bg-white rounded-lg border border-gray-100 overflow-hidden hover:shadow-md transition-all">
+                <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+                  {/* Order ID and Customer */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start gap-2 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900">Order #{order.id}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {order.first_name} {order.last_name}
+                        </p>
+                      </div>
+                      <span className={`text-xs font-bold px-2.5 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${getStatusColor(order.status)}`}>
+                        {getStatusIcon(order.status)}
+                        {formatStatus(order.status)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 truncate">{order.email}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{formatDate(order.created_at)}</p>
+                  </div>
+
+                  {/* Order Details (hidden on mobile) */}
+                  <div className="hidden sm:grid grid-cols-3 gap-4 flex-shrink-0 min-w-fit">
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500 mb-0.5">Items</p>
+                      <p className="text-sm font-bold text-gray-900">{order.items_count}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500 mb-0.5">Amount</p>
+                      <p className="text-sm font-bold text-gray-900">R{order.total}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500 mb-0.5">Payment</p>
+                      <p className={`text-sm font-bold ${order.paid ? 'text-green-600' : 'text-red-600'}`}>
+                        {order.paid ? 'Paid' : 'Pending'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* View Button */}
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm whitespace-nowrap">
+                    View Details
+                  </button>
+                </div>
+
+                {/* Mobile Details */}
+                <div className="sm:hidden px-4 pb-3 flex gap-4 text-xs border-t border-gray-50">
+                  <div>
+                    <p className="text-gray-500 mb-1">Items</p>
+                    <p className="font-bold text-gray-900">{order.items_count}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 mb-1">Amount</p>
+                    <p className="font-bold text-gray-900">R{order.total}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 mb-1">Payment</p>
+                    <p className={`font-bold ${order.paid ? 'text-green-600' : 'text-red-600'}`}>
+                      {order.paid ? 'Paid' : 'Pending'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination Info and Controls */}
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-gray-600">
+              Showing <span className="font-semibold">{(currentPage - 1) * pageSize + 1}</span> to{' '}
+              <span className="font-semibold">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
+              <span className="font-semibold">{totalCount}</span> orders
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Previous page"
+                >
+                  <ChevronLeft size={18} className="text-gray-600" />
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`min-w-10 h-10 rounded-lg font-medium transition-all ${
+                        currentPage === page
+                          ? 'bg-blue-600 text-white'
+                          : 'border border-gray-200 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Next page"
+                >
+                  <ChevronRight size={18} className="text-gray-600" />
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </>
   );
 };

@@ -1,13 +1,84 @@
-import React, { useState } from 'react';
-import { Search, Plus, Bell, Menu } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Plus, Bell, Menu, LogOut, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import NotificationPanel from './NotificationPanel';
 
 interface HeaderProps {
   onMenuClick: () => void;
 }
 
+interface User {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+  const navigate = useNavigate();
+  const profileRef = useRef<HTMLDivElement>(null);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    if (isProfileOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isProfileOpen]);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      const API_URL = import.meta.env.VITE_API_URL;
+      const refresh_token = localStorage.getItem('refresh_token');
+
+      await fetch(`${API_URL}/users/admin/logout/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh: refresh_token }),
+      });
+
+      // Clear tokens and user data
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+
+      // Redirect to login
+      navigate('/login');
+    } catch (err) {
+      console.error('Logout error:', err);
+      // Clear local storage anyway and redirect
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      navigate('/login');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-3 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 sticky top-0 z-10">
@@ -59,9 +130,53 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             </button>
             <NotificationPanel isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
           </div>
-          
-          <div className="w-7 sm:w-8 h-7 sm:h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-orange-400 to-pink-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg cursor-pointer hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex-shrink-0">
-            <span className="text-white font-semibold text-xs sm:text-xs lg:text-sm">U</span>
+
+          {/* User Profile Dropdown */}
+          <div className="relative" ref={profileRef}>
+            <button
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="w-7 sm:w-8 h-7 sm:h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-orange-400 to-pink-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex-shrink-0 hover:from-orange-500 hover:to-pink-600"
+            >
+              <span className="text-white font-semibold text-xs sm:text-xs lg:text-sm">
+                {user?.first_name?.[0]?.toUpperCase() || 'A'}
+              </span>
+            </button>
+
+            {/* Dropdown Menu */}
+            {isProfileOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden z-50">
+                {/* User Info */}
+                <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+                  <p className="text-sm font-semibold text-gray-900">
+                    {user?.first_name} {user?.last_name}
+                  </p>
+                  <p className="text-xs text-gray-600">{user?.email}</p>
+                </div>
+
+                {/* Menu Items */}
+                <div className="py-2">
+                  <button
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                    disabled={isLoggingOut}
+                  >
+                    <Settings size={16} className="text-gray-600" />
+                    Settings
+                  </button>
+                </div>
+
+                {/* Logout Button */}
+                <div className="border-t border-gray-100 p-2">
+                  <button
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  >
+                    <LogOut size={16} />
+                    {isLoggingOut ? 'Logging out...' : 'Logout'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
