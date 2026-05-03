@@ -6,6 +6,9 @@ const Chart: React.FC = () => {
   const [isTablet, setIsTablet] = useState(false);
   const [timeRange, setTimeRange] = useState('12months');
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
+  const [chartData, setChartData] = useState<Array<{ month: string; value: number }>>([]);
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const handleResize = () => {
@@ -18,8 +21,33 @@ const Chart: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    fetchRevenueChart();
+  }, []);
+
+  const fetchRevenueChart = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/analytics/revenue-chart/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setChartData(data.data.map((item: any) => ({
+          month: item.month,
+          value: parseFloat(item.revenue) / 1000000, // Convert to millions
+        })));
+      }
+    } catch (error) {
+      console.error('Failed to fetch revenue chart:', error);
+    }
+  };
+
   const dataByRange = useMemo(() => ({
-    '12months': [
+    '12months': chartData.length > 0 ? chartData : [
       { month: 'Jan', value: 180 },
       { month: 'Feb', value: 280 },
       { month: 'Mar', value: 320 },
@@ -46,7 +74,7 @@ const Chart: React.FC = () => {
       { month: 'Sat', value: 245 },
       { month: 'Sun', value: 178 },
     ]
-  }), []);
+  }), [chartData]);
 
   const data = dataByRange[timeRange as keyof typeof dataByRange];
 

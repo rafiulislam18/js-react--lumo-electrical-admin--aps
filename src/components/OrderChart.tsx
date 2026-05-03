@@ -6,6 +6,9 @@ const OrderChart: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
+  const [chartData, setChartData] = useState<Array<{ month: string; value: number }>>([]);
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const handleResize = () => {
@@ -18,8 +21,33 @@ const OrderChart: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    fetchOrderChart();
+  }, []);
+
+  const fetchOrderChart = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/analytics/orders-chart/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setChartData(data.data.map((item: any) => ({
+          month: item.month,
+          value: item.orders,
+        })));
+      }
+    } catch (error) {
+      console.error('Failed to fetch orders chart:', error);
+    }
+  };
+
   const dataByRange = useMemo(() => ({
-    '12months': [
+    '12months': chartData.length > 0 ? chartData : [
       { month: 'Jan', value: 892 },
       { month: 'Feb', value: 1145 },
       { month: 'Mar', value: 1289 },
@@ -46,7 +74,7 @@ const OrderChart: React.FC = () => {
       { month: 'Sat', value: 78 },
       { month: 'Sun', value: 42 },
     ],
-  }), []);
+  }), [chartData]);
 
   const data = dataByRange[timeRange as keyof typeof dataByRange];
   const maxValue = Math.max(...data.map(d => d.value));

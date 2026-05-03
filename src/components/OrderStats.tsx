@@ -1,11 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingBag, TrendingUp, TrendingDown } from 'lucide-react';
 
 const OrderStats: React.FC = () => {
-  const overallTotal = 28456;
-  const ordersThisMonth = 1234;
-  const ordersLastMonth = 1089;
-  const percentageChange = ((ordersThisMonth - ordersLastMonth) / ordersLastMonth * 100).toFixed(1);
+  const [overallTotal, setOverallTotal] = useState(0);
+  const [ordersThisMonth, setOrdersThisMonth] = useState(0);
+  const [ordersLastMonth, setOrdersLastMonth] = useState(0);
+
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    fetchOrderStats();
+  }, []);
+
+  const fetchOrderStats = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/analytics/dashboard/stats/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setOverallTotal(data.orders.total);
+        setOrdersThisMonth(data.orders.this_month);
+        setOrdersLastMonth(data.orders.last_month);
+      }
+    } catch (error) {
+      console.error('Failed to fetch order stats:', error);
+    }
+  };
+
+  const percentageChange = ordersLastMonth > 0
+    ? ((ordersThisMonth - ordersLastMonth) / ordersLastMonth * 100).toFixed(1)
+    : '0';
   const isPositive = parseFloat(percentageChange) >= 0;
 
   return (

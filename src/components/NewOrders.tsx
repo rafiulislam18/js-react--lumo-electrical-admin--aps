@@ -1,47 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Truck, Send, Clock, User, DollarSign } from 'lucide-react';
 
 interface Order {
-  id: string;
-  customerName: string;
-  orderDate: string;
-  total: number;
-  status: 'pending' | 'confirmed';
+  id: number;
+  customer_name: string;
+  order_date: string;
+  total: string;
+  status: string;
+  items_count: number;
 }
 
 interface DeliveryPersonnel {
-  id: string;
-  name: string;
+  id: number;
+  first_name: string;
+  last_name: string;
 }
 
 const NewOrders: React.FC = () => {
-  const [orders] = useState<Order[]>([
-    { id: 'ORD-001', customerName: 'John Smith', orderDate: '2026-03-04', total: 2500, status: 'pending' },
-    { id: 'ORD-002', customerName: 'Sarah Johnson', orderDate: '2026-03-04', total: 3200, status: 'pending' },
-    { id: 'ORD-003', customerName: 'Mike Davis', orderDate: '2026-03-03', total: 1800, status: 'confirmed' },
-    { id: 'ORD-004', customerName: 'Emily Brown', orderDate: '2026-03-02', total: 2100, status: 'pending' },
-  ]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [deliveryPersonnel, setDeliveryPersonnel] = useState<DeliveryPersonnel[]>([]);
 
-  const deliveryPersonnel: DeliveryPersonnel[] = [
-    { id: '1', name: 'Ahmed Hassan' },
-    { id: '2', name: 'Karim Khan' },
-    { id: '3', name: 'Fatima Ali' },
-    { id: '4', name: 'Hassan Ibrahim' },
-  ];
+  const API_URL = import.meta.env.VITE_API_URL;
 
-  const [selectedAssignments, setSelectedAssignments] = useState<Record<string, string>>({});
+  useEffect(() => {
+    fetchNewOrders();
+    fetchDeliveryPersonnel();
+  }, []);
 
-  const handleAssign = (orderId: string, personnelId: string) => {
-    setSelectedAssignments(prev => ({ ...prev, [orderId]: personnelId }));
-  };
+  const fetchNewOrders = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/analytics/new-orders-alerts/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
-  const handleConfirmAssignment = (orderId: string) => {
-    if (selectedAssignments[orderId]) {
-      alert(`Order ${orderId} assigned to ${deliveryPersonnel.find(p => p.id === selectedAssignments[orderId])?.name}`);
+      if (response.ok) {
+        const data = await response.json();
+        setOrders(data.orders);
+      }
+    } catch (error) {
+      console.error('Failed to fetch new orders:', error);
     }
   };
 
-  const pendingCount = orders.filter(o => o.status === 'pending').length;
+  const fetchDeliveryPersonnel = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/users/admin/delivery-personnel/?page_size=100`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setDeliveryPersonnel(data.results);
+      }
+    } catch (error) {
+      console.error('Failed to fetch delivery personnel:', error);
+    }
+  };
+
+  const [selectedAssignments, setSelectedAssignments] = useState<Record<number, string>>({});
+
+  const handleAssign = (orderId: number, personnelId: string) => {
+    setSelectedAssignments(prev => ({ ...prev, [orderId]: personnelId }));
+  };
+
+  const handleConfirmAssignment = (orderId: number) => {
+    if (selectedAssignments[orderId]) {
+      const personnel = deliveryPersonnel.find(p => p.id === parseInt(selectedAssignments[orderId]));
+      const personName = personnel ? `${personnel.first_name} ${personnel.last_name}` : 'Unknown';
+      alert(`Order ${orderId} assigned to ${personName}`);
+    }
+  };
+
+  const pendingCount = orders.filter(o => o.status === 'order_placed').length;
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase();
 
   return (
@@ -64,7 +100,7 @@ const NewOrders: React.FC = () => {
 
         <div className="flex-1 space-y-3 overflow-y-auto pr-1" style={{ maxHeight: '24rem' }}>
           {orders.map(order => {
-            const isPending = order.status === 'pending';
+            const isPending = order.status === 'order_placed';
             return (
               <div
                 key={order.id}
@@ -82,11 +118,11 @@ const NewOrders: React.FC = () => {
                         ? 'bg-gradient-to-br from-amber-400 to-orange-500'
                         : 'bg-gradient-to-br from-emerald-400 to-green-600'
                     }`}>
-                      {getInitials(order.customerName)}
+                      {getInitials(order.customer_name)}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-bold text-gray-900">{order.id}</p>
+                        <p className="text-sm font-bold text-gray-900">ORD-{order.id}</p>
                         <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider ring-1 ${
                           isPending
                             ? 'bg-amber-50 text-amber-700 ring-amber-200'
@@ -97,19 +133,19 @@ const NewOrders: React.FC = () => {
                       </div>
                       <div className="mt-0.5 flex items-center gap-1">
                         <User size={12} className="text-gray-400" />
-                        <p className="truncate text-xs text-gray-600">{order.customerName}</p>
+                        <p className="truncate text-xs text-gray-600">{order.customer_name}</p>
                       </div>
                     </div>
                   </div>
                   <div className="flex flex-shrink-0 items-center gap-1 rounded-lg bg-gray-50 px-2 py-1 ring-1 ring-gray-100">
                     <DollarSign size={12} className="text-emerald-600" />
-                    <p className="text-sm font-extrabold text-gray-900">{order.total.toLocaleString()}</p>
+                    <p className="text-sm font-extrabold text-gray-900">R{parseFloat(order.total).toLocaleString()}</p>
                   </div>
                 </div>
 
                 <div className="mb-3 flex items-center gap-1.5 text-xs text-gray-500">
                   <Clock size={12} className="flex-shrink-0" />
-                  <p className="font-medium">{order.orderDate}</p>
+                  <p className="font-medium">{new Date(order.order_date).toLocaleDateString()}</p>
                 </div>
 
                 <div className="flex items-stretch gap-2">
@@ -120,7 +156,7 @@ const NewOrders: React.FC = () => {
                   >
                     <option value="" disabled>Select courier...</option>
                     {deliveryPersonnel.map(person => (
-                      <option key={person.id} value={person.id}>{person.name}</option>
+                      <option key={person.id} value={person.id}>{person.first_name} {person.last_name}</option>
                     ))}
                   </select>
                   <button

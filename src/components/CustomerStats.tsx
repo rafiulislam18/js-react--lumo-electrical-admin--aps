@@ -1,11 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, TrendingUp, TrendingDown } from 'lucide-react';
 
 const CustomerStats: React.FC = () => {
-  const totalCustomers = 10243;
-  const newCustomersThisMonth = 154;
-  const newCustomersLastMonth = 128;
-  const percentageChange = ((newCustomersThisMonth - newCustomersLastMonth) / newCustomersLastMonth * 100).toFixed(1);
+  const [totalCustomers, setTotalCustomers] = useState(0);
+  const [newCustomersThisMonth, setNewCustomersThisMonth] = useState(0);
+  const [newCustomersLastMonth, setNewCustomersLastMonth] = useState(0);
+
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    fetchCustomerStats();
+  }, []);
+
+  const fetchCustomerStats = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/analytics/dashboard/stats/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTotalCustomers(data.customers.total);
+        setNewCustomersThisMonth(data.customers.this_month);
+        setNewCustomersLastMonth(data.customers.last_month);
+      }
+    } catch (error) {
+      console.error('Failed to fetch customer stats:', error);
+    }
+  };
+
+  const percentageChange = newCustomersLastMonth > 0
+    ? ((newCustomersThisMonth - newCustomersLastMonth) / newCustomersLastMonth * 100).toFixed(1)
+    : '0';
   const isPositive = parseFloat(percentageChange) >= 0;
 
   return (

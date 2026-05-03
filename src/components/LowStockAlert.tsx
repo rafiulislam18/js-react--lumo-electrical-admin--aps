@@ -1,23 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertTriangle, TrendingDown, Package } from 'lucide-react';
 
 interface LowStockItem {
-  id: string;
+  id: number;
   name: string;
-  currentStock: number;
-  minimumStock: number;
+  current_stock: number;
+  minimum_stock: number;
+  status: string;
 }
 
 const LowStockAlert: React.FC = () => {
-  const lowStockItems: LowStockItem[] = [
-    { id: '1', name: 'LED Bulb 60W', currentStock: 15, minimumStock: 50 },
-    { id: '2', name: 'Electrical Wire 2.5mm', currentStock: 8, minimumStock: 100 },
-    { id: '3', name: 'Circuit Breaker 32A', currentStock: 3, minimumStock: 20 },
-    { id: '4', name: 'Switch Socket Single', currentStock: 22, minimumStock: 50 },
-    { id: '5', name: 'Power Strip 6 Outlet', currentStock: 5, minimumStock: 30 },
-  ];
+  const [lowStockItems, setLowStockItems] = useState<LowStockItem[]>([]);
 
-  const getStockStatus = (current: number, minimum: number) => {
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    fetchLowStockAlerts();
+  }, []);
+
+  const fetchLowStockAlerts = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/analytics/low-stock-alerts/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setLowStockItems(data.products);
+      }
+    } catch (error) {
+      console.error('Failed to fetch low stock alerts:', error);
+    }
+  };
+
+  const getStockStatus = (current: number = 0, minimum: number = 50) => {
     const percentage = (current / minimum) * 100;
     if (percentage < 15)
       return {
@@ -54,17 +73,17 @@ const LowStockAlert: React.FC = () => {
   };
 
   const sortedItems = [...lowStockItems].sort((a, b) => {
-    const statusA = getStockStatus(a.currentStock, a.minimumStock);
-    const statusB = getStockStatus(b.currentStock, b.minimumStock);
+    const statusA = getStockStatus(a.current_stock, a.minimum_stock);
+    const statusB = getStockStatus(b.current_stock, b.minimum_stock);
     const statusOrder = { critical: 0, warning: 1, low: 2 };
     const statusDiff =
       statusOrder[statusA.level as keyof typeof statusOrder] -
       statusOrder[statusB.level as keyof typeof statusOrder];
     if (statusDiff !== 0) return statusDiff;
-    return (a.currentStock / a.minimumStock) * 100 - (b.currentStock / b.minimumStock) * 100;
+    return (a.current_stock / a.minimum_stock) * 100 - (b.current_stock / b.minimum_stock) * 100;
   });
 
-  const criticalCount = sortedItems.filter(item => (item.currentStock / item.minimumStock) * 100 < 15).length;
+  const criticalCount = sortedItems.filter(item => (item.current_stock / item.minimum_stock) * 100 < 15).length;
 
   return (
     <div className="relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6">
@@ -93,8 +112,8 @@ const LowStockAlert: React.FC = () => {
 
         <div className="flex-1 space-y-3 overflow-y-auto pr-1" style={{ maxHeight: '24rem' }}>
           {sortedItems.map(item => {
-            const stockPercentage = (item.currentStock / item.minimumStock) * 100;
-            const status = getStockStatus(item.currentStock, item.minimumStock);
+            const stockPercentage = (item.current_stock / item.minimum_stock) * 100;
+            const status = getStockStatus(item.current_stock, item.minimum_stock);
 
             return (
               <div
@@ -120,8 +139,8 @@ const LowStockAlert: React.FC = () => {
                     {status.label}
                   </span>
                   <p className="text-xs font-medium text-gray-600">
-                    <span className="font-bold text-gray-900">{item.currentStock}</span>
-                    <span className="text-gray-400"> / {item.minimumStock} units</span>
+                    <span className="font-bold text-gray-900">{item.current_stock}</span>
+                    <span className="text-gray-400"> / {item.minimum_stock} units</span>
                   </p>
                 </div>
 

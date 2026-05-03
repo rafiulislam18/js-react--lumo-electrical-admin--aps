@@ -1,11 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 
 const RevenueStats: React.FC = () => {
-  const overallTotal = 892534000;
-  const revenueThisMonth = 39403450;
-  const revenueLastMonth = 36520000;
-  const percentageChange = ((revenueThisMonth - revenueLastMonth) / revenueLastMonth * 100).toFixed(1);
+  const [overallTotal, setOverallTotal] = useState(0);
+  const [revenueThisMonth, setRevenueThisMonth] = useState(0);
+  const [revenueLastMonth, setRevenueLastMonth] = useState(0);
+
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    fetchRevenueStats();
+  }, []);
+
+  const fetchRevenueStats = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/analytics/dashboard/stats/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setOverallTotal(parseFloat(data.revenue.total));
+        setRevenueThisMonth(parseFloat(data.revenue.this_month));
+        setRevenueLastMonth(parseFloat(data.revenue.last_month));
+      }
+    } catch (error) {
+      console.error('Failed to fetch revenue stats:', error);
+    }
+  };
+
+  const percentageChange = revenueLastMonth > 0
+    ? ((revenueThisMonth - revenueLastMonth) / revenueLastMonth * 100).toFixed(1)
+    : '0';
   const isPositive = parseFloat(percentageChange) >= 0;
 
   return (

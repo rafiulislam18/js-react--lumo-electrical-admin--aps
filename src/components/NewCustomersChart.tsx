@@ -6,6 +6,9 @@ const NewCustomersChart: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
+  const [chartData, setChartData] = useState<Array<{ label: string; value: number }>>([]);
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const handleResize = () => {
@@ -18,8 +21,33 @@ const NewCustomersChart: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    fetchNewCustomersChart();
+  }, []);
+
+  const fetchNewCustomersChart = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/analytics/new-customers-chart/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setChartData(data.data.map((item: any) => ({
+          label: item.month,
+          value: item.customers,
+        })));
+      }
+    } catch (error) {
+      console.error('Failed to fetch new customers chart:', error);
+    }
+  };
+
   const dataByRange = useMemo(() => ({
-    monthly: [
+    monthly: chartData.length > 0 ? chartData : [
       { label: 'Jan', value: 134 },
       { label: 'Feb', value: 201 },
       { label: 'Mar', value: 156 },

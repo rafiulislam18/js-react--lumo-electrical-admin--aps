@@ -1,24 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, ShoppingCart, Crown, ArrowRight } from 'lucide-react';
 
 interface Product {
-  id: string;
+  id: number;
   name: string;
-  category: string;
-  totalSold: number;
-  totalRevenue: string;
-  emoji: string;
+  image: string;
+  price: string;
+  sold_count: number;
+  rating: number;
+  reviews: number;
 }
 
 const PopularProducts: React.FC = () => {
-  const products: Product[] = [
-    { id: '1', name: 'LED Bulb 60W', category: 'Lighting', totalSold: 1245, totalRevenue: 'R18,675', emoji: '💡' },
-    { id: '2', name: 'Power Strip 6 Outlet', category: 'Accessories', totalSold: 892, totalRevenue: 'R13,380', emoji: '🔌' },
-    { id: '3', name: 'Electrical Wire 10 AWG', category: 'Wire & Cable', totalSold: 756, totalRevenue: 'R11,340', emoji: '🔗' },
-    { id: '4', name: 'Circuit Breaker 20A', category: 'Safety', totalSold: 543, totalRevenue: 'R10,860', emoji: '⚡' },
-  ].sort((a, b) => b.totalSold - a.totalSold);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  const maxSold = products[0]?.totalSold || 1;
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    fetchPopularProducts();
+  }, []);
+
+  const fetchPopularProducts = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/analytics/popular-products/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data.products);
+      }
+    } catch (error) {
+      console.error('Failed to fetch popular products:', error);
+    }
+  };
+
+  // Use fetched data or fallback to empty
+  const maxSold = products[0]?.sold_count || 1;
 
   const rankStyles = [
     'from-amber-300 via-yellow-400 to-amber-500 shadow-amber-300/50',
@@ -45,7 +66,7 @@ const PopularProducts: React.FC = () => {
         <div className="space-y-2.5">
           {products.map((product, index) => {
             const isTop = index === 0;
-            const widthPct = (product.totalSold / maxSold) * 100;
+            const widthPct = (product.sold_count / maxSold) * 100;
 
             return (
               <div
@@ -79,9 +100,13 @@ const PopularProducts: React.FC = () => {
                       {index + 1}
                     </div>
 
-                    {/* Product Icon */}
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 text-base shadow-sm transition-all duration-200 group-hover/row:shadow-md sm:h-12 sm:w-12 sm:text-lg">
-                      {product.emoji}
+                    {/* Product Image */}
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden shadow-sm transition-all duration-200 group-hover/row:shadow-md sm:h-12 sm:w-12">
+                      {product.image ? (
+                        <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <ShoppingCart size={16} className="text-gray-600" />
+                      )}
                     </div>
 
                     {/* Product Info */}
@@ -93,7 +118,7 @@ const PopularProducts: React.FC = () => {
                       >
                         {product.name}
                       </p>
-                      <p className="text-xs font-medium text-gray-500">{product.category}</p>
+                      <p className="text-xs font-medium text-gray-500">R{product.price}</p>
                     </div>
                   </div>
 
@@ -102,7 +127,7 @@ const PopularProducts: React.FC = () => {
                     <div className="flex items-center gap-1.5">
                       <ShoppingCart size={13} className={isTop ? 'text-amber-600' : 'text-emerald-600'} />
                       <span className="text-xs font-extrabold text-gray-900 sm:text-sm">
-                        {product.totalSold.toLocaleString()}
+                        {product.sold_count.toLocaleString()}
                       </span>
                     </div>
                     <p
@@ -110,7 +135,7 @@ const PopularProducts: React.FC = () => {
                         isTop ? 'text-amber-700' : 'text-emerald-600'
                       }`}
                     >
-                      {product.totalRevenue}
+                      R{product.price}
                     </p>
                   </div>
                 </div>
