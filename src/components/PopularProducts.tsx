@@ -104,7 +104,7 @@ const PopularProducts: React.FC = () => {
                     {/* Product Image */}
                     <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden shadow-sm transition-all duration-200 group-hover/row:shadow-md sm:h-12 sm:w-12">
                       {product.image ? (
-                        <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+                        <img src={`${import.meta.env.VITE_BASE_URL}${product.image}`} alt={product.name} className="h-full w-full object-cover" />
                       ) : (
                         <ShoppingCart size={16} className="text-gray-600" />
                       )}
@@ -136,7 +136,7 @@ const PopularProducts: React.FC = () => {
                         isTop ? 'text-amber-700' : 'text-emerald-600'
                       }`}
                     >
-                      R{product.price}
+                      R{ (product.price * product.sold_count).toLocaleString() }
                     </p>
                   </div>
                 </div>
@@ -146,7 +146,9 @@ const PopularProducts: React.FC = () => {
         </div>
 
         <div className="mt-5 border-t border-gray-100 pt-4 sm:mt-6">
-          <button className="group/btn inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 transition-all duration-200 hover:text-emerald-700 sm:text-sm">
+          <button className="group/btn inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 transition-all duration-200 hover:text-emerald-700 sm:text-sm"
+            onClick={() => window.location.href = '/products'}
+          >
             View All Products
             <ArrowRight
               size={14}

@@ -114,13 +114,9 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           <button className="p-1.5 sm:p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg sm:rounded-xl transition-all duration-200 sm:hidden flex-shrink-0">
             <Search size={18} />
           </button>
-          
-          <button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-2 sm:px-3 lg:px-6 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl font-semibold flex items-center gap-1 lg:gap-2 transition-all duration-200 shadow-md sm:shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex-shrink-0">
-            <Plus size={18} />
-            <span className="hidden sm:inline text-xs sm:text-sm lg:text-base">Create Product</span>
-          </button>
-          
-          <div className="relative">
+
+          {/* TODO: Create Notification feature later */}
+          {/* <div className="relative">
             <button
               onClick={() => setIsNotificationOpen(!isNotificationOpen)}
               className="p-1.5 sm:p-2 lg:p-3 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg sm:rounded-xl transition-all duration-200 relative flex-shrink-0"
@@ -129,7 +125,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               <span className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 sm:w-3 h-2 sm:h-3 bg-red-500 rounded-full"></span>
             </button>
             <NotificationPanel isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
-          </div>
+          </div> */}
 
           {/* User Profile Dropdown */}
           <div className="relative" ref={profileRef}>

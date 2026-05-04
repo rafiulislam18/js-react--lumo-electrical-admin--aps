@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Package,
   Search,
@@ -45,6 +46,7 @@ interface ProductListResponse {
 }
 
 const Products: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
@@ -53,6 +55,8 @@ const Products: React.FC = () => {
   const [pageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -143,6 +147,34 @@ const Products: React.FC = () => {
     }
   };
 
+  const handleDeleteProduct = async () => {
+    if (!deleteConfirm) return;
+
+    try {
+      setDeleting(true);
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/products/${deleteConfirm.id}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete product');
+      }
+
+      setDeleteConfirm(null);
+      fetchProducts();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to delete product';
+      setError(message);
+      console.error('Delete error:', err);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <>
       <div className="mb-6 lg:mb-8">
@@ -208,7 +240,10 @@ const Products: React.FC = () => {
               className="w-full pl-12 pr-4 py-2.5 bg-white rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
             />
           </div>
-          <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap">
+          <button
+            onClick={() => navigate('/products/create')}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap"
+          >
             <Plus size={18} />
             Add Product
           </button>
@@ -314,10 +349,18 @@ const Products: React.FC = () => {
 
                   {/* Actions */}
                   <div className="flex gap-2 flex-shrink-0">
-                    <button className="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                    <button
+                      onClick={() => navigate(`/products/${product.id}/edit`)}
+                      className="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                      title="Edit product"
+                    >
                       <Edit2 size={16} />
                     </button>
-                    <button className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                    <button
+                      onClick={() => setDeleteConfirm({ id: product.id, name: product.name })}
+                      className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                      title="Delete product"
+                    >
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -391,6 +434,40 @@ const Products: React.FC = () => {
             )}
           </div>
         </>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6 shadow-lg">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Product</h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to delete <span className="font-semibold">{deleteConfirm.name}</span>? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteProduct}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <Loader size={16} className="animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
