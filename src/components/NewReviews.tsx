@@ -91,9 +91,9 @@ const NewReviews: React.FC = () => {
           <div className="flex-1">
             <h3 className="text-base font-bold text-gray-900 sm:text-lg lg:text-xl">New Reviews</h3>
             <p className="mt-0.5 flex items-center gap-1 text-xs font-medium text-gray-500">
-              <Star size={10} className="fill-yellow-400 text-yellow-400" />
-              <span className="font-bold text-gray-700">{avgRating}</span>
-              <span>average rating</span>
+              {/* <Star size={10} className="fill-yellow-400 text-yellow-400" /> */}
+              <span className="">{reviews.length}</span>
+              <span>unreplied</span>
             </p>
           </div>
           <span className="rounded-full bg-gradient-to-br from-yellow-500 to-amber-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
