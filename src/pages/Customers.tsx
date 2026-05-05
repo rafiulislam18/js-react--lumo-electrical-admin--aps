@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { authenticatedFetch } from '../lib/api';
 import { Search, Mail, Phone, MapPin, Building2, ChevronDown, AlertCircle, Loader, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CustomerProfile {
@@ -51,8 +52,6 @@ const Customers: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -72,7 +71,6 @@ const Customers: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem('access_token');
 
       const params = new URLSearchParams({
         page: currentPage.toString(),
@@ -83,32 +81,9 @@ const Customers: React.FC = () => {
         params.append('search', debouncedSearch);
       }
 
-      const response = await fetch(`${API_URL}/users/admin/customers/?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await authenticatedFetch(`/users/admin/customers/?${params}`);
 
       if (!response.ok) {
-        if (response.status === 401) {
-          const refreshToken = localStorage.getItem('refresh_token');
-          if (refreshToken) {
-            const refreshResponse = await fetch(`${API_URL}/users/token/refresh/`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ refresh: refreshToken }),
-            });
-
-            if (refreshResponse.ok) {
-              const refreshData = await refreshResponse.json();
-              localStorage.setItem('access_token', refreshData.access);
-              return fetchCustomers();
-            }
-          }
-        }
         const errorText = await response.text();
         throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to fetch customers'}`);
       }
@@ -123,7 +98,7 @@ const Customers: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearch, API_URL]);
+  }, [currentPage, pageSize, debouncedSearch]);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authenticatedFetch, apiDelete } from '../lib/api';
 import {
   Package,
   Search,
@@ -58,8 +59,6 @@ const Products: React.FC = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -79,7 +78,6 @@ const Products: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem('access_token');
 
       const params = new URLSearchParams({
         page: currentPage.toString(),
@@ -90,32 +88,9 @@ const Products: React.FC = () => {
         params.append('search', debouncedSearch);
       }
 
-      const response = await fetch(`${API_URL}/products/admin/list/?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await authenticatedFetch(`/products/admin/list/?${params}`);
 
       if (!response.ok) {
-        if (response.status === 401) {
-          const refreshToken = localStorage.getItem('refresh_token');
-          if (refreshToken) {
-            const refreshResponse = await fetch(`${API_URL}/users/token/refresh/`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ refresh: refreshToken }),
-            });
-
-            if (refreshResponse.ok) {
-              const refreshData = await refreshResponse.json();
-              localStorage.setItem('access_token', refreshData.access);
-              return fetchProducts();
-            }
-          }
-        }
         const errorText = await response.text();
         throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to fetch products'}`);
       }
@@ -130,7 +105,7 @@ const Products: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearch, API_URL]);
+  }, [currentPage, pageSize, debouncedSearch]);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -152,18 +127,7 @@ const Products: React.FC = () => {
 
     try {
       setDeleting(true);
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/products/${deleteConfirm.id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete product');
-      }
-
+      await apiDelete(`/products/${deleteConfirm.id}/`);
       setDeleteConfirm(null);
       fetchProducts();
     } catch (err) {

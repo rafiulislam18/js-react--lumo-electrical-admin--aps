@@ -14,7 +14,7 @@ const MainLayout: React.FC = () => {
       />
       
       <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
-        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <Header onMenuClick={() => setSidebarOpen(true)}/>
         
         <main className="flex-1 overflow-y-auto">
           <div className="p-4 sm:p-6 lg:p-10">

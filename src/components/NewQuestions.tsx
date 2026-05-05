@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, Send, MessageSquare, Tag } from 'lucide-react';
+import { authenticatedFetch } from '../lib/api';
+import { HelpCircle, Send, MessageSquare, Tag, Loader } from 'lucide-react';
 
 interface Question {
   id: number;
@@ -14,9 +15,7 @@ const NewQuestions: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  const API_URL = import.meta.env.VITE_API_URL;
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchNewQuestions();
@@ -24,12 +23,7 @@ const NewQuestions: React.FC = () => {
 
   const fetchNewQuestions = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/analytics/new-questions/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch('/analytics/new-questions/');
 
       if (response.ok) {
         const data = await response.json();
@@ -37,8 +31,6 @@ const NewQuestions: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to fetch new questions:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -54,28 +46,25 @@ const NewQuestions: React.FC = () => {
 
   const handleSendReply = async () => {
     if (replyText.trim() && replyingTo !== null) {
+      setSubmitting(true);
       try {
-        const token = localStorage.getItem('access_token');
-        const response = await fetch(`${API_URL}/analytics/questions/${replyingTo}/answer/`, {
+        const response = await authenticatedFetch(`/analytics/questions/${replyingTo}/answer/`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({ answer: replyText.trim() }),
         });
 
         if (response.ok) {
-          setQuestions(prev =>
-            prev.map(q =>
-              q.id === replyingTo ? { ...q, is_answered: true } : q
-            )
-          );
+          setQuestions(prev => prev.filter(q => q.id !== replyingTo));
           setReplyText('');
           setReplyingTo(null);
         }
       } catch (error) {
         console.error('Failed to submit answer:', error);
+      } finally {
+        setSubmitting(false);
       }
     }
   };
@@ -130,20 +119,19 @@ const NewQuestions: React.FC = () => {
                     </p>
                     <div className="mt-2 flex items-center justify-between">
                       <p className="text-[0.65rem] font-medium text-gray-400">
-                        {item.is_answered ? '✓ Answered' : new Date(item.date).toLocaleDateString()}
+                        {new Date(item.date).toLocaleDateString()}
                       </p>
-                      {!item.is_answered && (
-                        <button
-                          onClick={() => handleReply(item.id)}
-                          className={`rounded-md px-2.5 py-1 text-xs font-bold transition-all duration-200 ${
-                            replyingTo === item.id
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'text-blue-600 hover:bg-blue-50'
-                          }`}
-                        >
-                          {replyingTo === item.id ? 'Cancel' : 'Reply'}
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleReply(item.id)}
+                        disabled={submitting && replyingTo === item.id}
+                        className={`rounded-md px-2.5 py-1 text-xs font-bold transition-all duration-200 ${
+                          replyingTo === item.id
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'text-blue-600 hover:bg-blue-50'
+                        }`}
+                      >
+                        {replyingTo === item.id ? 'Cancel' : 'Reply'}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -159,21 +147,23 @@ const NewQuestions: React.FC = () => {
                       className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50/50 p-2.5 text-xs transition-all focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-400/30 sm:text-sm"
                       rows={3}
                       autoFocus
+                      disabled={submitting}
                     />
                     <div className="mt-2 flex justify-end gap-2">
                       <button
                         onClick={() => handleReply(item.id)}
-                        className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 transition-colors hover:bg-gray-100"
+                        disabled={submitting}
+                        className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleSendReply}
-                        disabled={!replyText.trim()}
+                        disabled={!replyText.trim() || submitting}
                         className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
                       >
-                        <Send size={13} />
-                        Send
+                        {submitting ? <Loader size={13} className="animate-spin" /> : <Send size={13} />}
+                        {submitting ? 'Sending...' : 'Send'}
                       </button>
                     </div>
                   </div>

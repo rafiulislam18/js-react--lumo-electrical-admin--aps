@@ -6,12 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 // List of public endpoints that don't require authentication
 const PUBLIC_ENDPOINTS = [
-  '/categories/',
-  '/core/',
-  '/home/',
-  '/layout/',
-  '/message/',
-  '/products/',
+  null,
 ];
 
 interface FetchOptions extends RequestInit {
@@ -45,12 +40,14 @@ async function refreshAccessToken(): Promise<boolean> {
       // Refresh failed, clear tokens and redirect to login
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
       window.location.href = '/login';
       return false;
     }
 
     const data = await response.json();
     localStorage.setItem('access_token', data.access);
+    if (data.refresh) localStorage.setItem('refresh_token', data.refresh);
     return true;
   } catch (error) {
     console.error('Token refresh failed:', error);
@@ -195,5 +192,28 @@ export async function apiDelete(endpoint: string): Promise<void> {
   if (!response.ok && response.status !== 204) {
     const error = await response.json().catch(() => ({}));
     throw new Error(error.error || error.detail || `Failed to delete ${endpoint}`);
+  }
+}
+
+/**
+ * Logout and clear all auth tokens
+ */
+export async function logout(): Promise<void> {
+  const refresh = localStorage.getItem('refresh_token');
+  try {
+    await fetch(`${API_URL}/users/admin/logout/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refresh }),
+    });
+  } catch {
+    // Ignore errors — clear tokens regardless
+  } finally {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
   }
 }

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { logout } from '../lib/api';
 import {
   Home,
   Package,
@@ -49,28 +50,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
-      const API_URL = import.meta.env.VITE_API_URL;
-      const refresh_token = localStorage.getItem('refresh_token');
-
-      await fetch(`${API_URL}/users/admin/logout/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refresh: refresh_token }),
-      });
-
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
-
+      await logout();
       navigate('/login');
     } catch (err) {
       console.error('Logout error:', err);
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
       navigate('/login');
     } finally {
       setIsLoggingOut(false);
@@ -97,12 +80,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {/* Mobile close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 lg:hidden"
+          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 hidden sm:block lg:hidden"
         >
           <X size={20} className="text-gray-500" />
         </button>
         
-      <div className="p-6 border-b border-gray-50">
+      <div className="p-6 hidden sm:block border-b border-gray-50">
         <div className="flex items-center gap-2">
           <img src="/images/logo.png" alt="Lumo Electrical Logo" className="h-10 sm:h-12 w-auto ml-2" />
         </div>

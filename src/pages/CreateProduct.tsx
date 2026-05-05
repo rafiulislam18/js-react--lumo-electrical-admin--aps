@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authenticatedFetch, apiPost } from '../lib/api';
 import { ArrowLeft, Upload, Loader, AlertCircle, Plus, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -43,21 +44,13 @@ const CreateProduct: React.FC = () => {
     specifications: [{ key: '', value: '' }],
   });
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/categories/?leaf_only=true`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await authenticatedFetch('/categories/?leaf_only=true');
 
       if (response.ok) {
         const data = await response.json();
@@ -141,7 +134,6 @@ const CreateProduct: React.FC = () => {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
       const formDataObj = new FormData();
 
       formDataObj.append('name', formData.name);
@@ -168,11 +160,8 @@ const CreateProduct: React.FC = () => {
         formDataObj.append('image', formData.image);
       }
 
-      const response = await fetch(`${API_URL}/products/admin/create/`, {
+      const response = await authenticatedFetch('/products/admin/create/', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
         body: formDataObj,
       });
 

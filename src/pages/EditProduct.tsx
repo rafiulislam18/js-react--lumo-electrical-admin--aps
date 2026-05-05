@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authenticatedFetch } from '../lib/api';
 import { ArrowLeft, Upload, Loader, AlertCircle, Plus, X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -58,8 +59,6 @@ const EditProduct: React.FC = () => {
     specifications: [{ key: '', value: '' }],
   });
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     fetchCategoriesAndProduct();
   }, [id]);
@@ -67,15 +66,9 @@ const EditProduct: React.FC = () => {
   const fetchCategoriesAndProduct = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
 
       // Fetch categories
-      const categoriesResponse = await fetch(`${API_URL}/categories/?leaf_only=true`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const categoriesResponse = await authenticatedFetch('/categories/?leaf_only=true');
 
       if (categoriesResponse.ok) {
         const categoriesData = await categoriesResponse.json();
@@ -83,11 +76,7 @@ const EditProduct: React.FC = () => {
       }
 
       // Fetch product details
-      const productResponse = await fetch(`${API_URL}/products/${id}/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const productResponse = await authenticatedFetch(`/products/${id}/`);
 
       if (!productResponse.ok) {
         throw new Error('Failed to fetch product details');
@@ -185,7 +174,6 @@ const EditProduct: React.FC = () => {
 
     try {
       setSubmitting(true);
-      const token = localStorage.getItem('access_token');
       const formDataObj = new FormData();
 
       formDataObj.append('name', formData.name);
@@ -212,11 +200,8 @@ const EditProduct: React.FC = () => {
         formDataObj.append('image', formData.image);
       }
 
-      const response = await fetch(`${API_URL}/products/${id}/`, {
+      const response = await authenticatedFetch(`/products/${id}/`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
         body: formDataObj,
       });
 

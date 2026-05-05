@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { authenticatedFetch } from '../lib/api';
 import {
   Search,
   Truck,
@@ -54,8 +55,6 @@ const Orders: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -75,7 +74,6 @@ const Orders: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem('access_token');
 
       const params = new URLSearchParams({
         page: currentPage.toString(),
@@ -86,32 +84,9 @@ const Orders: React.FC = () => {
         params.append('search', debouncedSearch);
       }
 
-      const response = await fetch(`${API_URL}/orders/admin/list/?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await authenticatedFetch(`/orders/admin/list/?${params}`);
 
       if (!response.ok) {
-        if (response.status === 401) {
-          const refreshToken = localStorage.getItem('refresh_token');
-          if (refreshToken) {
-            const refreshResponse = await fetch(`${API_URL}/users/token/refresh/`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ refresh: refreshToken }),
-            });
-
-            if (refreshResponse.ok) {
-              const refreshData = await refreshResponse.json();
-              localStorage.setItem('access_token', refreshData.access);
-              return fetchOrders();
-            }
-          }
-        }
         const errorText = await response.text();
         throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to fetch orders'}`);
       }
@@ -126,7 +101,7 @@ const Orders: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearch, API_URL]);
+  }, [currentPage, pageSize, debouncedSearch]);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Plus, Bell, Menu, LogOut, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { logout } from '../lib/api';
 import NotificationPanel from './NotificationPanel';
 
 interface HeaderProps {
@@ -49,31 +50,10 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
-      const API_URL = import.meta.env.VITE_API_URL;
-      const refresh_token = localStorage.getItem('refresh_token');
-
-      await fetch(`${API_URL}/users/admin/logout/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refresh: refresh_token }),
-      });
-
-      // Clear tokens and user data
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
-
-      // Redirect to login
+      await logout();
       navigate('/login');
     } catch (err) {
       console.error('Logout error:', err);
-      // Clear local storage anyway and redirect
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
       navigate('/login');
     } finally {
       setIsLoggingOut(false);
@@ -81,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-3 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 sticky top-0 z-10">
+    <header className="lg:hidden bg-white/80 backdrop-blur-md border-b border-gray-100 px-3 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 sticky top-0 z-10">
       <div className="flex items-center justify-between gap-2 sm:gap-4 lg:gap-0">
         <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
           {/* Mobile menu button */}
@@ -91,14 +71,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           >
             <Menu size={20} className="text-gray-600" />
           </button>
-          
-          {/* Mobile logo */}
-          <div className="flex items-center gap-2 lg:hidden flex-shrink-0">
-            <img src="/images/logo.png" alt="Lumo Electrical Logo" className="h-9 sm:h-12 w-auto ml-1 sm:ml-0" />
-          </div>
+        </div>
+
+        {/* Mobile logo */}
+        <div className="flex items-center lg:hidden flex-shrink-0">
+          <img src="/images/logo.png" alt="Lumo Electrical Logo" className="h-9 sm:h-12 w-auto" />
         </div>
         
-        <div className="flex-1 max-w-lg mx-2 sm:mx-4 hidden sm:block min-w-0">
+        {/* <div className="flex-1 max-w-lg mx-2 sm:mx-4 hidden sm:block min-w-0">
           <div className="relative">
             <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 flex-shrink-0" size={20} />
             <input
@@ -107,13 +87,13 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-2.5 lg:py-3 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 text-xs sm:text-sm placeholder-gray-500"
             />
           </div>
-        </div>
+        </div> */}
         
         <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-shrink-0">
           {/* Mobile search button */}
-          <button className="p-1.5 sm:p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg sm:rounded-xl transition-all duration-200 sm:hidden flex-shrink-0">
+          {/* <button className="p-1.5 sm:p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg sm:rounded-xl transition-all duration-200 sm:hidden flex-shrink-0">
             <Search size={18} />
-          </button>
+          </button> */}
 
           {/* TODO: Create Notification feature later */}
           {/* <div className="relative">
@@ -150,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                 </div>
 
                 {/* Menu Items */}
-                <div className="py-2">
+                {/* <div className="py-2">
                   <button
                     className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
                     disabled={isLoggingOut}
@@ -158,10 +138,10 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                     <Settings size={16} className="text-gray-600" />
                     Settings
                   </button>
-                </div>
+                </div> */}
 
                 {/* Logout Button */}
-                <div className="border-t border-gray-100 p-2">
+                <div className="p-2">
                   <button
                     onClick={handleLogout}
                     disabled={isLoggingOut}

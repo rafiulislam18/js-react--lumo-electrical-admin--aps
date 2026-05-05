@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { authenticatedFetch } from '../lib/api';
 import {
   Truck,
   Phone,
@@ -43,8 +44,6 @@ const DeliveryPersonnelPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -64,7 +63,6 @@ const DeliveryPersonnelPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem('access_token');
 
       const params = new URLSearchParams({
         page: currentPage.toString(),
@@ -75,32 +73,9 @@ const DeliveryPersonnelPage: React.FC = () => {
         params.append('search', debouncedSearch);
       }
 
-      const response = await fetch(`${API_URL}/users/admin/delivery-personnel/?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await authenticatedFetch(`/users/admin/delivery-personnel/?${params}`);
 
       if (!response.ok) {
-        if (response.status === 401) {
-          const refreshToken = localStorage.getItem('refresh_token');
-          if (refreshToken) {
-            const refreshResponse = await fetch(`${API_URL}/users/token/refresh/`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ refresh: refreshToken }),
-            });
-
-            if (refreshResponse.ok) {
-              const refreshData = await refreshResponse.json();
-              localStorage.setItem('access_token', refreshData.access);
-              return fetchPersonnel();
-            }
-          }
-        }
         const errorText = await response.text();
         throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to fetch delivery personnel'}`);
       }
@@ -115,7 +90,7 @@ const DeliveryPersonnelPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearch, API_URL]);
+  }, [currentPage, pageSize, debouncedSearch]);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
