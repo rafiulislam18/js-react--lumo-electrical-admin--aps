@@ -73,40 +73,51 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar */}
       <div className={`
         fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
-        w-64 bg-white h-screen flex flex-col border-r border-gray-100 shadow-sm
+        w-64 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 h-screen flex flex-col border-r border-slate-800 shadow-xl
         transform transition-transform duration-300 ease-in-out lg:transform-none
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
+        {/* Decorative glow */}
+        <div className="pointer-events-none absolute -top-20 -left-10 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-32 -right-10 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
+
         {/* Mobile close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 hidden sm:block lg:hidden"
+          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-800 hidden sm:block lg:hidden z-10"
         >
-          <X size={20} className="text-gray-500" />
+          <X size={20} className="text-slate-400" />
         </button>
-        
-      <div className="p-6 hidden sm:block border-b border-gray-50">
+
+      <div className="relative p-6 hidden sm:block border-b border-slate-800/80">
         <div className="flex items-center gap-2">
-          <img src="/images/logo.png" alt="Lumo Electrical Logo" className="h-10 sm:h-12 w-auto ml-2" />
+          <div className="px-3 py-1.5">
+            <img src="/images/logo-light.png" alt="Lumo Electrical Logo" className="h-8 sm:h-10 w-auto" />
+          </div>
         </div>
       </div>
-      
-      <nav className="flex-1 px-4 py-4">
+
+      <nav className="relative flex-1 px-4 py-4 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
+          const isActive = activeItem === item.id;
           return (
             <div
               key={item.id}
-              className={`flex items-center justify-between px-4 py-3.5 rounded-xl mb-2 cursor-pointer transition-all duration-200 group ${
-                activeItem === item.id 
-                  ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 shadow-sm border border-blue-100' 
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              className={`relative flex items-center justify-between px-4 py-3.5 rounded-xl mb-2 cursor-pointer transition-all duration-200 group ${
+                isActive
+                  ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/10 text-white shadow-lg shadow-cyan-500/10 border border-cyan-400/30'
+                  : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
               }`}
               onClick={() => handleNavigate(item.path)}
             >
+              {/* Active indicator bar */}
+              {isActive && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-gradient-to-b from-cyan-400 to-emerald-400" />
+              )}
               <div className="flex items-center gap-3">
                 <Icon size={20} className={`transition-colors ${
-                  activeItem === item.id ? 'text-blue-600' : 'group-hover:text-gray-700'
+                  isActive ? 'text-cyan-300' : 'group-hover:text-cyan-300'
                 }`} />
                 <span className="font-medium text-sm">{item.label}</span>
               </div>
@@ -114,24 +125,39 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           );
         })}
       </nav>
-      
-      <div className="p-4 space-y-2 border-t border-gray-50">
-        {/* <div className="flex items-center justify-between px-4 py-3.5 rounded-xl cursor-pointer text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 group">
-          <div className="flex items-center gap-3">
-            <HelpCircle size={20} className="group-hover:text-gray-700 transition-colors" />
-            <span className="font-medium text-sm">Help</span>
+
+      <div className="relative p-4 border-t border-slate-800/80">
+        <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-800/60 p-3 backdrop-blur">
+          {/* User Info - 3/4 width */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2.5 mb-1">
+              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-cyan-500/30">
+                A
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-white truncate">Admin</p>
+                <p className="text-[0.65rem] text-slate-400 truncate">
+                  {localStorage.getItem('user')
+                    ? JSON.parse(localStorage.getItem('user') || '{}').email
+                    : 'admin@lumo.local'}
+                </p>
+              </div>
+            </div>
           </div>
-          <span className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs px-2.5 py-1 rounded-full font-semibold shadow-sm">8</span>
-        </div> */}
-        
-        <button
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-          className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <LogOut size={20} className="group-hover:text-red-600 transition-colors" />
-          <span className="font-medium text-sm">{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
-        </button>
+
+          {/* Logout Button - 1/4 width, vertical stack */}
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex-shrink-0 flex flex-col items-center justify-center gap-0.5 px-2.5 py-2 rounded-lg bg-slate-900/60 hover:bg-red-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group border border-slate-700/50 hover:border-red-400/40"
+            title="Logout"
+          >
+            <LogOut size={15} className="text-slate-400 group-hover:text-red-400 transition-colors" />
+            <span className="text-[0.65rem] font-semibold text-slate-400 group-hover:text-red-400 transition-colors text-center whitespace-nowrap">
+              {isLoggingOut ? 'Logging Out...' : 'Logout'}
+            </span>
+          </button>
+        </div>
       </div>
       </div>
     </>
