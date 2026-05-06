@@ -78,19 +78,19 @@ const NewQuestions: React.FC = () => {
   const getProductInitial = (product: string) => product.charAt(0).toUpperCase();
 
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6">
-      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-blue-50/70 blur-3xl" />
+    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6">
+      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl" />
 
       <div className="relative flex flex-col">
         <div className="mb-5 flex items-center gap-3 sm:mb-6">
-          <div className="rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 p-2.5 shadow-sm ring-1 ring-blue-200/50">
-            <HelpCircle size={18} className="text-blue-600" />
+          <div className="rounded-xl bg-cyan-500/15 p-2.5 shadow-sm ring-1 ring-cyan-400/20">
+            <HelpCircle size={18} className="text-cyan-300" />
           </div>
           <div className="flex-1">
-            <h3 className="text-base font-bold text-gray-900 sm:text-lg lg:text-xl">New Questions</h3>
-            <p className="mt-0.5 text-xs font-medium text-gray-500">{questions.length} unanswered</p>
+            <h3 className="text-base font-bold text-white sm:text-lg lg:text-xl">New Questions</h3>
+            <p className="mt-0.5 text-xs font-medium text-slate-400">{questions.length} unanswered</p>
           </div>
-          <span className="rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
+          <span className="rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 px-3 py-1 text-xs font-bold text-white shadow-sm shadow-cyan-500/20">
             {questions.length}
           </span>
         </div>
@@ -100,25 +100,25 @@ const NewQuestions: React.FC = () => {
             {questions.map((item) => (
               <div
                 key={item.id}
-                className="group/q rounded-xl border border-gray-100 bg-white p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md sm:p-4"
+                className="group/q rounded-xl border border-slate-700/60 bg-slate-800/50 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:shadow-md hover:shadow-cyan-500/10 sm:p-4"
               >
                 <div className="flex gap-3">
                   {/* Avatar */}
-                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 text-sm font-bold text-white shadow-sm">
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 text-sm font-bold text-white shadow-sm">
                     {getProductInitial(item.product)}
                   </div>
 
                   <div className="min-w-0 flex-1">
                     <div className="mb-1.5 flex items-center gap-1.5">
-                      <Tag size={11} className="flex-shrink-0 text-blue-500" />
-                      <p className="truncate text-xs font-bold text-blue-700">{item.product}</p>
+                      <Tag size={11} className="flex-shrink-0 text-cyan-400" />
+                      <p className="truncate text-xs font-bold text-cyan-300">{item.product}</p>
                     </div>
-                    <p className="text-xs leading-relaxed text-gray-700 sm:text-sm">
-                      <MessageSquare size={11} className="mr-1 inline text-gray-400" />
+                    <p className="text-xs leading-relaxed text-slate-300 sm:text-sm">
+                      <MessageSquare size={11} className="mr-1 inline text-slate-500" />
                       {item.question}
                     </p>
                     <div className="mt-2 flex items-center justify-between">
-                      <p className="text-[0.65rem] font-medium text-gray-400">
+                      <p className="text-[0.65rem] font-medium text-slate-500">
                         {new Date(item.date).toLocaleDateString()}
                       </p>
                       <button
@@ -126,8 +126,8 @@ const NewQuestions: React.FC = () => {
                         disabled={submitting && replyingTo === item.id}
                         className={`rounded-md px-2.5 py-1 text-xs font-bold transition-all duration-200 ${
                           replyingTo === item.id
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'text-blue-600 hover:bg-blue-50'
+                            ? 'bg-cyan-500/20 text-cyan-300'
+                            : 'text-cyan-400 hover:bg-cyan-500/10'
                         }`}
                       >
                         {replyingTo === item.id ? 'Cancel' : 'Reply'}
@@ -138,13 +138,13 @@ const NewQuestions: React.FC = () => {
 
                 {/* Reply Box */}
                 {replyingTo === item.id && (
-                  <div className="mt-3 border-t border-gray-100 pt-3">
+                  <div className="mt-3 border-t border-slate-700/60 pt-3">
                     <textarea
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       onKeyDown={handleTextareaKeyDown}
                       placeholder="Type your reply... (Ctrl+Enter to send)"
-                      className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50/50 p-2.5 text-xs transition-all focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-400/30 sm:text-sm"
+                      className="w-full resize-none rounded-lg border border-slate-600/60 bg-slate-800/60 p-2.5 text-xs text-white transition-all placeholder:text-slate-500 focus:border-cyan-400/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 sm:text-sm"
                       rows={3}
                       autoFocus
                       disabled={submitting}
@@ -153,14 +153,14 @@ const NewQuestions: React.FC = () => {
                       <button
                         onClick={() => handleReply(item.id)}
                         disabled={submitting}
-                        className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
+                        className="rounded-lg px-3 py-1.5 text-xs font-bold text-slate-400 transition-colors hover:bg-slate-700/60 disabled:opacity-50"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleSendReply}
                         disabled={!replyText.trim() || submitting}
-                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-cyan-600 to-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-cyan-500/20 transition-all hover:shadow-md hover:shadow-cyan-500/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
                       >
                         {submitting ? <Loader size={13} className="animate-spin" /> : <Send size={13} />}
                         {submitting ? 'Sending...' : 'Send'}

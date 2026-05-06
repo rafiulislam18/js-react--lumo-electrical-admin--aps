@@ -80,23 +80,23 @@ const NewReviews: React.FC = () => {
   const getProductInitial = (product: string) => product.charAt(0).toUpperCase();
 
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6">
-      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-yellow-50/70 blur-3xl" />
+    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6">
+      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl" />
 
       <div className="relative flex flex-col">
         <div className="mb-5 flex items-center gap-3 sm:mb-6">
-          <div className="rounded-xl bg-gradient-to-br from-yellow-100 to-amber-100 p-2.5 shadow-sm ring-1 ring-yellow-200/50">
-            <Star size={18} className="text-yellow-600" />
+          <div className="rounded-xl bg-amber-500/15 p-2.5 shadow-sm ring-1 ring-amber-400/20">
+            <Star size={18} className="text-amber-300" />
           </div>
           <div className="flex-1">
-            <h3 className="text-base font-bold text-gray-900 sm:text-lg lg:text-xl">New Reviews</h3>
-            <p className="mt-0.5 flex items-center gap-1 text-xs font-medium text-gray-500">
+            <h3 className="text-base font-bold text-white sm:text-lg lg:text-xl">New Reviews</h3>
+            <p className="mt-0.5 flex items-center gap-1 text-xs font-medium text-slate-400">
               {/* <Star size={10} className="fill-yellow-400 text-yellow-400" /> */}
               <span className="">{reviews.length}</span>
               <span>unreplied</span>
             </p>
           </div>
-          <span className="rounded-full bg-gradient-to-br from-yellow-500 to-amber-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
+          <span className="rounded-full bg-gradient-to-br from-amber-500 to-yellow-600 px-3 py-1 text-xs font-bold text-white shadow-sm shadow-amber-500/20">
             {reviews.length}
           </span>
         </div>
@@ -106,47 +106,47 @@ const NewReviews: React.FC = () => {
             {reviews.map((item) => (
               <div
                 key={item.id}
-                className="group/r rounded-xl border border-gray-100 bg-white p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-yellow-200 hover:shadow-md sm:p-4"
+                className="group/r rounded-xl border border-slate-700/60 bg-slate-800/50 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/40 hover:shadow-md hover:shadow-amber-500/10 sm:p-4"
               >
                 <div className="flex gap-3">
                   {/* Avatar */}
-                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 text-sm font-bold text-white shadow-sm">
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 text-sm font-bold text-white shadow-sm">
                     {getProductInitial(item.product)}
                   </div>
 
                   <div className="min-w-0 flex-1">
                     <div className="mb-1.5 flex items-center justify-between gap-2">
                       <div className="flex min-w-0 items-center gap-1.5">
-                        <Tag size={11} className="flex-shrink-0 text-yellow-600" />
-                        <p className="truncate text-xs font-bold text-yellow-700">{item.product}</p>
+                        <Tag size={11} className="flex-shrink-0 text-amber-400" />
+                        <p className="truncate text-xs font-bold text-amber-300">{item.product}</p>
                       </div>
                       {/* Star rating */}
-                      <div className="flex flex-shrink-0 items-center gap-0.5 rounded-md bg-yellow-50 px-1.5 py-0.5 ring-1 ring-yellow-200">
+                      <div className="flex flex-shrink-0 items-center gap-0.5 rounded-md bg-amber-500/15 px-1.5 py-0.5 ring-1 ring-amber-400/30">
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
                             size={10}
                             className={
                               i < item.rating
-                                ? 'fill-yellow-400 text-yellow-400'
-                                : 'fill-gray-200 text-gray-200'
+                                ? 'fill-amber-400 text-amber-400'
+                                : 'fill-slate-600 text-slate-600'
                             }
                           />
                         ))}
                       </div>
                     </div>
-                    <p className="text-xs leading-relaxed text-gray-700 sm:text-sm">
+                    <p className="text-xs leading-relaxed text-slate-300 sm:text-sm">
                       &ldquo;{item.comment}&rdquo;
                     </p>
                     <div className="mt-2 flex items-center justify-between">
-                      <p className="text-[0.65rem] font-medium text-gray-400">{new Date(item.date).toLocaleDateString()}</p>
+                      <p className="text-[0.65rem] font-medium text-slate-500">{new Date(item.date).toLocaleDateString()}</p>
                       <button
                         onClick={() => handleReply(item.id)}
                         disabled={submitting && replyingTo === item.id}
                         className={`rounded-md px-2.5 py-1 text-xs font-bold transition-all duration-200 ${
                           replyingTo === item.id
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'text-yellow-600 hover:bg-yellow-50'
+                            ? 'bg-amber-500/20 text-amber-300'
+                            : 'text-amber-400 hover:bg-amber-500/10'
                         }`}
                       >
                         {replyingTo === item.id ? 'Cancel' : 'Reply'}
@@ -157,13 +157,13 @@ const NewReviews: React.FC = () => {
 
                 {/* Reply Box */}
                 {replyingTo === item.id && (
-                  <div className="mt-3 border-t border-gray-100 pt-3">
+                  <div className="mt-3 border-t border-slate-700/60 pt-3">
                     <textarea
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       onKeyDown={handleTextareaKeyDown}
                       placeholder="Type your reply... (Ctrl+Enter to send)"
-                      className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50/50 p-2.5 text-xs transition-all focus:border-yellow-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400/30 sm:text-sm"
+                      className="w-full resize-none rounded-lg border border-slate-600/60 bg-slate-800/60 p-2.5 text-xs text-white transition-all placeholder:text-slate-500 focus:border-amber-400/40 focus:outline-none focus:ring-2 focus:ring-amber-500/40 sm:text-sm"
                       rows={3}
                       autoFocus
                       disabled={submitting}
@@ -172,14 +172,14 @@ const NewReviews: React.FC = () => {
                       <button
                         onClick={() => handleReply(item.id)}
                         disabled={submitting}
-                        className="rounded-lg px-3 py-1.5 text-xs font-bold text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
+                        className="rounded-lg px-3 py-1.5 text-xs font-bold text-slate-400 transition-colors hover:bg-slate-700/60 disabled:opacity-50"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleSendReply}
                         disabled={!replyText.trim() || submitting}
-                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-yellow-500 to-amber-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-amber-500/20 transition-all hover:shadow-md hover:shadow-amber-500/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
                       >
                         {submitting ? <Loader size={13} className="animate-spin" /> : <Send size={13} />}
                         {submitting ? 'Sending...' : 'Send'}

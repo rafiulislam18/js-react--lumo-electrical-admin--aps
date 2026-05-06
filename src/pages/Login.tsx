@@ -85,7 +85,7 @@ const Login: React.FC = () => {
 
       {/* Login Card */}
       <div className="relative w-full max-w-md z-10">
-        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden backdrop-blur-xl">
+        <div className="bg-slate-800/40 rounded-3xl shadow-2xl border border-slate-700/60 overflow-hidden backdrop-blur-xl">
           {/* Header with gradient */}
           <div className="relative bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-16 text-center overflow-hidden">
             {/* Accent elements */}
@@ -105,15 +105,15 @@ const Login: React.FC = () => {
           <form onSubmit={handleLogin} className="px-8 py-10 space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl shadow-sm">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700 font-medium">{error}</p>
+              <div className="flex items-start gap-3 p-4 bg-red-500/15 border border-red-400/30 rounded-xl shadow-sm">
+                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-300 font-medium">{error}</p>
               </div>
             )}
 
             {/* Username Field */}
             <div className="space-y-2.5">
-              <label htmlFor="username" className="block text-sm font-semibold text-gray-700">
+              <label htmlFor="username" className="block text-sm font-semibold text-slate-200">
                 Username
               </label>
               <input
@@ -122,7 +122,7 @@ const Login: React.FC = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
-                className="w-full px-4 py-3.5 bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition-all duration-200 shadow-sm hover:bg-gray-100"
+                className="w-full px-4 py-3.5 bg-slate-800/60 border border-slate-600/60 text-white placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-400/40 focus:outline-none transition-all duration-200 shadow-sm hover:bg-slate-800/80 hover:border-slate-500/60"
                 disabled={loading}
                 required
               />
@@ -130,7 +130,7 @@ const Login: React.FC = () => {
 
             {/* Password Field */}
             <div className="space-y-2.5">
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
+              <label htmlFor="password" className="block text-sm font-semibold text-slate-200">
                 Password
               </label>
               <div className="relative">
@@ -140,14 +140,14 @@ const Login: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full px-4 py-3.5 bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition-all duration-200 shadow-sm hover:bg-gray-100"
+                  className="w-full px-4 py-3.5 bg-slate-800/60 border border-slate-600/60 text-white placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-400/40 focus:outline-none transition-all duration-200 shadow-sm hover:bg-slate-800/80 hover:border-slate-500/60"
                   disabled={loading}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-200 rounded-lg"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors p-1 hover:bg-slate-700/60 rounded-lg"
                   disabled={loading}
                 >
                   {showPassword ? (
@@ -177,8 +177,8 @@ const Login: React.FC = () => {
           </form>
 
           {/* Footer */}
-          <div className="px-8 py-5 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200 text-center">
-            <p className="text-xs font-medium text-gray-600 tracking-wide">
+          <div className="px-8 py-5 bg-slate-800/60 border-t border-slate-700/60 text-center">
+            <p className="text-xs font-medium text-slate-400 tracking-wide">
               🔒 Secure Admin Access • Authorized Users Only
             </p>
           </div>

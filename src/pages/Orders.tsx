@@ -5,13 +5,14 @@ import {
   Truck,
   CheckCircle2,
   ShoppingBag,
-  DollarSign,
   Clock,
   AlertCircle,
   Loader,
   ChevronLeft,
   ChevronRight,
   Package,
+  SlidersHorizontal,
+  ArrowUpDown,
 } from 'lucide-react';
 
 export interface AdminOrder {
@@ -108,13 +109,13 @@ const Orders: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'order_placed':
-        return 'bg-blue-100 text-blue-700 border border-blue-300';
+        return 'bg-cyan-500/15 text-cyan-300 border border-cyan-400/30';
       case 'out_for_delivery':
-        return 'bg-orange-100 text-orange-700 border border-orange-300';
+        return 'bg-amber-500/15 text-amber-300 border border-amber-400/30';
       case 'delivered':
-        return 'bg-green-100 text-green-700 border border-green-300';
+        return 'bg-emerald-500/15 text-emerald-300 border border-emerald-400/30';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-slate-700/40 text-slate-300';
     }
   };
 
@@ -157,149 +158,201 @@ const Orders: React.FC = () => {
 
   return (
     <>
+      {/* Page Header */}
       <div className="mb-6 lg:mb-8">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 tracking-tight">
           Orders
         </h1>
-        <p className="text-sm sm:text-base text-gray-600 font-medium">
+        <p className="text-sm sm:text-base text-slate-400 font-medium">
           Manage and track customer orders.
         </p>
       </div>
 
-      {/* Stats */}
+      {/* Stats — premium glass cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 lg:mb-8">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-          <div className="flex items-center gap-1.5 mb-1">
-            <ShoppingBag size={14} className="text-blue-700" />
-            <p className="text-xs text-blue-700 font-semibold">Total Orders</p>
+        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/10">
+          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-cyan-500/15 blur-2xl transition-opacity group-hover:opacity-100" />
+          <div className="relative flex items-center justify-between mb-2">
+            <div className="rounded-lg bg-cyan-500/15 p-2 ring-1 ring-cyan-400/20">
+              <ShoppingBag size={16} className="text-cyan-300" />
+            </div>
+            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Total</span>
           </div>
-          <p className="text-xl lg:text-2xl font-bold text-blue-900">{totalCount}</p>
+          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{totalCount}</p>
+          <p className="relative mt-0.5 text-xs font-medium text-slate-400">All Orders</p>
         </div>
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
-          <div className="flex items-center gap-1.5 mb-1">
-            <Clock size={14} className="text-orange-700" />
-            <p className="text-xs text-orange-700 font-semibold">Placed</p>
+
+        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-amber-400/40 hover:shadow-lg hover:shadow-amber-500/10">
+          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-amber-500/15 blur-2xl" />
+          <div className="relative flex items-center justify-between mb-2">
+            <div className="rounded-lg bg-amber-500/15 p-2 ring-1 ring-amber-400/20">
+              <Clock size={16} className="text-amber-300" />
+            </div>
+            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Pending</span>
           </div>
-          <p className="text-xl lg:text-2xl font-bold text-orange-900">
+          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
             {orders.filter((o) => o.status === 'order_placed').length}
           </p>
+          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Awaiting</p>
         </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
-          <div className="flex items-center gap-1.5 mb-1">
-            <Truck size={14} className="text-yellow-700" />
-            <p className="text-xs text-yellow-700 font-semibold">In Transit</p>
+
+        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-sky-400/40 hover:shadow-lg hover:shadow-sky-500/10">
+          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-sky-500/15 blur-2xl" />
+          <div className="relative flex items-center justify-between mb-2">
+            <div className="rounded-lg bg-sky-500/15 p-2 ring-1 ring-sky-400/20">
+              <Truck size={16} className="text-sky-300" />
+            </div>
+            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">In Transit</span>
           </div>
-          <p className="text-xl lg:text-2xl font-bold text-yellow-900">
+          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
             {orders.filter((o) => o.status === 'out_for_delivery').length}
           </p>
+          <p className="relative mt-0.5 text-xs font-medium text-slate-400">On the way</p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-          <div className="flex items-center gap-1.5 mb-1">
-            <CheckCircle2 size={14} className="text-green-700" />
-            <p className="text-xs text-green-700 font-semibold">Delivered</p>
+
+        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
+          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-emerald-500/15 blur-2xl" />
+          <div className="relative flex items-center justify-between mb-2">
+            <div className="rounded-lg bg-emerald-500/15 p-2 ring-1 ring-emerald-400/20">
+              <CheckCircle2 size={16} className="text-emerald-300" />
+            </div>
+            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Delivered</span>
           </div>
-          <p className="text-xl lg:text-2xl font-bold text-green-900">
+          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
             {orders.filter((o) => o.status === 'delivered').length}
           </p>
+          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Completed</p>
         </div>
       </div>
 
-      {/* Search */}
+      {/* Search + Filter + Sort */}
       <div className="mb-6 lg:mb-8">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-          <input
-            type="text"
-            placeholder="Search by order ID, customer name, or email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-2.5 bg-white rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
-          />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10" size={18} />
+            <input
+              type="text"
+              placeholder="Search by order ID, customer name, or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-2.5 bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all text-sm"
+            />
+          </div>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 backdrop-blur text-sm font-semibold text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60 transition-all"
+          >
+            <SlidersHorizontal size={16} />
+            <span>Filter</span>
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 backdrop-blur text-sm font-semibold text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60 transition-all"
+          >
+            <ArrowUpDown size={16} />
+            <span>Sort</span>
+          </button>
         </div>
       </div>
 
       {/* Error State */}
       {error && (
-        <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="mb-6 flex items-center gap-3 p-4 bg-red-500/10 border border-red-400/30 rounded-xl backdrop-blur">
+          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+          <p className="text-sm text-red-300">{error}</p>
         </div>
       )}
 
       {/* Loading State */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
-          <Loader className="w-8 h-8 text-blue-600 animate-spin mb-3" />
-          <p className="text-gray-600">Loading orders...</p>
+          <Loader className="w-8 h-8 text-cyan-400 animate-spin mb-3" />
+          <p className="text-slate-400">Loading orders...</p>
         </div>
       ) : orders.length === 0 ? (
         <div className="text-center py-12">
-          <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-          <p className="text-gray-600 text-lg">No orders found</p>
-          {debouncedSearch && <p className="text-gray-500 text-sm mt-2">Try adjusting your search</p>}
+          <Package className="w-12 h-12 mx-auto mb-3 text-slate-600" />
+          <p className="text-slate-300 text-lg">No orders found</p>
+          {debouncedSearch && <p className="text-slate-500 text-sm mt-2">Try adjusting your search</p>}
         </div>
       ) : (
         <>
-          {/* Orders Table */}
+          {/* Orders List — premium glass cards */}
           <div className="space-y-3 mb-8">
             {orders.map((order) => (
-              <div key={order.id} className="bg-white rounded-lg border border-gray-100 overflow-hidden hover:shadow-md transition-all">
-                <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
-                  {/* Order ID and Customer */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2 mb-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900">Order #{order.id}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          {order.first_name} {order.last_name}
-                        </p>
-                      </div>
-                      <span className={`text-xs font-bold px-2.5 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${getStatusColor(order.status)}`}>
-                        {getStatusIcon(order.status)}
-                        {formatStatus(order.status)}
+              <div
+                key={order.id}
+                className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:shadow-xl hover:shadow-cyan-500/10"
+              >
+                {/* Subtle accent glow on hover */}
+                <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+
+                <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                  {/* Order ID, Avatar, Customer */}
+                  <div className="flex-1 min-w-0 flex items-start gap-3">
+                    <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 ring-1 ring-cyan-400/20 flex items-center justify-center">
+                      <span className="text-sm font-bold text-cyan-300">
+                        {order.first_name?.[0]?.toUpperCase() || '#'}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 truncate">{order.email}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{formatDate(order.created_at)}</p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start gap-2 mb-1">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white">Order #{order.id}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            {order.first_name} {order.last_name}
+                          </p>
+                        </div>
+                        <span className={`text-[0.7rem] font-bold px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${getStatusColor(order.status)}`}>
+                          {getStatusIcon(order.status)}
+                          {formatStatus(order.status)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 truncate">{order.email}</p>
+                      <p className="text-[0.7rem] text-slate-600 mt-0.5">{formatDate(order.created_at)}</p>
+                    </div>
                   </div>
 
-                  {/* Order Details (hidden on mobile) */}
-                  <div className="hidden sm:grid grid-cols-3 gap-4 flex-shrink-0 min-w-fit">
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500 mb-0.5">Items</p>
-                      <p className="text-sm font-bold text-gray-900">{order.items_count}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500 mb-0.5">Amount</p>
-                      <p className="text-sm font-bold text-gray-900">R{order.total}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500 mb-0.5">Payment</p>
-                      <p className={`text-sm font-bold ${order.paid ? 'text-green-600' : 'text-red-600'}`}>
-                        {order.paid ? 'Paid' : 'Pending'}
-                      </p>
+                  {/* Vertical separator + details (hidden on mobile) */}
+                  <div className="hidden sm:flex items-center gap-5 flex-shrink-0">
+                    <div className="h-12 w-px bg-slate-700/60" />
+                    <div className="grid grid-cols-3 gap-5 min-w-fit">
+                      <div className="text-right">
+                        <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Items</p>
+                        <p className="text-sm font-bold text-white">{order.items_count}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Amount</p>
+                        <p className="text-sm font-bold text-white">R{order.total}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Payment</p>
+                        <p className={`text-sm font-bold ${order.paid ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {order.paid ? 'Paid' : 'Pending'}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   {/* View Button */}
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm whitespace-nowrap">
+                  <button className="px-4 py-2 bg-gradient-to-br from-cyan-500 to-emerald-600 text-white rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all font-semibold text-sm whitespace-nowrap">
                     View Details
                   </button>
                 </div>
 
                 {/* Mobile Details */}
-                <div className="sm:hidden px-4 pb-3 flex gap-4 text-xs border-t border-gray-50">
+                <div className="sm:hidden px-4 pb-3 flex gap-5 text-xs border-t border-slate-700/50 pt-3">
                   <div>
-                    <p className="text-gray-500 mb-1">Items</p>
-                    <p className="font-bold text-gray-900">{order.items_count}</p>
+                    <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Items</p>
+                    <p className="font-bold text-white">{order.items_count}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 mb-1">Amount</p>
-                    <p className="font-bold text-gray-900">R{order.total}</p>
+                    <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Amount</p>
+                    <p className="font-bold text-white">R{order.total}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 mb-1">Payment</p>
-                    <p className={`font-bold ${order.paid ? 'text-green-600' : 'text-red-600'}`}>
+                    <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Payment</p>
+                    <p className={`font-bold ${order.paid ? 'text-emerald-400' : 'text-red-400'}`}>
                       {order.paid ? 'Paid' : 'Pending'}
                     </p>
                   </div>
@@ -310,10 +363,10 @@ const Orders: React.FC = () => {
 
           {/* Pagination Info and Controls */}
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-600">
-              Showing <span className="font-semibold">{(currentPage - 1) * pageSize + 1}</span> to{' '}
-              <span className="font-semibold">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
-              <span className="font-semibold">{totalCount}</span> orders
+            <div className="text-sm text-slate-400">
+              Showing <span className="font-semibold text-slate-200">{(currentPage - 1) * pageSize + 1}</span> to{' '}
+              <span className="font-semibold text-slate-200">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
+              <span className="font-semibold text-slate-200">{totalCount}</span> orders
             </div>
 
             {totalPages > 1 && (
@@ -321,10 +374,10 @@ const Orders: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   title="Previous page"
                 >
-                  <ChevronLeft size={18} className="text-gray-600" />
+                  <ChevronLeft size={18} className="text-slate-300" />
                 </button>
 
                 <div className="flex items-center gap-1">
@@ -334,8 +387,8 @@ const Orders: React.FC = () => {
                       onClick={() => setCurrentPage(page)}
                       className={`min-w-10 h-10 rounded-lg font-medium transition-all ${
                         currentPage === page
-                          ? 'bg-blue-600 text-white'
-                          : 'border border-gray-200 text-gray-700 hover:bg-gray-50'
+                          ? 'bg-gradient-to-br from-cyan-500 to-emerald-600 text-white shadow-md shadow-cyan-500/30'
+                          : 'border border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700/60 hover:text-white'
                       }`}
                     >
                       {page}
@@ -346,10 +399,10 @@ const Orders: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   title="Next page"
                 >
-                  <ChevronRight size={18} className="text-gray-600" />
+                  <ChevronRight size={18} className="text-slate-300" />
                 </button>
               </div>
             )}

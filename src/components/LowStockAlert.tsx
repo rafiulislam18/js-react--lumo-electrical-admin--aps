@@ -42,32 +42,32 @@ const LowStockAlert: React.FC = () => {
       return {
         level: 'critical',
         label: 'Critical',
-        color: 'text-red-700',
-        bg: 'bg-gradient-to-br from-red-50 to-rose-50',
-        bar: 'bg-gradient-to-r from-red-500 to-rose-600',
-        border: 'border-l-red-500',
-        chip: 'bg-red-100 text-red-700 ring-red-200',
+        color: 'text-red-300',
+        bg: 'bg-red-500/10 ring-1 ring-red-400/20',
+        bar: 'bg-gradient-to-r from-red-500 to-rose-500',
+        border: 'border-l-red-400',
+        chip: 'bg-red-500/15 text-red-200 ring-red-400/30',
         pulse: 'animate-pulse',
       };
     if (percentage < 40)
       return {
         level: 'warning',
         label: 'Warning',
-        color: 'text-orange-700',
-        bg: 'bg-gradient-to-br from-orange-50 to-amber-50',
+        color: 'text-orange-300',
+        bg: 'bg-orange-500/10 ring-1 ring-orange-400/20',
         bar: 'bg-gradient-to-r from-orange-500 to-amber-500',
-        border: 'border-l-orange-500',
-        chip: 'bg-orange-100 text-orange-700 ring-orange-200',
+        border: 'border-l-orange-400',
+        chip: 'bg-orange-500/15 text-orange-200 ring-orange-400/30',
         pulse: '',
       };
     return {
       level: 'low',
       label: 'Low',
-      color: 'text-yellow-700',
-      bg: 'bg-gradient-to-br from-yellow-50 to-amber-50/50',
-      bar: 'bg-gradient-to-r from-yellow-400 to-amber-500',
-      border: 'border-l-yellow-500',
-      chip: 'bg-yellow-100 text-yellow-700 ring-yellow-200',
+      color: 'text-amber-300',
+      bg: 'bg-amber-500/10 ring-1 ring-amber-400/20',
+      bar: 'bg-gradient-to-r from-amber-400 to-yellow-500',
+      border: 'border-l-amber-400',
+      chip: 'bg-amber-500/15 text-amber-200 ring-amber-400/30',
       pulse: '',
     };
   };
@@ -86,24 +86,24 @@ const LowStockAlert: React.FC = () => {
   const criticalCount = sortedItems.filter(item => (item.current_stock / item.minimum_stock) * 100 < 15).length;
 
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6">
-      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-red-50/70 blur-3xl" />
+    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6">
+      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-red-500/10 blur-3xl" />
 
       <div className="relative flex flex-col">
         <div className="mb-5 flex items-start justify-between gap-3 sm:mb-6">
           <div className="flex items-start gap-3">
-            <div className="rounded-xl bg-gradient-to-br from-red-100 to-rose-100 p-2.5 shadow-sm ring-1 ring-red-200/50">
-              <AlertTriangle size={18} className="text-red-600" />
+            <div className="rounded-xl bg-red-500/15 p-2.5 shadow-sm ring-1 ring-red-400/20">
+              <AlertTriangle size={18} className="text-red-300" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-900 sm:text-lg lg:text-xl">Low Stock Alert</h3>
-              <p className="mt-0.5 text-xs font-medium text-gray-500">
+              <h3 className="text-base font-bold text-white sm:text-lg lg:text-xl">Low Stock Alert</h3>
+              <p className="mt-0.5 text-xs font-medium text-slate-400">
                 {lowStockItems.length} items below minimum
               </p>
             </div>
           </div>
           {criticalCount > 0 && (
-            <div className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 px-2.5 py-1.5 shadow-sm">
+            <div className="flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-red-500/90 to-rose-600/90 px-2.5 py-1.5 shadow-sm shadow-red-500/20">
               <TrendingDown size={14} className="text-white" />
               <span className="text-xs font-bold text-white">{criticalCount} Critical</span>
             </div>
@@ -123,7 +123,7 @@ const LowStockAlert: React.FC = () => {
                 <div className="mb-2.5 flex items-start justify-between gap-2">
                   <div className="flex min-w-0 flex-1 items-center gap-2">
                     <Package size={14} className={`flex-shrink-0 ${status.color}`} />
-                    <p className="truncate text-sm font-bold text-gray-900">{item.name}</p>
+                    <p className="truncate text-sm font-bold text-white">{item.name}</p>
                   </div>
                   <p className={`flex-shrink-0 text-sm font-extrabold ${status.color}`}>
                     {stockPercentage.toFixed(0)}%
@@ -138,9 +138,9 @@ const LowStockAlert: React.FC = () => {
                   >
                     {status.label}
                   </span>
-                  <p className="text-xs font-medium text-gray-600">
-                    <span className="font-bold text-gray-900">{item.current_stock}</span>
-                    <span className="text-gray-400"> / {item.minimum_stock} units</span>
+                  <p className="text-xs font-medium text-slate-400">
+                    <span className="font-bold text-white">{item.current_stock}</span>
+                    <span className="text-slate-500"> / {item.minimum_stock} units</span>
                   </p>
                 </div>
 

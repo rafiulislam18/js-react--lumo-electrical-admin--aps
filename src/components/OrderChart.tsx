@@ -53,16 +53,16 @@ const OrderChart: React.FC = () => {
 
   if (data.length === 0) {
     return (
-      <div className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
+      <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
         <div className="relative">
           <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between lg:mb-7">
             <div className="flex items-start gap-3">
-              <div className="rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 p-2.5 shadow-sm ring-1 ring-blue-200/50">
-                <ShoppingBag size={20} className="text-blue-600" />
+              <div className="rounded-xl bg-cyan-500/15 p-2.5 ring-1 ring-cyan-400/20">
+                <ShoppingBag size={20} className="text-cyan-300" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900 lg:text-xl">Orders Chart</h3>
-                <p className="mt-0.5 text-xs font-medium text-gray-500">Track order trends over time</p>
+                <h3 className="text-lg font-bold text-white lg:text-xl">Orders Chart</h3>
+                <p className="mt-0.5 text-xs font-medium text-slate-400">Track order trends over time</p>
               </div>
             </div>
             <select
@@ -71,14 +71,14 @@ const OrderChart: React.FC = () => {
                 setTimeRange(e.target.value);
                 setHoveredBar(null);
               }}
-              className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium transition-all duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 lg:px-4 lg:py-2.5"
+              className="rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm font-medium text-slate-200 transition-all duration-200 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 lg:px-4 lg:py-2.5"
             >
               <option value="12months">Last 12 months</option>
               <option value="30days">Last 30 days</option>
               <option value="7days">Last 7 days</option>
             </select>
           </div>
-          <div className="py-12 text-center text-gray-500">Loading chart data...</div>
+          <div className="py-12 text-center text-slate-400">Loading chart data...</div>
         </div>
       </div>
     );
@@ -103,18 +103,18 @@ const OrderChart: React.FC = () => {
   const labelInterval = getLabelInterval();
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
-      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-blue-50/70 blur-3xl" />
+    <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
+      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl" />
 
       <div className="relative">
         <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between lg:mb-7">
           <div className="flex items-start gap-3">
-            <div className="rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 p-2.5 shadow-sm ring-1 ring-blue-200/50">
-              <ShoppingBag size={20} className="text-blue-600" />
+            <div className="rounded-xl bg-cyan-500/15 p-2.5 ring-1 ring-cyan-400/20">
+              <ShoppingBag size={20} className="text-cyan-300" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900 lg:text-xl">Orders Chart</h3>
-              <p className="mt-0.5 text-xs font-medium text-gray-500">Order volume across the selected period</p>
+              <h3 className="text-lg font-bold text-white lg:text-xl">Orders Chart</h3>
+              <p className="mt-0.5 text-xs font-medium text-slate-400">Order volume across the selected period</p>
             </div>
           </div>
           <select
@@ -123,7 +123,7 @@ const OrderChart: React.FC = () => {
               setTimeRange(e.target.value);
               setHoveredBar(null);
             }}
-            className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium transition-all duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 lg:px-4 lg:py-2.5"
+            className="rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm font-medium text-slate-200 transition-all duration-200 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 lg:px-4 lg:py-2.5"
           >
             <option value="12months">Last 12 months</option>
             <option value="30days">Last 30 days</option>
@@ -132,22 +132,22 @@ const OrderChart: React.FC = () => {
         </div>
 
         <div className="mb-6 grid grid-cols-2 gap-3">
-          <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-3">
-            <p className="text-xs font-medium text-gray-600">Total Orders</p>
-            <p className="mt-0.5 text-xl font-extrabold text-blue-700">{totalOrders.toLocaleString()}</p>
+          <div className="rounded-xl border border-cyan-400/20 bg-cyan-500/10 p-3">
+            <p className="text-xs font-medium text-slate-300">Total Orders</p>
+            <p className="mt-0.5 text-xl font-extrabold text-cyan-300">{totalOrders.toLocaleString()}</p>
           </div>
-          <div className="rounded-xl border border-gray-100 bg-gradient-to-br from-gray-50 to-white p-3">
-            <p className="flex items-center gap-1 text-xs font-medium text-gray-600">
-              <TrendingUp size={12} className="text-blue-600" />
+          <div className="rounded-xl border border-slate-700/60 bg-slate-800/40 p-3">
+            <p className="flex items-center gap-1 text-xs font-medium text-slate-300">
+              <TrendingUp size={12} className="text-cyan-300" />
               Average
             </p>
-            <p className="mt-0.5 text-xl font-extrabold text-gray-900">{avgOrders}</p>
+            <p className="mt-0.5 text-xl font-extrabold text-white">{avgOrders}</p>
           </div>
         </div>
 
         <div className="relative">
           <div
-            className="absolute left-0 top-0 flex flex-col justify-between text-[0.65rem] font-semibold text-gray-400 sm:text-xs"
+            className="absolute left-0 top-0 flex flex-col justify-between text-[0.65rem] font-semibold text-slate-500 sm:text-xs"
             style={{ height: chartHeight }}
           >
             <span>{maxValue.toLocaleString()}</span>
@@ -161,7 +161,7 @@ const OrderChart: React.FC = () => {
             <div className="relative" style={{ height: chartHeight }}>
               <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
                 {[0, 1, 2, 3, 4].map((i) => (
-                  <div key={i} className="border-t border-dashed border-gray-100" />
+                  <div key={i} className="border-t border-dashed border-slate-700/60" />
                 ))}
               </div>
 
@@ -174,8 +174,8 @@ const OrderChart: React.FC = () => {
                     onMouseLeave={() => setHoveredBar(null)}
                   >
                     <div
-                      className={`w-full cursor-pointer rounded-t-lg bg-gradient-to-t from-blue-500 via-blue-400 to-indigo-300 shadow-sm transition-all duration-300 hover:shadow-blue-300 hover:shadow-md ${
-                        hoveredBar === index ? 'from-blue-600 via-blue-500 to-indigo-400' : ''
+                      className={`w-full cursor-pointer rounded-t-lg bg-gradient-to-t from-cyan-500 via-cyan-400 to-sky-300 shadow-sm transition-all duration-300 hover:shadow-cyan-400/30 hover:shadow-md ${
+                        hoveredBar === index ? 'from-cyan-400 via-cyan-300 to-sky-200' : ''
                       }`}
                       style={{
                         height: `${(item.value / maxValue) * chartHeight}px`,
@@ -183,10 +183,10 @@ const OrderChart: React.FC = () => {
                       }}
                     />
                     {hoveredBar === index && (
-                      <div className="absolute -top-12 left-1/2 z-20 -translate-x-1/2 transform whitespace-nowrap rounded-lg bg-gray-900 px-2.5 py-1.5 text-xs text-white shadow-lg">
+                      <div className="absolute -top-12 left-1/2 z-20 -translate-x-1/2 transform whitespace-nowrap rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs text-white shadow-lg ring-1 ring-slate-700">
                         <p className="font-semibold">{item.month}</p>
-                        <p className="text-blue-300">{item.value} orders</p>
-                        <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                        <p className="text-cyan-300">{item.value} orders</p>
+                        <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
                       </div>
                     )}
                   </div>
@@ -199,7 +199,7 @@ const OrderChart: React.FC = () => {
                 <div key={index} className="flex flex-1 justify-center">
                   <span
                     className={`text-[0.6rem] font-semibold sm:text-xs ${
-                      hoveredBar === index ? 'text-blue-600' : 'text-gray-400'
+                      hoveredBar === index ? 'text-cyan-300' : 'text-slate-500'
                     }`}
                   >
                     {index % labelInterval === 0 || index === data.length - 1 ? item.month : ''}

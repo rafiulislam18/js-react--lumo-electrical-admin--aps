@@ -65,16 +65,16 @@ const Chart: React.FC = () => {
 
   if (data.length === 0) {
     return (
-      <div className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
+      <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
         <div className="relative">
           <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between lg:mb-7">
             <div className="flex items-start gap-3">
-              <div className="rounded-xl bg-gradient-to-br from-emerald-100 to-green-100 p-2.5 shadow-sm ring-1 ring-emerald-200/50">
-                <DollarSign size={20} className="text-emerald-600" />
+              <div className="rounded-xl bg-emerald-500/15 p-2.5 ring-1 ring-emerald-400/20">
+                <DollarSign size={20} className="text-emerald-300" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900 lg:text-xl">Revenue Chart</h3>
-                <p className="mt-0.5 text-xs font-medium text-gray-500">Track revenue performance over time</p>
+                <h3 className="text-lg font-bold text-white lg:text-xl">Revenue Chart</h3>
+                <p className="mt-0.5 text-xs font-medium text-slate-400">Track revenue performance over time</p>
               </div>
             </div>
             <select
@@ -83,14 +83,14 @@ const Chart: React.FC = () => {
                 setTimeRange(e.target.value);
                 setHoveredBar(null);
               }}
-              className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium transition-all duration-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 lg:px-4 lg:py-2.5"
+              className="rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm font-medium text-slate-200 transition-all duration-200 focus:border-emerald-400/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 lg:px-4 lg:py-2.5"
             >
               <option value="12months">Last 12 months</option>
               <option value="30days">Last 30 days</option>
               <option value="7days">Last 7 days</option>
             </select>
           </div>
-          <div className="py-12 text-center text-gray-500">Loading chart data...</div>
+          <div className="py-12 text-center text-slate-400">Loading chart data...</div>
         </div>
       </div>
     );
@@ -115,19 +115,19 @@ const Chart: React.FC = () => {
   const labelInterval = getLabelInterval();
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
+    <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6 lg:p-8">
       {/* Subtle decorative gradient */}
-      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-emerald-50/70 blur-3xl" />
+      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl" />
 
       <div className="relative">
         <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between lg:mb-7">
           <div className="flex items-start gap-3">
-            <div className="rounded-xl bg-gradient-to-br from-emerald-100 to-green-100 p-2.5 shadow-sm ring-1 ring-emerald-200/50">
-              <DollarSign size={20} className="text-emerald-600" />
+            <div className="rounded-xl bg-emerald-500/15 p-2.5 ring-1 ring-emerald-400/20">
+              <DollarSign size={20} className="text-emerald-300" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900 lg:text-xl">Revenue Chart</h3>
-              <p className="mt-0.5 text-xs font-medium text-gray-500">Track revenue performance over time</p>
+              <h3 className="text-lg font-bold text-white lg:text-xl">Revenue Chart</h3>
+              <p className="mt-0.5 text-xs font-medium text-slate-400">Track revenue performance over time</p>
             </div>
           </div>
           <select
@@ -136,7 +136,7 @@ const Chart: React.FC = () => {
               setTimeRange(e.target.value);
               setHoveredBar(null);
             }}
-            className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium transition-all duration-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 lg:px-4 lg:py-2.5"
+            className="rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm font-medium text-slate-200 transition-all duration-200 focus:border-emerald-400/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 lg:px-4 lg:py-2.5"
           >
             <option value="12months">Last 12 months</option>
             <option value="30days">Last 30 days</option>
@@ -146,23 +146,23 @@ const Chart: React.FC = () => {
 
         {/* Mini stats */}
         <div className="mb-6 grid grid-cols-2 gap-3">
-          <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-3">
-            <p className="text-xs font-medium text-gray-600">Total</p>
-            <p className="mt-0.5 text-xl font-extrabold text-emerald-700">${formatNumber(totalRevenue)}</p>
+          <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-3">
+            <p className="text-xs font-medium text-slate-300">Total</p>
+            <p className="mt-0.5 text-xl font-extrabold text-emerald-300">${formatNumber(totalRevenue)}</p>
           </div>
-          <div className="rounded-xl border border-gray-100 bg-gradient-to-br from-gray-50 to-white p-3">
-            <p className="flex items-center gap-1 text-xs font-medium text-gray-600">
-              <TrendingUp size={12} className="text-emerald-600" />
+          <div className="rounded-xl border border-slate-700/60 bg-slate-800/40 p-3">
+            <p className="flex items-center gap-1 text-xs font-medium text-slate-300">
+              <TrendingUp size={12} className="text-emerald-300" />
               Average
             </p>
-            <p className="mt-0.5 text-xl font-extrabold text-gray-900">${formatNumber(parseFloat(avgRevenue))}</p>
+            <p className="mt-0.5 text-xl font-extrabold text-white">${formatNumber(parseFloat(avgRevenue))}</p>
           </div>
         </div>
 
         <div className="relative">
           {/* Y-axis labels */}
           <div
-            className="absolute left-0 top-0 flex flex-col justify-between text-[0.65rem] font-semibold text-gray-400 sm:text-xs"
+            className="absolute left-0 top-0 flex flex-col justify-between text-[0.65rem] font-semibold text-slate-500 sm:text-xs"
             style={{ height: chartHeight }}
           >
             <span>${formatNumber(maxValue)}</span>
@@ -179,7 +179,7 @@ const Chart: React.FC = () => {
               {/* Horizontal gridlines */}
               <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
                 {[0, 1, 2, 3, 4].map((i) => (
-                  <div key={i} className="border-t border-dashed border-gray-100" />
+                  <div key={i} className="border-t border-dashed border-slate-700/60" />
                 ))}
               </div>
 
@@ -193,8 +193,8 @@ const Chart: React.FC = () => {
                     onMouseLeave={() => setHoveredBar(null)}
                   >
                     <div
-                      className={`w-full cursor-pointer rounded-t-lg bg-gradient-to-t from-emerald-500 via-emerald-400 to-green-300 shadow-sm transition-all duration-300 hover:shadow-emerald-300 hover:shadow-md ${
-                        hoveredBar === index ? 'from-emerald-600 via-emerald-500 to-green-400' : ''
+                      className={`w-full cursor-pointer rounded-t-lg bg-gradient-to-t from-emerald-500 via-emerald-400 to-cyan-300 shadow-sm transition-all duration-300 hover:shadow-emerald-400/30 hover:shadow-md ${
+                        hoveredBar === index ? 'from-emerald-400 via-emerald-300 to-cyan-200' : ''
                       }`}
                       style={{
                         height: `${(item.value / maxValue) * chartHeight}px`,
@@ -202,10 +202,10 @@ const Chart: React.FC = () => {
                       }}
                     />
                     {hoveredBar === index && (
-                      <div className="absolute -top-12 left-1/2 z-20 -translate-x-1/2 transform whitespace-nowrap rounded-lg bg-gray-900 px-2.5 py-1.5 text-xs text-white shadow-lg">
+                      <div className="absolute -top-12 left-1/2 z-20 -translate-x-1/2 transform whitespace-nowrap rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs text-white shadow-lg ring-1 ring-slate-700">
                         <p className="font-semibold">{item.month}</p>
                         <p className="text-emerald-300">${formatNumber(item.value)}</p>
-                        <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                        <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
                       </div>
                     )}
                   </div>
@@ -219,7 +219,7 @@ const Chart: React.FC = () => {
                 <div key={index} className="flex flex-1 justify-center">
                   <span
                     className={`text-[0.6rem] font-semibold sm:text-xs ${
-                      hoveredBar === index ? 'text-emerald-600' : 'text-gray-400'
+                      hoveredBar === index ? 'text-emerald-300' : 'text-slate-500'
                     }`}
                   >
                     {index % labelInterval === 0 || index === data.length - 1 ? item.month : ''}
