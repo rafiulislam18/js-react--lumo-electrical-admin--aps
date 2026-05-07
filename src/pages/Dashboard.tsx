@@ -36,33 +36,32 @@ const Dashboard: React.FC = () => {
   return (
     <>
       {/* Hero Header */}
-      {/* <div className="relative mb-6 lg:mb-10 overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-5 sm:p-7 lg:p-8 shadow-lg">
-        
+      <div className="relative mb-5 flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-xl border border-slate-700/60 bg-slate-800/40 px-4 py-3 backdrop-blur">
+
+        {/* Glow Effects */}
         <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-cyan-500/15 blur-3xl" />
+        
         <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-emerald-500/15 blur-3xl" />
 
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-300 backdrop-blur">
-              <Sparkles size={12} />
-              <span>Live Overview</span>
-            </div>
-            <h1 className="mb-2 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
-              Welcome back 👋
-            </h1>
-            <p className="max-w-xl text-sm font-medium text-slate-400 sm:text-base">
-              Here's what's happening with your business today. Track performance, review activity, and take action.
-            </p>
-          </div>
+        {/* Content */}
+        <div className="relative z-10">
+          <h1 className="text-lg font-semibold text-white">
+            Welcome back 👋
+          </h1>
 
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="inline-flex items-center gap-2 rounded-xl border border-slate-700/60 bg-slate-800/60 px-3.5 py-2 text-sm font-semibold text-slate-200 shadow-sm backdrop-blur">
-              <CalendarDays size={16} className="text-cyan-300" />
-              <span className="">{today}</span>
-            </div>
+          <p className="text-sm text-slate-400">
+            Here's what's happening with your business today. Track performance, review activity, and take action.
+          </p>
+        </div>
+
+        <div className="relative z-10 flex flex-wrap items-center gap-2.5">
+          <div className="inline-flex items-center gap-2 rounded-xl border border-slate-700/60 bg-slate-800/60 px-3.5 py-2 text-sm font-semibold text-slate-200 shadow-sm backdrop-blur">
+            <CalendarDays size={16} className="text-cyan-300" />
+            
+            <span>{today}</span>
           </div>
         </div>
-      </div> */}
+      </div>
 
       {/* Tab Navigation - Only visible on small screens */}
       <div className="md:hidden mb-5 flex gap-2 rounded-xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-1 shadow-inner">
