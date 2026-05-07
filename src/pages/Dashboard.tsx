@@ -36,8 +36,8 @@ const Dashboard: React.FC = () => {
   return (
     <>
       {/* Hero Header */}
-      <div className="relative mb-6 lg:mb-10 overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-5 sm:p-7 lg:p-8 shadow-lg">
-        {/* Decorative blobs */}
+      {/* <div className="relative mb-6 lg:mb-10 overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-5 sm:p-7 lg:p-8 shadow-lg">
+        
         <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-cyan-500/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-emerald-500/15 blur-3xl" />
 
@@ -62,7 +62,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Tab Navigation - Only visible on small screens */}
       <div className="md:hidden mb-5 flex gap-2 rounded-xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-1 shadow-inner">

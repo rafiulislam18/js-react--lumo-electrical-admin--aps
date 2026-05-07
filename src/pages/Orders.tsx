@@ -14,6 +14,7 @@ import {
   SlidersHorizontal,
   ArrowUpDown,
 } from 'lucide-react';
+import OrderDetailModal from '../components/OrderDetailModal';
 
 export interface AdminOrder {
   id: number;
@@ -37,12 +38,23 @@ export interface AdminOrder {
   shipping: string;
   updated_at: string;
   payfast_payment_id?: string;
+  assigned_delivery_personnel_name?: string;
+  assigned_delivery_personnel_email?: string;
+  assigned_delivery_personnel_phone?: string;
+}
+
+interface OrderStats {
+  total: number;
+  order_placed: number;
+  out_for_delivery: number;
+  delivered: number;
 }
 
 interface OrderListResponse {
   count: number;
   page: number;
   page_size: number;
+  stats: OrderStats;
   results: AdminOrder[];
 }
 
@@ -55,6 +67,34 @@ const Orders: React.FC = () => {
   const [pageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+
+  // Stats locked at initial load — not affected by search or pagination
+  const [stats, setStats] = useState<OrderStats | null>(null);
+
+  // Filter and sort state
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [paymentFilter, setPaymentFilter] = useState<string>('');
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [showSortMenu, setShowSortMenu] = useState(false);
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.filter-menu-container') && !target.closest('.sort-menu-container')) {
+        setShowFilterMenu(false);
+        setShowSortMenu(false);
+      }
+    };
+
+    if (showFilterMenu || showSortMenu) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showFilterMenu, showSortMenu]);
 
   // Debounce search term
   useEffect(() => {
@@ -66,10 +106,10 @@ const Orders: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch orders whenever page or search changes
+  // Fetch orders whenever page, search, filter, or sort changes
   useEffect(() => {
     fetchOrders();
-  }, [currentPage, pageSize, debouncedSearch]);
+  }, [currentPage, pageSize, debouncedSearch, statusFilter, paymentFilter, sortBy, sortOrder]);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -85,6 +125,19 @@ const Orders: React.FC = () => {
         params.append('search', debouncedSearch);
       }
 
+      if (statusFilter) {
+        params.append('status', statusFilter);
+      }
+
+      if (paymentFilter) {
+        params.append('paid', paymentFilter);
+      }
+
+      if (sortBy) {
+        const orderPrefix = sortOrder === 'desc' ? '-' : '';
+        params.append('ordering', `${orderPrefix}${sortBy}`);
+      }
+
       const response = await authenticatedFetch(`/orders/admin/list/?${params}`);
 
       if (!response.ok) {
@@ -95,6 +148,7 @@ const Orders: React.FC = () => {
       const data: OrderListResponse = await response.json();
       setOrders(data.results || []);
       setTotalCount(data.count || 0);
+      if (!stats && data.stats) setStats(data.stats);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load orders';
       setError(message);
@@ -102,7 +156,7 @@ const Orders: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearch]);
+  }, [currentPage, pageSize, debouncedSearch, statusFilter, paymentFilter, sortBy, sortOrder]);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -178,7 +232,7 @@ const Orders: React.FC = () => {
             </div>
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Total</span>
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{totalCount}</p>
+          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{stats?.total ?? '—'}</p>
           <p className="relative mt-0.5 text-xs font-medium text-slate-400">All Orders</p>
         </div>
 
@@ -191,7 +245,7 @@ const Orders: React.FC = () => {
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Pending</span>
           </div>
           <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {orders.filter((o) => o.status === 'order_placed').length}
+            {stats?.order_placed ?? '—'}
           </p>
           <p className="relative mt-0.5 text-xs font-medium text-slate-400">Awaiting</p>
         </div>
@@ -205,9 +259,9 @@ const Orders: React.FC = () => {
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">In Transit</span>
           </div>
           <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {orders.filter((o) => o.status === 'out_for_delivery').length}
+            {stats?.out_for_delivery ?? '—'}
           </p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">On the way</p>
+          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Courier Assigned</p>
         </div>
 
         <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
@@ -219,7 +273,7 @@ const Orders: React.FC = () => {
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Delivered</span>
           </div>
           <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {orders.filter((o) => o.status === 'delivered').length}
+            {stats?.delivered ?? '—'}
           </p>
           <p className="relative mt-0.5 text-xs font-medium text-slate-400">Completed</p>
         </div>
@@ -238,20 +292,180 @@ const Orders: React.FC = () => {
               className="w-full pl-12 pr-4 py-2.5 bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all text-sm"
             />
           </div>
-          <button
-            type="button"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 backdrop-blur text-sm font-semibold text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60 transition-all"
-          >
-            <SlidersHorizontal size={16} />
-            <span>Filter</span>
-          </button>
-          <button
-            type="button"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 backdrop-blur text-sm font-semibold text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60 transition-all"
-          >
-            <ArrowUpDown size={16} />
-            <span>Sort</span>
-          </button>
+
+          {/* Filter Menu */}
+          <div className="relative filter-menu-container">
+            <button
+              type="button"
+              onClick={() => setShowFilterMenu(!showFilterMenu)}
+              className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
+                showFilterMenu || statusFilter || paymentFilter
+                  ? 'border-cyan-400/40 bg-slate-700/60 text-white'
+                  : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
+              }`}
+            >
+              <SlidersHorizontal size={16} />
+              <span>Filter</span>
+            </button>
+            {showFilterMenu && (
+              <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
+                <div className="p-4 space-y-4">
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+                      Order Status
+                    </label>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => {
+                          setStatusFilter('');
+                          setCurrentPage(1);
+                          setShowFilterMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          statusFilter === ''
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        All Orders
+                      </button>
+                      <button
+                        onClick={() => {
+                          setStatusFilter('order_placed');
+                          setCurrentPage(1);
+                          setShowFilterMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          statusFilter === 'order_placed'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Order Placed
+                      </button>
+                      <button
+                        onClick={() => {
+                          setStatusFilter('out_for_delivery');
+                          setCurrentPage(1);
+                          setShowFilterMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          statusFilter === 'out_for_delivery'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Out for Delivery
+                      </button>
+                      <button
+                        onClick={() => {
+                          setStatusFilter('delivered');
+                          setCurrentPage(1);
+                          setShowFilterMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          statusFilter === 'delivered'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Delivered
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sort Menu */}
+          <div className="relative sort-menu-container">
+            <button
+              type="button"
+              onClick={() => setShowSortMenu(!showSortMenu)}
+              className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
+                showSortMenu || sortBy !== 'created_at'
+                  ? 'border-cyan-400/40 bg-slate-700/60 text-white'
+                  : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
+              }`}
+            >
+              <ArrowUpDown size={16} />
+              <span>Sort</span>
+            </button>
+            {showSortMenu && (
+              <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
+                <div className="p-4 space-y-4">
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+                      Sort By
+                    </label>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => {
+                          setSortBy('created_at');
+                          setSortOrder('desc');
+                          setCurrentPage(1);
+                          setShowSortMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          sortBy === 'created_at' && sortOrder === 'desc'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Date: Newest First
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSortBy('created_at');
+                          setSortOrder('asc');
+                          setCurrentPage(1);
+                          setShowSortMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          sortBy === 'created_at' && sortOrder === 'asc'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Date: Oldest First
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSortBy('total');
+                          setSortOrder('desc');
+                          setCurrentPage(1);
+                          setShowSortMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          sortBy === 'total' && sortOrder === 'desc'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Amount: Highest
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSortBy('total');
+                          setSortOrder('asc');
+                          setCurrentPage(1);
+                          setShowSortMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          sortBy === 'total' && sortOrder === 'asc'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Amount: Lowest
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -316,7 +530,7 @@ const Orders: React.FC = () => {
                   {/* Vertical separator + details (hidden on mobile) */}
                   <div className="hidden sm:flex items-center gap-5 flex-shrink-0">
                     <div className="h-12 w-px bg-slate-700/60" />
-                    <div className="grid grid-cols-3 gap-5 min-w-fit">
+                    <div className="grid grid-cols-4 gap-5 min-w-fit">
                       <div className="text-right">
                         <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Items</p>
                         <p className="text-sm font-bold text-white">{order.items_count}</p>
@@ -331,11 +545,20 @@ const Orders: React.FC = () => {
                           {order.paid ? 'Paid' : 'Pending'}
                         </p>
                       </div>
+                      <div className="text-right">
+                        <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Courier</p>
+                        <p className="text-sm font-bold text-white">
+                          {order.assigned_delivery_personnel_name ? order.assigned_delivery_personnel_name.split(' ')[0] : '—'}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   {/* View Button */}
-                  <button className="px-4 py-2 bg-gradient-to-br from-cyan-500 to-emerald-600 text-white rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all font-semibold text-sm whitespace-nowrap">
+                  <button
+                    onClick={() => setSelectedOrderId(order.id)}
+                    className="px-4 py-2 bg-gradient-to-br from-cyan-500 to-emerald-600 text-white rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all font-semibold text-sm whitespace-nowrap"
+                  >
                     View Details
                   </button>
                 </div>
@@ -354,6 +577,12 @@ const Orders: React.FC = () => {
                     <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Payment</p>
                     <p className={`font-bold ${order.paid ? 'text-emerald-400' : 'text-red-400'}`}>
                       {order.paid ? 'Paid' : 'Pending'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Delivery</p>
+                    <p className="font-bold text-white">
+                      {order.assigned_delivery_personnel_name ? order.assigned_delivery_personnel_name.split(' ')[0] : '—'}
                     </p>
                   </div>
                 </div>
@@ -408,6 +637,14 @@ const Orders: React.FC = () => {
             )}
           </div>
         </>
+      )}
+
+      {/* Order Detail Modal */}
+      {selectedOrderId !== null && (
+        <OrderDetailModal
+          orderId={selectedOrderId}
+          onClose={() => setSelectedOrderId(null)}
+        />
       )}
     </>
   );

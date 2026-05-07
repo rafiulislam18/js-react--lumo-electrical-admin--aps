@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { authenticatedFetch, apiPost } from '../lib/api';
-import { ArrowLeft, Upload, Loader, AlertCircle, Plus, X } from 'lucide-react';
+import { authenticatedFetch } from '../lib/api';
+import { ArrowLeft, Upload, Loader, AlertCircle, Plus, X, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Category {
@@ -25,6 +25,11 @@ interface ProductFormData {
   stock_quantity: string;
   specifications: SpecificationItem[];
 }
+
+const inputClass =
+  'w-full px-3.5 py-2.5 bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-500 rounded-xl text-sm focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all hover:border-slate-600';
+
+const labelClass = 'block text-xs font-semibold text-slate-300 mb-1.5';
 
 const CreateProduct: React.FC = () => {
   const navigate = useNavigate();
@@ -51,7 +56,6 @@ const CreateProduct: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const response = await authenticatedFetch('/categories/?leaf_only=true');
-
       if (response.ok) {
         const data = await response.json();
         setCategories(data.results || data);
@@ -65,33 +69,20 @@ const CreateProduct: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({
-        ...prev,
-        [name]: checked,
-      }));
+      setFormData(prev => ({ ...prev, [name]: checked }));
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData(prev => ({
-        ...prev,
-        image: file,
-      }));
-
+      setFormData(prev => ({ ...prev, image: file }));
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
+      reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
@@ -110,11 +101,7 @@ const CreateProduct: React.FC = () => {
     }));
   };
 
-  const handleSpecificationChange = (
-    index: number,
-    field: 'key' | 'value',
-    value: string
-  ) => {
+  const handleSpecificationChange = (index: number, field: 'key' | 'value', value: string) => {
     setFormData(prev => ({
       ...prev,
       specifications: prev.specifications.map((spec, i) =>
@@ -135,7 +122,6 @@ const CreateProduct: React.FC = () => {
     try {
       setLoading(true);
       const formDataObj = new FormData();
-
       formDataObj.append('name', formData.name);
       formDataObj.append('price', formData.price);
       formDataObj.append('old_price', formData.old_price || '');
@@ -144,21 +130,16 @@ const CreateProduct: React.FC = () => {
       formDataObj.append('badge', formData.badge);
       formDataObj.append('stock_quantity', formData.stock_quantity || '0');
 
-      // Convert specifications array to object format
       const specificationsObj = formData.specifications.reduce(
         (acc, spec) => {
-          if (spec.key.trim()) {
-            acc[spec.key.trim()] = spec.value.trim();
-          }
+          if (spec.key.trim()) acc[spec.key.trim()] = spec.value.trim();
           return acc;
         },
         {} as Record<string, string>
       );
       formDataObj.append('specifications', JSON.stringify(specificationsObj));
 
-      if (formData.image) {
-        formDataObj.append('image', formData.image);
-      }
+      if (formData.image) formDataObj.append('image', formData.image);
 
       const response = await authenticatedFetch('/products/admin/create/', {
         method: 'POST',
@@ -172,8 +153,7 @@ const CreateProduct: React.FC = () => {
 
       navigate('/products');
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create product';
-      setError(message);
+      setError(err instanceof Error ? err.message : 'Failed to create product');
       console.error('Create product error:', err);
     } finally {
       setLoading(false);
@@ -181,74 +161,84 @@ const CreateProduct: React.FC = () => {
   };
 
   return (
-    <div>
+    <>
       {/* Header */}
       <div className="mb-6 lg:mb-8">
         <button
           onClick={() => navigate('/products')}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium mb-4"
+          className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={16} />
           Back to Products
         </button>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 tracking-tight">
           Create Product
         </h1>
-        <p className="text-sm sm:text-base text-gray-600 font-medium">
+        <p className="text-sm sm:text-base text-slate-400 font-medium">
           Add a new product to your inventory
         </p>
       </div>
 
-      {/* Error Alert */}
+      {/* Error */}
       {error && (
-        <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="mb-6 flex items-start gap-2.5 p-3.5 bg-red-500/10 border border-red-400/30 rounded-xl">
+          <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-300 font-medium">{error}</p>
         </div>
       )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="max-w-3xl">
-        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-6 space-y-6 shadow-xl">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
+
           {/* Image Upload */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-3">
-              Product Image <span className="text-red-600">*</span>
+            <label className={labelClass}>
+              Product Image <span className="text-red-400">*</span>
             </label>
-            <div className="relative">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-                id="image-input"
-                required
-              />
-              <label
-                htmlFor="image-input"
-                className="flex items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
-              >
-                {imagePreview ? (
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="h-full w-full object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center">
-                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                    <p className="text-sm font-medium text-gray-700">Click to upload image</p>
-                  </div>
-                )}
-              </label>
-            </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+              id="image-input"
+              required
+            />
+            <label
+              htmlFor="image-input"
+              className="group block w-full sm:w-2/3 lg:w-1/2 aspect-square cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-slate-700/60 hover:border-cyan-400/50 hover:bg-cyan-500/5 transition-all"
+            >
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="flex h-full w-full flex-col items-center justify-center gap-2">
+                  <span className="rounded-xl bg-slate-700/60 p-3 ring-1 ring-slate-600/40 group-hover:bg-cyan-500/10 group-hover:ring-cyan-400/20 transition-all">
+                    <Upload size={20} className="text-slate-400 group-hover:text-cyan-300 transition-colors" />
+                  </span>
+                  <span className="text-sm font-medium text-slate-400 group-hover:text-slate-300 transition-colors">
+                    Click to upload image
+                  </span>
+                </span>
+              )}
+            </label>
+            <p className="mt-2 text-[0.7rem] text-slate-500 font-medium">
+              Use a <span className="text-slate-400 font-semibold">1:1 square image</span> for best results — non-square images may be cropped or distorted in product cards and listings.
+            </p>
           </div>
 
+          {/* Divider */}
+          <div className="h-px bg-slate-700/60" />
+
           {/* Basic Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Product Name <span className="text-red-600">*</span>
+              <label className={labelClass}>
+                Product Name <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -256,37 +246,34 @@ const CreateProduct: React.FC = () => {
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="e.g., LED Bulb 60W"
-                className="w-full px-4 py-2.5 bg-white rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
+                className={inputClass}
                 required
               />
             </div>
-
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Category <span className="text-red-600">*</span>
+              <label className={labelClass}>
+                Category <span className="text-red-400">*</span>
               </label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-white rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
+                className={inputClass}
                 required
               >
                 <option value="">Select a category</option>
                 {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
             </div>
           </div>
 
           {/* Pricing */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Price (R) <span className="text-red-600">*</span>
+              <label className={labelClass}>
+                Price (R) <span className="text-red-400">*</span>
               </label>
               <input
                 type="number"
@@ -296,15 +283,12 @@ const CreateProduct: React.FC = () => {
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                className="w-full px-4 py-2.5 bg-white rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
+                className={inputClass}
                 required
               />
             </div>
-
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Original Price (R)
-              </label>
+              <label className={labelClass}>Original Price (R)</label>
               <input
                 type="number"
                 name="old_price"
@@ -313,37 +297,33 @@ const CreateProduct: React.FC = () => {
                 placeholder="0.00"
                 step="0.01"
                 min="0"
-                className="w-full px-4 py-2.5 bg-white rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
+                className={inputClass}
               />
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Description
-            </label>
+            <label className={labelClass}>Description</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
               placeholder="Enter product description..."
               rows={4}
-              className="w-full px-4 py-2.5 bg-white rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm resize-none"
+              className={`${inputClass} resize-none`}
             />
           </div>
 
-          {/* Badge and Stock Quantity */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Badge & Stock */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Badge
-              </label>
+              <label className={labelClass}>Badge</label>
               <select
                 name="badge"
                 value={formData.badge}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-white rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
+                className={inputClass}
               >
                 <option value="">None</option>
                 <option value="Hot">Hot</option>
@@ -351,11 +331,8 @@ const CreateProduct: React.FC = () => {
                 <option value="Sale">Sale</option>
               </select>
             </div>
-
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Stock Quantity
-              </label>
+              <label className={labelClass}>Stock Quantity</label>
               <input
                 type="number"
                 name="stock_quantity"
@@ -363,82 +340,86 @@ const CreateProduct: React.FC = () => {
                 onChange={handleInputChange}
                 placeholder="0"
                 min="0"
-                className="w-full px-4 py-2.5 bg-white rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
+                className={inputClass}
               />
             </div>
           </div>
 
+          {/* Divider */}
+          <div className="h-px bg-slate-700/60" />
+
           {/* Specifications */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="block text-sm font-semibold text-gray-900">
-                Specifications
-              </label>
+              <label className="text-xs font-semibold text-slate-300">Specifications</label>
               <button
                 type="button"
                 onClick={handleAddSpecification}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-cyan-300 bg-cyan-500/10 rounded-lg hover:bg-cyan-500/20 ring-1 ring-cyan-400/20 transition-colors"
               >
-                <Plus size={16} />
-                Add
+                <Plus size={13} />
+                Add Row
               </button>
             </div>
             <div className="space-y-2">
               {formData.specifications.map((spec, index) => (
-                <div key={index} className="flex gap-2 items-end">
+                <div key={index} className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Specification name (e.g., Voltage)"
+                    placeholder="Name (e.g., Voltage)"
                     value={spec.key}
                     onChange={(e) => handleSpecificationChange(index, 'key', e.target.value)}
-                    className="flex-1 px-4 py-2.5 bg-white rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
+                    className={inputClass}
                   />
                   <input
                     type="text"
                     placeholder="Value (e.g., 220V)"
                     value={spec.value}
                     onChange={(e) => handleSpecificationChange(index, 'value', e.target.value)}
-                    className="flex-1 px-4 py-2.5 bg-white rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
+                    className={inputClass}
                   />
                   <button
                     type="button"
                     onClick={() => handleRemoveSpecification(index)}
-                    className="flex-shrink-0 p-2.5 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                    className="flex-shrink-0 p-2.5 text-red-300 bg-red-500/15 rounded-xl hover:bg-red-500/25 transition-colors ring-1 ring-red-400/20"
                   >
-                    <X size={16} />
+                    <X size={14} />
                   </button>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Buttons */}
-          <div className="flex gap-3 pt-6 border-t border-gray-200">
+          {/* Actions */}
+          <div className="flex gap-3 pt-2 border-t border-slate-700/60">
             <button
               type="button"
               onClick={() => navigate('/products')}
-              className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+              className="flex-1 px-4 py-2.5 bg-slate-700/60 text-slate-200 rounded-xl font-semibold hover:bg-slate-700 transition-colors border border-slate-600/60 text-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-br from-cyan-500 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
             >
               {loading ? (
                 <>
-                  <Loader className="w-4 h-4 animate-spin" />
+                  <Loader size={14} className="animate-spin" />
                   Creating...
                 </>
               ) : (
-                'Create Product'
+                <>
+                  <Package size={14} />
+                  Create Product
+                </>
               )}
             </button>
           </div>
         </div>
       </form>
-    </div>
+    </>
   );
 };
 

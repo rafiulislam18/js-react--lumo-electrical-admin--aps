@@ -15,7 +15,10 @@ import {
   Loader,
   ChevronLeft,
   ChevronRight,
+  SlidersHorizontal,
+  ArrowUpDown,
 } from 'lucide-react';
+import ProductDetailModal from '../components/ProductDetailModal';
 
 interface Category {
   id: number;
@@ -39,10 +42,18 @@ interface Product {
   sold_count: number;
 }
 
+interface ProductStats {
+  total: number;
+  in_stock: number;
+  out_of_stock: number;
+  total_sold: number;
+}
+
 interface ProductListResponse {
   count: number;
   page: number;
   page_size: number;
+  stats: ProductStats;
   results: Product[];
 }
 
@@ -58,6 +69,30 @@ const Products: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [stockFilter, setStockFilter] = useState<'all' | 'in_stock' | 'out_of_stock'>('all');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'price_high' | 'price_low' | 'popular'>('newest');
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [showSortMenu, setShowSortMenu] = useState(false);
+
+  // Stats locked at initial load — not affected by search or pagination
+  const [stats, setStats] = useState<ProductStats | null>(null);
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.filter-menu-container') && !target.closest('.sort-menu-container')) {
+        setShowFilterMenu(false);
+        setShowSortMenu(false);
+      }
+    };
+
+    if (showFilterMenu || showSortMenu) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showFilterMenu, showSortMenu]);
 
   // Debounce search term
   useEffect(() => {
@@ -69,10 +104,10 @@ const Products: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch products whenever page, page size, or search changes
+  // Fetch products whenever page, page size, search, filter, or sort changes
   useEffect(() => {
     fetchProducts();
-  }, [currentPage, pageSize, debouncedSearch]);
+  }, [currentPage, pageSize, debouncedSearch, stockFilter, sortBy]);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -88,6 +123,20 @@ const Products: React.FC = () => {
         params.append('search', debouncedSearch);
       }
 
+      if (stockFilter !== 'all') {
+        params.append('stock', stockFilter);
+      }
+
+      // Map UI sort options to backend ordering parameter
+      const orderingMap: Record<string, string> = {
+        newest: '-created_at',
+        oldest: 'created_at',
+        price_high: '-price',
+        price_low: 'price',
+        popular: '-sold_count',
+      };
+      params.append('ordering', orderingMap[sortBy]);
+
       const response = await authenticatedFetch(`/products/admin/list/?${params}`);
 
       if (!response.ok) {
@@ -98,6 +147,7 @@ const Products: React.FC = () => {
       const data: ProductListResponse = await response.json();
       setProducts(data.results || []);
       setTotalCount(data.count || 0);
+      if (!stats && data.stats) setStats(data.stats);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load products';
       setError(message);
@@ -105,7 +155,7 @@ const Products: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearch]);
+  }, [currentPage, pageSize, debouncedSearch, stockFilter, sortBy]);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -160,7 +210,7 @@ const Products: React.FC = () => {
             </div>
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Total</span>
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{totalCount}</p>
+          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{stats?.total ?? '—'}</p>
           <p className="relative mt-0.5 text-xs font-medium text-slate-400">Products</p>
         </div>
         <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
@@ -172,7 +222,7 @@ const Products: React.FC = () => {
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">In Stock</span>
           </div>
           <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {products.filter((p) => p.in_stock).length}
+            {stats?.in_stock ?? '—'}
           </p>
           <p className="relative mt-0.5 text-xs font-medium text-slate-400">Available</p>
         </div>
@@ -185,7 +235,7 @@ const Products: React.FC = () => {
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Out of Stock</span>
           </div>
           <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {products.filter((p) => !p.in_stock).length}
+            {stats?.out_of_stock ?? '—'}
           </p>
           <p className="relative mt-0.5 text-xs font-medium text-slate-400">Unavailable</p>
         </div>
@@ -198,20 +248,17 @@ const Products: React.FC = () => {
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Sold</span>
           </div>
           <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {products.reduce((sum, p) => sum + p.sold_count, 0)}
+            {stats?.total_sold ?? '—'}
           </p>
           <p className="relative mt-0.5 text-xs font-medium text-slate-400">Total Units</p>
         </div>
       </div>
 
-      {/* Search and Add Button */}
+      {/* Search + Filter + Sort */}
       <div className="mb-6 lg:mb-8">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10"
-              size={18}
-            />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10" size={18} />
             <input
               type="text"
               placeholder="Search by name or category..."
@@ -220,9 +267,180 @@ const Products: React.FC = () => {
               className="w-full pl-12 pr-4 py-2.5 bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all text-sm"
             />
           </div>
+
+          {/* Filter Menu */}
+          <div className="relative filter-menu-container">
+            <button
+              type="button"
+              onClick={() => setShowFilterMenu(!showFilterMenu)}
+              className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
+                showFilterMenu || stockFilter !== 'all'
+                  ? 'border-cyan-400/40 bg-slate-700/60 text-white'
+                  : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
+              }`}
+            >
+              <SlidersHorizontal size={16} />
+              <span>Filter</span>
+            </button>
+            {showFilterMenu && (
+              <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
+                <div className="p-4 space-y-4">
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+                      Stock Status
+                    </label>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => {
+                          setStockFilter('all');
+                          setCurrentPage(1);
+                          setShowFilterMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          stockFilter === 'all'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        All Products
+                      </button>
+                      <button
+                        onClick={() => {
+                          setStockFilter('in_stock');
+                          setCurrentPage(1);
+                          setShowFilterMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          stockFilter === 'in_stock'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        In Stock
+                      </button>
+                      <button
+                        onClick={() => {
+                          setStockFilter('out_of_stock');
+                          setCurrentPage(1);
+                          setShowFilterMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          stockFilter === 'out_of_stock'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Out of Stock
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sort Menu */}
+          <div className="relative sort-menu-container">
+            <button
+              type="button"
+              onClick={() => setShowSortMenu(!showSortMenu)}
+              className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
+                showSortMenu || sortBy !== 'newest'
+                  ? 'border-cyan-400/40 bg-slate-700/60 text-white'
+                  : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
+              }`}
+            >
+              <ArrowUpDown size={16} />
+              <span>Sort</span>
+            </button>
+            {showSortMenu && (
+              <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
+                <div className="p-4 space-y-4">
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+                      Sort By
+                    </label>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => {
+                          setSortBy('newest');
+                          setCurrentPage(1);
+                          setShowSortMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          sortBy === 'newest'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Date: Newest First
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSortBy('oldest');
+                          setCurrentPage(1);
+                          setShowSortMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          sortBy === 'oldest'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Date: Oldest First
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSortBy('price_high');
+                          setCurrentPage(1);
+                          setShowSortMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          sortBy === 'price_high'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Price: High to Low
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSortBy('price_low');
+                          setCurrentPage(1);
+                          setShowSortMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          sortBy === 'price_low'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Price: Low to High
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSortBy('popular');
+                          setCurrentPage(1);
+                          setShowSortMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          sortBy === 'popular'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Most Popular
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => navigate('/products/create')}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-br from-cyan-500 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/30 transition-all whitespace-nowrap"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-br from-cyan-500 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/30 transition-all whitespace-nowrap"
           >
             <Plus size={18} />
             Add Product
@@ -263,7 +481,10 @@ const Products: React.FC = () => {
                 <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100 z-20" />
 
                 {/* Square Image */}
-                <div className="relative h-36 sm:h-40 overflow-hidden bg-slate-900/60">
+                <button
+                  onClick={() => setSelectedProductId(product.id)}
+                  className="relative h-36 sm:h-40 overflow-hidden bg-slate-900/60 w-full text-left"
+                >
                   <img
                     src={product.image}
                     alt={product.name}
@@ -311,21 +532,27 @@ const Products: React.FC = () => {
                   {/* Action buttons - overlay on hover */}
                   <div className="absolute bottom-2 right-2 z-10 flex gap-1.5 opacity-0 translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
                     <button
-                      onClick={() => navigate(`/products/${product.id}/edit`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/products/${product.id}/edit`);
+                      }}
                       className="p-2 text-white bg-cyan-500/90 backdrop-blur rounded-lg hover:bg-cyan-500 transition-colors ring-1 ring-cyan-300/40 shadow-lg shadow-cyan-500/30"
                       title="Edit product"
                     >
                       <Edit2 size={14} />
                     </button>
                     <button
-                      onClick={() => setDeleteConfirm({ id: product.id, name: product.name })}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteConfirm({ id: product.id, name: product.name });
+                      }}
                       className="p-2 text-white bg-red-500/90 backdrop-blur rounded-lg hover:bg-red-500 transition-colors ring-1 ring-red-300/40 shadow-lg shadow-red-500/30"
                       title="Delete product"
                     >
                       <Trash2 size={14} />
                     </button>
                   </div>
-                </div>
+                </button>
 
                 {/* Info Section */}
                 <div className="relative flex flex-col flex-1 p-3">
@@ -335,9 +562,12 @@ const Products: React.FC = () => {
                   </p>
 
                   {/* Name */}
-                  <h3 className="font-semibold text-white text-xs leading-snug mb-1.5 line-clamp-2 min-h-[2rem]">
+                  <button
+                    onClick={() => setSelectedProductId(product.id)}
+                    className="font-semibold text-white text-xs leading-snug mb-1.5 line-clamp-2 min-h-[2rem] text-left hover:text-cyan-300 transition-colors"
+                  >
                     {product.name}
-                  </h3>
+                  </button>
 
                   {/* Rating */}
                   <div className="flex items-center gap-1.5 mb-2 min-h-[1rem]">
@@ -475,6 +705,14 @@ const Products: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Product Detail Modal */}
+      {selectedProductId !== null && (
+        <ProductDetailModal
+          productId={selectedProductId}
+          onClose={() => setSelectedProductId(null)}
+        />
       )}
     </>
   );

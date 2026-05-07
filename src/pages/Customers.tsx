@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { authenticatedFetch } from '../lib/api';
 import {
   Search,
+  SlidersHorizontal,
+  ArrowUpDown,
   Mail,
   Phone,
   MapPin,
@@ -13,7 +15,6 @@ import {
   ChevronRight,
   Users,
   ShoppingBag,
-  TrendingUp,
   BadgeCheck,
 } from 'lucide-react';
 
@@ -49,10 +50,17 @@ interface Customer {
   date_joined: string;
 }
 
+interface CustomerStats {
+  total: number;
+  trade: number;
+  retail: number;
+}
+
 interface CustomerListResponse {
   count: number;
   page: number;
   page_size: number;
+  stats: CustomerStats;
   results: Customer[];
 }
 
@@ -66,6 +74,29 @@ const Customers: React.FC = () => {
   const [pageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [customerTypeFilter, setCustomerTypeFilter] = useState<'all' | 'trade' | 'retail'>('all');
+  const [sortBy, setSortBy] = useState<'joined_newest' | 'joined_oldest' | 'orders' | 'spent'>('joined_newest');
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [showSortMenu, setShowSortMenu] = useState(false);
+
+  // Stats locked at initial load — not affected by search or pagination
+  const [stats, setStats] = useState<CustomerStats | null>(null);
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.filter-menu-container') && !target.closest('.sort-menu-container')) {
+        setShowFilterMenu(false);
+        setShowSortMenu(false);
+      }
+    };
+
+    if (showFilterMenu || showSortMenu) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showFilterMenu, showSortMenu]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -77,7 +108,7 @@ const Customers: React.FC = () => {
 
   useEffect(() => {
     fetchCustomers();
-  }, [currentPage, pageSize, debouncedSearch]);
+  }, [currentPage, pageSize, debouncedSearch, customerTypeFilter, sortBy]);
 
   const fetchCustomers = useCallback(async () => {
     try {
@@ -88,6 +119,20 @@ const Customers: React.FC = () => {
         page_size: pageSize.toString(),
       });
       if (debouncedSearch) params.append('search', debouncedSearch);
+
+      if (customerTypeFilter !== 'all') {
+        params.append('customer_type', customerTypeFilter);
+      }
+
+      // Map UI sort options to backend ordering parameter
+      const orderingMap: Record<string, string> = {
+        joined_newest: '-date_joined',
+        joined_oldest: 'date_joined',
+        orders: '-total_orders',
+        spent: '-total_spent',
+      };
+      params.append('ordering', orderingMap[sortBy]);
+
       const response = await authenticatedFetch(`/users/admin/customers/?${params}`);
       if (!response.ok) {
         const errorText = await response.text();
@@ -96,12 +141,13 @@ const Customers: React.FC = () => {
       const data: CustomerListResponse = await response.json();
       setCustomers(data.results || []);
       setTotalCount(data.count || 0);
+      if (!stats && data.stats) setStats(data.stats);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load customers');
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearch]);
+  }, [currentPage, pageSize, debouncedSearch, customerTypeFilter, sortBy]);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -145,7 +191,7 @@ const Customers: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 lg:mb-8">
+      <div className="grid grid-cols-3 gap-3 mb-6 lg:mb-8">
         <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/10">
           <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-cyan-500/15 blur-2xl" />
           <div className="relative flex items-center justify-between mb-2">
@@ -154,7 +200,7 @@ const Customers: React.FC = () => {
             </div>
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Total</span>
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{totalCount}</p>
+          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{stats?.total ?? '—'}</p>
           <p className="relative mt-0.5 text-xs font-medium text-slate-400">Customers</p>
         </div>
 
@@ -167,7 +213,7 @@ const Customers: React.FC = () => {
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Trade</span>
           </div>
           <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {customers.filter((c) => c.customer_profile?.customer_type === 'Trade').length}
+            {stats?.trade ?? '—'}
           </p>
           <p className="relative mt-0.5 text-xs font-medium text-slate-400">Trade Members</p>
         </div>
@@ -181,29 +227,16 @@ const Customers: React.FC = () => {
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Retail</span>
           </div>
           <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {customers.filter((c) => c.customer_profile?.customer_type === 'Retail').length}
+            {stats?.retail ?? '—'}
           </p>
           <p className="relative mt-0.5 text-xs font-medium text-slate-400">Retail Members</p>
         </div>
 
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-sky-400/40 hover:shadow-lg hover:shadow-sky-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-sky-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-sky-500/15 p-2 ring-1 ring-sky-400/20">
-              <TrendingUp size={16} className="text-sky-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Revenue</span>
-          </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            R{(customers.reduce((sum, c) => sum + c.total_spent, 0) / 1000).toFixed(1)}K
-          </p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Total Spent</p>
-        </div>
       </div>
 
-      {/* Search */}
-      <div className="mb-6 lg:mb-8">
-        <div className="relative">
+      {/* Search + Filter + Sort */}
+      <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row gap-3">
+        <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10" size={18} />
           <input
             type="text"
@@ -212,6 +245,162 @@ const Customers: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-2.5 bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all text-sm"
           />
+        </div>
+
+        {/* Filter Menu */}
+        <div className="relative filter-menu-container">
+          <button
+            type="button"
+            onClick={() => setShowFilterMenu(!showFilterMenu)}
+            className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
+              showFilterMenu || customerTypeFilter !== 'all'
+                ? 'border-cyan-400/40 bg-slate-700/60 text-white'
+                : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
+            }`}
+          >
+            <SlidersHorizontal size={16} />
+            <span>Filter</span>
+          </button>
+          {showFilterMenu && (
+            <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
+              <div className="p-4 space-y-4">
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+                    Customer Type
+                  </label>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => {
+                        setCustomerTypeFilter('all');
+                        setCurrentPage(1);
+                        setShowFilterMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        customerTypeFilter === 'all'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                      }`}
+                    >
+                      All Customers
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCustomerTypeFilter('trade');
+                        setCurrentPage(1);
+                        setShowFilterMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        customerTypeFilter === 'trade'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                      }`}
+                    >
+                      Trade
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCustomerTypeFilter('retail');
+                        setCurrentPage(1);
+                        setShowFilterMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        customerTypeFilter === 'retail'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                      }`}
+                    >
+                      Retail
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Sort Menu */}
+        <div className="relative sort-menu-container">
+          <button
+            type="button"
+            onClick={() => setShowSortMenu(!showSortMenu)}
+            className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
+              showSortMenu || sortBy !== 'joined_newest'
+                ? 'border-cyan-400/40 bg-slate-700/60 text-white'
+                : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
+            }`}
+          >
+            <ArrowUpDown size={16} />
+            <span>Sort</span>
+          </button>
+          {showSortMenu && (
+            <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
+              <div className="p-4 space-y-4">
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+                    Sort By
+                  </label>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => {
+                        setSortBy('joined_newest');
+                        setCurrentPage(1);
+                        setShowSortMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        sortBy === 'joined_newest'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                      }`}
+                    >
+                      Joined: Newest
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSortBy('joined_oldest');
+                        setCurrentPage(1);
+                        setShowSortMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        sortBy === 'joined_oldest'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                      }`}
+                    >
+                      Joined: Oldest
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSortBy('orders');
+                        setCurrentPage(1);
+                        setShowSortMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        sortBy === 'orders'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                      }`}
+                    >
+                      Most Orders
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSortBy('spent');
+                        setCurrentPage(1);
+                        setShowSortMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        sortBy === 'spent'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                      }`}
+                    >
+                      Highest Spent
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -11,10 +11,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
-  Users,
   CheckCircle2,
   XCircle,
   CalendarDays,
+  Package,
+  TrendingUp,
 } from 'lucide-react';
 import CreateDeliveryPersonnelModal from '../components/CreateDeliveryPersonnelModal';
 
@@ -26,12 +27,19 @@ interface DeliveryPersonnel {
   phone: string;
   created_at: string;
   is_active: boolean;
+  delivered_orders: number;
+  active_orders: number;
+}
+
+interface DeliveryPersonnelStats {
+  total: number;
 }
 
 interface DeliveryPersonnelListResponse {
   count: number;
   page: number;
   page_size: number;
+  stats: DeliveryPersonnelStats;
   results: DeliveryPersonnel[];
 }
 
@@ -48,6 +56,9 @@ const DeliveryPersonnelPage: React.FC = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Stats locked at initial load — not affected by search or pagination
+  const [stats, setStats] = useState<DeliveryPersonnelStats | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -78,6 +89,7 @@ const DeliveryPersonnelPage: React.FC = () => {
       const data: DeliveryPersonnelListResponse = await response.json();
       setPersonnel(data.results || []);
       setTotalCount(data.count || 0);
+      if (!stats && data.stats) setStats(data.stats);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load delivery personnel');
     } finally {
@@ -120,8 +132,6 @@ const DeliveryPersonnelPage: React.FC = () => {
   const getInitials = (first: string, last: string) =>
     `${first?.[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase();
 
-  const activeCount = personnel.filter((p) => p.is_active).length;
-  const inactiveCount = personnel.filter((p) => !p.is_active).length;
 
   return (
     <>
@@ -136,7 +146,7 @@ const DeliveryPersonnelPage: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 lg:mb-8">
+      <div className="grid grid-cols-1 gap-3 mb-6 lg:mb-8 max-w-xs">
         <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/10">
           <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-cyan-500/15 blur-2xl" />
           <div className="relative flex items-center justify-between mb-2">
@@ -145,53 +155,15 @@ const DeliveryPersonnelPage: React.FC = () => {
             </div>
             <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Total</span>
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{totalCount}</p>
+          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{stats?.total ?? '—'}</p>
           <p className="relative mt-0.5 text-xs font-medium text-slate-400">Personnel</p>
-        </div>
-
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-emerald-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-emerald-500/15 p-2 ring-1 ring-emerald-400/20">
-              <CheckCircle2 size={16} className="text-emerald-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Active</span>
-          </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{activeCount}</p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">On Duty</p>
-        </div>
-
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-amber-400/40 hover:shadow-lg hover:shadow-amber-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-amber-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-amber-500/15 p-2 ring-1 ring-amber-400/20">
-              <XCircle size={16} className="text-amber-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Inactive</span>
-          </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{inactiveCount}</p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Off Duty</p>
-        </div>
-
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-sky-400/40 hover:shadow-lg hover:shadow-sky-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-sky-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-sky-500/15 p-2 ring-1 ring-sky-400/20">
-              <Users size={16} className="text-sky-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Rate</span>
-          </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0}%
-          </p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Active Rate</p>
         </div>
       </div>
 
       {/* Search and Add */}
       <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10" size={18} />
           <input
             type="text"
             placeholder="Search by name, email, or phone..."
@@ -251,7 +223,7 @@ const DeliveryPersonnelPage: React.FC = () => {
                       <p className="font-semibold text-white text-sm">
                         {person.first_name} {person.last_name}
                       </p>
-                      <span
+                      {/* <span
                         className={`inline-flex items-center gap-1 text-[0.6rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
                           person.is_active
                             ? 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/25'
@@ -263,7 +235,7 @@ const DeliveryPersonnelPage: React.FC = () => {
                         ) : (
                           <><XCircle size={9} />{' '}Inactive</>
                         )}
-                      </span>
+                      </span> */}
                     </div>
                     <div className="flex items-center gap-4 flex-wrap">
                       <span className="flex items-center gap-1 text-xs text-slate-400">
@@ -274,6 +246,20 @@ const DeliveryPersonnelPage: React.FC = () => {
                         <Phone size={11} className="text-slate-500" />
                         {person.phone}
                       </span>
+                    </div>
+                  </div>
+
+                  {/* Order Stats */}
+                  <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-emerald-500/15 ring-1 ring-emerald-400/20">
+                      <CheckCircle2 size={12} className="text-emerald-400" />
+                      <span className="text-emerald-300 font-semibold">{person.delivered_orders}</span>
+                      <span className="text-emerald-300/70">Delivered</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-amber-500/15 ring-1 ring-amber-400/20">
+                      <Package size={12} className="text-amber-400" />
+                      <span className="text-amber-300 font-semibold">{person.active_orders}</span>
+                      <span className="text-amber-300/70">Active</span>
                     </div>
                   </div>
 
@@ -296,10 +282,24 @@ const DeliveryPersonnelPage: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Mobile joined */}
-                <div className="sm:hidden px-4 pb-3 border-t border-slate-700/50 pt-2.5 flex items-center gap-1.5 text-xs text-slate-400">
-                  <CalendarDays size={11} className="text-slate-500" />
-                  <span>Joined {formatDate(person.created_at)}</span>
+                {/* Mobile stats and joined */}
+                <div className="sm:hidden px-4 pb-3 border-t border-slate-700/50 pt-2.5 space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-emerald-500/15 ring-1 ring-emerald-400/20">
+                      <CheckCircle2 size={12} className="text-emerald-400" />
+                      <span className="text-emerald-300 font-semibold">{person.delivered_orders}</span>
+                      <span className="text-emerald-300/70">Delivered</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-amber-500/15 ring-1 ring-amber-400/20">
+                      <Package size={12} className="text-amber-400" />
+                      <span className="text-amber-300 font-semibold">{person.active_orders}</span>
+                      <span className="text-amber-300/70">Active</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                    <CalendarDays size={11} className="text-slate-500" />
+                    <span>Joined {formatDate(person.created_at)}</span>
+                  </div>
                 </div>
               </div>
             ))}
