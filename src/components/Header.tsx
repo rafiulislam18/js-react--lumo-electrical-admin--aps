@@ -84,7 +84,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                 <p className="text-sm font-semibold text-white truncate">
                   {user?.first_name} {user?.last_name}
                 </p>
-                <p className="text-[0.65rem] text-slate-400 truncate mt-0.5">{user?.email}</p>
+                <p className="text-[0.65rem] text-slate-400 truncate mt-0.5">{user?.email || user?.username}</p>
               </div>
 
               {/* Logout */}

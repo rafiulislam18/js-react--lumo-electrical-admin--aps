@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, ShoppingCart, Crown, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Product {
   id: number;
@@ -13,6 +14,7 @@ interface Product {
 
 const PopularProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const navigate = useNavigate();
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -147,7 +149,7 @@ const PopularProducts: React.FC = () => {
 
         <div className="mt-5 border-t border-slate-700/60 pt-4 sm:mt-6">
           <button className="group/btn inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300 transition-all duration-200 hover:text-emerald-200 sm:text-sm"
-            onClick={() => window.location.href = '/products'}
+            onClick={() => navigate('/products')}
           >
             View All Products
             <ArrowRight

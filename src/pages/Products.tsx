@@ -19,6 +19,7 @@ import {
   ArrowUpDown,
 } from 'lucide-react';
 import ProductDetailModal from '../components/ProductDetailModal';
+import EditProductModal from '../components/EditProductModal';
 
 interface Category {
   id: number;
@@ -70,6 +71,7 @@ const Products: React.FC = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [editProductId, setEditProductId] = useState<number | null>(null);
   const [stockFilter, setStockFilter] = useState<'all' | 'in_stock' | 'out_of_stock'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'price_high' | 'price_low' | 'popular'>('newest');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -534,7 +536,7 @@ const Products: React.FC = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/products/${product.id}/edit`);
+                        setEditProductId(product.id);
                       }}
                       className="p-2 text-white bg-cyan-500/90 backdrop-blur rounded-lg hover:bg-cyan-500 transition-colors ring-1 ring-cyan-300/40 shadow-lg shadow-cyan-500/30"
                       title="Edit product"
@@ -605,7 +607,7 @@ const Products: React.FC = () => {
                   {/* Mobile actions - always visible on small screens */}
                   <div className="sm:hidden flex gap-2 mt-2">
                     <button
-                      onClick={() => navigate(`/products/${product.id}/edit`)}
+                      onClick={() => setEditProductId(product.id)}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 text-cyan-300 bg-cyan-500/15 rounded-lg hover:bg-cyan-500/25 transition-colors ring-1 ring-cyan-400/20 text-xs font-semibold"
                     >
                       <Edit2 size={12} />
@@ -712,6 +714,18 @@ const Products: React.FC = () => {
         <ProductDetailModal
           productId={selectedProductId}
           onClose={() => setSelectedProductId(null)}
+        />
+      )}
+
+      {/* Edit Product Modal */}
+      {editProductId !== null && (
+        <EditProductModal
+          productId={editProductId}
+          onClose={() => setEditProductId(null)}
+          onSaved={() => {
+            setEditProductId(null);
+            fetchProducts();
+          }}
         />
       )}
     </>

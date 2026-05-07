@@ -5,7 +5,6 @@ import Dashboard from './pages/Dashboard';
 import Orders from './pages/Orders';
 import Products from './pages/Products';
 import CreateProduct from './pages/CreateProduct';
-import EditProduct from './pages/EditProduct';
 import Customers from './pages/Customers';
 import Categories from './pages/Categories';
 import DeliveryPersonnel from './pages/DeliveryPersonnel';
@@ -55,7 +54,6 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/create" element={<CreateProduct />} />
-          <Route path="/products/:id/edit" element={<EditProduct />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/delivery-personnel" element={<DeliveryPersonnel />} />

@@ -66,8 +66,9 @@ export async function authenticatedFetch(
 
   const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`;
 
+  const isFormData = fetchOptions.body instanceof FormData;
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(fetchOptions.headers || {}),
   };
 

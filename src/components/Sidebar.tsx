@@ -137,9 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold text-white truncate">Admin</p>
                 <p className="text-[0.65rem] text-slate-400 truncate">
-                  {localStorage.getItem('user')
-                    ? JSON.parse(localStorage.getItem('user') || '{}').email
-                    : 'admin@lumo.local'}
+                  {(() => { try { const u = JSON.parse(localStorage.getItem('user') || '{}'); return u.email || u.username || 'admin'; } catch { return 'admin'; } })()}
                 </p>
               </div>
             </div>

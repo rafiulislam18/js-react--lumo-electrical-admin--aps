@@ -42,6 +42,175 @@ interface CategoryModal {
   category?: CategoryNode & { parentId?: number | null };
 }
 
+// ── Shared modal shell ─────────────────────────────────────────────────────
+const Modal = ({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) => (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="relative w-full max-w-md bg-slate-800/80 border border-slate-700/60 rounded-2xl shadow-2xl backdrop-blur overflow-hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/60">
+        <h3 className="text-base font-bold text-white">{title}</h3>
+        <button
+          onClick={onClose}
+          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/60 transition-colors"
+        >
+          <X size={16} />
+        </button>
+      </div>
+      {children}
+    </div>
+  </div>
+);
+
+// ── Category row ───────────────────────────────────────────────────────────
+const CategoryRow = ({
+  node,
+  depth = 0,
+  expandedIds,
+  categories,
+  onToggleExpand,
+  onEdit,
+  onDelete,
+  findParentId,
+}: {
+  node: CategoryNode;
+  depth?: number;
+  expandedIds: Set<number>;
+  categories: CategoryNode[];
+  onToggleExpand: (id: number) => void;
+  onEdit: (node: CategoryNode, parentId: number | null) => void;
+  onDelete: (id: number, name: string) => void;
+  findParentId: (nodes: CategoryNode[], targetId: number, parentId?: number | null) => number | null | undefined;
+}) => {
+  const hasChildren = node.children.length > 0;
+  const isExpanded = expandedIds.has(node.id);
+  const parentId = findParentId(categories, node.id) ?? null;
+
+  return (
+    <>
+      <div
+        className={`group relative flex items-center gap-3 rounded-xl border transition-all duration-200 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/5 hover:-translate-y-px ${
+          depth === 0
+            ? 'border-slate-700/60 bg-slate-800/40 backdrop-blur px-4 py-3'
+            : 'border-slate-700/30 bg-slate-800/20 backdrop-blur px-3 py-2.5'
+        }`}
+        style={{ marginLeft: depth > 0 ? `${depth * 1.5}rem` : undefined }}
+      >
+        {depth > 0 && (
+          <div className="pointer-events-none absolute -left-5 top-1/2 h-px w-4 bg-slate-600/50" />
+        )}
+        <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100 rounded-xl" />
+
+        {/* Expand toggle */}
+        <div className="flex-shrink-0 w-7 flex items-center justify-center">
+          {hasChildren ? (
+            <button
+              onClick={() => onToggleExpand(node.id)}
+              className="p-0.5 rounded-md text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-colors"
+            >
+              <ChevronRight
+                size={15}
+                className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+              />
+            </button>
+          ) : (
+            <div className="w-4 h-px bg-slate-600/40 mx-auto" />
+          )}
+        </div>
+
+        {/* Icon */}
+        <div
+          className={`flex-shrink-0 rounded-lg p-1.5 ring-1 ${
+            depth === 0
+              ? hasChildren ? 'bg-cyan-500/15 ring-cyan-400/20' : 'bg-emerald-500/15 ring-emerald-400/20'
+              : 'bg-slate-700/60 ring-slate-600/30'
+          }`}
+        >
+          {hasChildren ? (
+            isExpanded
+              ? <FolderOpen size={14} className={depth === 0 ? 'text-cyan-300' : 'text-slate-400'} />
+              : <Folder size={14} className={depth === 0 ? 'text-cyan-300' : 'text-slate-400'} />
+          ) : (
+            <Tag size={14} className={depth === 0 ? 'text-emerald-300' : 'text-slate-400'} />
+          )}
+        </div>
+
+        {/* Name + slug */}
+        <div className="flex-1 min-w-0">
+          <p className={`font-semibold truncate ${depth === 0 ? 'text-white text-sm' : 'text-slate-200 text-xs'}`}>
+            {node.name}
+          </p>
+          <p className="text-[0.65rem] text-slate-500 truncate">{node.slug}</p>
+        </div>
+
+        {/* Type badge */}
+        <div className="hidden sm:block flex-shrink-0">
+          {hasChildren ? (
+            <span className="inline-flex items-center gap-1 text-[0.6rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/20">
+              <Layers size={9} />Parent
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[0.6rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/20">
+              <Tag size={9} />Leaf
+            </span>
+          )}
+        </div>
+
+        {/* Children count */}
+        {hasChildren && (
+          <div className="hidden sm:flex flex-shrink-0">
+            <span className="px-1.5 py-0.5 rounded bg-slate-700/60 ring-1 ring-slate-600/40 text-[0.65rem] font-semibold text-slate-300">
+              {node.children.length} sub
+            </span>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-1.5 flex-shrink-0">
+          <button
+            onClick={() => onEdit(node, parentId)}
+            className="p-1.5 text-cyan-300 bg-cyan-500/15 rounded-lg hover:bg-cyan-500/25 transition-colors ring-1 ring-cyan-400/20"
+            title="Edit category"
+          >
+            <Edit2 size={13} />
+          </button>
+          <button
+            onClick={() => onDelete(node.id, node.name)}
+            className="p-1.5 text-red-300 bg-red-500/15 rounded-lg hover:bg-red-500/25 transition-colors ring-1 ring-red-400/20"
+            title="Delete category"
+          >
+            <Trash2 size={13} />
+          </button>
+        </div>
+      </div>
+
+      {/* Children */}
+      {hasChildren && isExpanded && (
+        <div className="relative">
+          <div
+            className="absolute top-0 bottom-0 w-px bg-slate-700/50"
+            style={{ left: `${depth * 1.5 + 1.25}rem` }}
+          />
+          <div className="mt-1.5 space-y-1.5">
+            {node.children.map((child) => (
+              <CategoryRow
+                key={child.id}
+                node={child}
+                depth={depth + 1}
+                expandedIds={expandedIds}
+                categories={categories}
+                onToggleExpand={onToggleExpand}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                findParentId={findParentId}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
 const Categories: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categories, setCategories] = useState<CategoryNode[]>([]);
@@ -239,147 +408,6 @@ const Categories: React.FC = () => {
   const visibleCategories = filterTree(categories, searchTerm);
   const flatCategories = flattenTree(categories);
 
-  // ── Category row ───────────────────────────────────────────────────────────
-  const CategoryRow = ({ node, depth = 0 }: { node: CategoryNode; depth?: number }) => {
-    const hasChildren = node.children.length > 0;
-    const isExpanded = expandedIds.has(node.id);
-    const parentId = findParentId(categories, node.id) ?? null;
-
-    return (
-      <>
-        <div
-          className={`group relative flex items-center gap-3 rounded-xl border transition-all duration-200 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/5 hover:-translate-y-px ${
-            depth === 0
-              ? 'border-slate-700/60 bg-slate-800/40 backdrop-blur px-4 py-3'
-              : 'border-slate-700/30 bg-slate-800/20 backdrop-blur px-3 py-2.5'
-          }`}
-          style={{ marginLeft: depth > 0 ? `${depth * 1.5}rem` : undefined }}
-        >
-          {depth > 0 && (
-            <div className="pointer-events-none absolute -left-5 top-1/2 h-px w-4 bg-slate-600/50" />
-          )}
-          <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100 rounded-xl" />
-
-          {/* Expand toggle */}
-          <div className="flex-shrink-0 w-7 flex items-center justify-center">
-            {hasChildren ? (
-              <button
-                onClick={() => toggleExpand(node.id)}
-                className="p-0.5 rounded-md text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-colors"
-              >
-                <ChevronRight
-                  size={15}
-                  className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
-                />
-              </button>
-            ) : (
-              <div className="w-4 h-px bg-slate-600/40 mx-auto" />
-            )}
-          </div>
-
-          {/* Icon */}
-          <div
-            className={`flex-shrink-0 rounded-lg p-1.5 ring-1 ${
-              depth === 0
-                ? hasChildren ? 'bg-cyan-500/15 ring-cyan-400/20' : 'bg-emerald-500/15 ring-emerald-400/20'
-                : 'bg-slate-700/60 ring-slate-600/30'
-            }`}
-          >
-            {hasChildren ? (
-              isExpanded
-                ? <FolderOpen size={14} className={depth === 0 ? 'text-cyan-300' : 'text-slate-400'} />
-                : <Folder size={14} className={depth === 0 ? 'text-cyan-300' : 'text-slate-400'} />
-            ) : (
-              <Tag size={14} className={depth === 0 ? 'text-emerald-300' : 'text-slate-400'} />
-            )}
-          </div>
-
-          {/* Name + slug */}
-          <div className="flex-1 min-w-0">
-            <p className={`font-semibold truncate ${depth === 0 ? 'text-white text-sm' : 'text-slate-200 text-xs'}`}>
-              {node.name}
-            </p>
-            <p className="text-[0.65rem] text-slate-500 truncate">{node.slug}</p>
-          </div>
-
-          {/* Type badge */}
-          <div className="hidden sm:block flex-shrink-0">
-            {hasChildren ? (
-              <span className="inline-flex items-center gap-1 text-[0.6rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/20">
-                <Layers size={9} />Parent
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[0.6rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/20">
-                <Tag size={9} />Leaf
-              </span>
-            )}
-          </div>
-
-          {/* Children count */}
-          {hasChildren && (
-            <div className="hidden sm:flex flex-shrink-0">
-              <span className="px-1.5 py-0.5 rounded bg-slate-700/60 ring-1 ring-slate-600/40 text-[0.65rem] font-semibold text-slate-300">
-                {node.children.length} sub
-              </span>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex gap-1.5 flex-shrink-0">
-            <button
-              onClick={() => openEdit(node, parentId)}
-              className="p-1.5 text-cyan-300 bg-cyan-500/15 rounded-lg hover:bg-cyan-500/25 transition-colors ring-1 ring-cyan-400/20"
-              title="Edit category"
-            >
-              <Edit2 size={13} />
-            </button>
-            <button
-              onClick={() => setDeleteConfirm({ id: node.id, name: node.name })}
-              className="p-1.5 text-red-300 bg-red-500/15 rounded-lg hover:bg-red-500/25 transition-colors ring-1 ring-red-400/20"
-              title="Delete category"
-            >
-              <Trash2 size={13} />
-            </button>
-          </div>
-        </div>
-
-        {/* Children */}
-        {hasChildren && isExpanded && (
-          <div className="relative">
-            <div
-              className="absolute top-0 bottom-0 w-px bg-slate-700/50"
-              style={{ left: `${depth * 1.5 + 1.25}rem` }}
-            />
-            <div className="mt-1.5 space-y-1.5">
-              {node.children.map((child) => (
-                <CategoryRow key={child.id} node={child} depth={depth + 1} />
-              ))}
-            </div>
-          </div>
-        )}
-      </>
-    );
-  };
-
-  // ── Shared modal shell ─────────────────────────────────────────────────────
-  const Modal = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="relative w-full max-w-md bg-slate-800/80 border border-slate-700/60 rounded-2xl shadow-2xl backdrop-blur overflow-hidden">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/60">
-          <h3 className="text-base font-bold text-white">{title}</h3>
-          <button
-            onClick={closeModal}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/60 transition-colors"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-
   return (
     <>
       {/* Header */}
@@ -501,7 +529,16 @@ const Categories: React.FC = () => {
 
           {visibleCategories.map((cat) => (
             <div key={cat.id} className="space-y-1.5">
-              <CategoryRow node={cat} depth={0} />
+              <CategoryRow
+                node={cat}
+                depth={0}
+                expandedIds={expandedIds}
+                categories={categories}
+                onToggleExpand={toggleExpand}
+                onEdit={openEdit}
+                onDelete={(id, name) => setDeleteConfirm({ id, name })}
+                findParentId={findParentId}
+              />
             </div>
           ))}
         </div>
@@ -509,7 +546,7 @@ const Categories: React.FC = () => {
 
       {/* ── Create / Edit Modal ── */}
       {modal && (
-        <Modal title={modal.mode === 'create' ? 'Add Category' : 'Edit Category'}>
+        <Modal title={modal.mode === 'create' ? 'Add Category' : 'Edit Category'} onClose={closeModal}>
           <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
             {/* Form error */}
             {formError && (
