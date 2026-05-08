@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Truck, Send, Clock, User } from 'lucide-react';
+import { authenticatedFetch } from '../lib/api';
 
 interface Order {
   id: number;
@@ -23,8 +24,6 @@ const NewOrders: React.FC = () => {
   const [deliveryPersonnel, setDeliveryPersonnel] = useState<DeliveryPersonnel[]>([]);
   const [assigning, setAssigning] = useState<number | null>(null);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     fetchUnassignedOrders();
     fetchDeliveryPersonnel();
@@ -32,12 +31,7 @@ const NewOrders: React.FC = () => {
 
   const fetchUnassignedOrders = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/analytics/unassigned-paid-orders/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch('/analytics/unassigned-paid-orders/');
 
       if (response.ok) {
         const data = await response.json();
@@ -50,12 +44,7 @@ const NewOrders: React.FC = () => {
 
   const fetchDeliveryPersonnel = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/users/admin/delivery-personnel/?page_size=100`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch('/users/admin/delivery-personnel/?page_size=100');
 
       if (response.ok) {
         const data = await response.json();
@@ -77,17 +66,12 @@ const NewOrders: React.FC = () => {
 
     setAssigning(orderId);
     try {
-      const token = localStorage.getItem('access_token');
       const personnelId = parseInt(selectedAssignments[orderId]);
       const personnel = deliveryPersonnel.find(p => p.id === personnelId);
       const personName = personnel ? `${personnel.first_name} ${personnel.last_name}` : 'Unknown';
 
-      const response = await fetch(`${API_URL}/orders/${orderId}/assign-delivery-personnel/`, {
+      const response = await authenticatedFetch(`/orders/${orderId}/assign-delivery-personnel/`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
         body: JSON.stringify({ assigned_delivery_personnel: personnelId }),
       });
 

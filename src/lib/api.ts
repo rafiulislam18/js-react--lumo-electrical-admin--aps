@@ -4,44 +4,37 @@
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-// List of public endpoints that don't require authentication
-const PUBLIC_ENDPOINTS = [
-  null,
-];
-
 interface FetchOptions extends RequestInit {
   skipAuth?: boolean;
 }
 
 /**
- * Check if an endpoint is public (doesn't require auth)
- */
-function isPublicEndpoint(endpoint: string): boolean {
-  return PUBLIC_ENDPOINTS.some(publicEndpoint => endpoint.startsWith(publicEndpoint));
-}
-
-/**
  * Refresh access token using refresh token
  */
+function clearSessionAndRedirect() {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('role');
+  localStorage.removeItem('user');
+  window.location.href = '/login';
+}
+
 async function refreshAccessToken(): Promise<boolean> {
   try {
     const refreshToken = localStorage.getItem('refresh_token');
-    if (!refreshToken) return false;
+    if (!refreshToken) {
+      clearSessionAndRedirect();
+      return false;
+    }
 
     const response = await fetch(`${API_URL}/users/token/refresh/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh: refreshToken }),
     });
 
     if (!response.ok) {
-      // Refresh failed, clear tokens and redirect to login
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      clearSessionAndRedirect();
       return false;
     }
 
@@ -67,17 +60,12 @@ export async function authenticatedFetch(
   const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`;
 
   const isFormData = fetchOptions.body instanceof FormData;
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-    ...(fetchOptions.headers || {}),
+    ...(fetchOptions.headers as Record<string, string> || {}),
   };
 
-  // Determine if auth should be used
-  // Skip auth if explicitly requested OR if it's a public endpoint
-  const shouldAuth = !skipAuth && !isPublicEndpoint(endpoint);
-
-  // Add authorization header only if needed
-  if (shouldAuth) {
+  if (!skipAuth) {
     const token = localStorage.getItem('access_token');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -90,10 +78,9 @@ export async function authenticatedFetch(
   });
 
   // Handle token refresh on 401
-  if (response.status === 401 && shouldAuth) {
+  if (response.status === 401 && !skipAuth) {
     const refreshed = await refreshAccessToken();
     if (refreshed) {
-      // Retry request with new token
       const newToken = localStorage.getItem('access_token');
       if (newToken) {
         headers['Authorization'] = `Bearer ${newToken}`;

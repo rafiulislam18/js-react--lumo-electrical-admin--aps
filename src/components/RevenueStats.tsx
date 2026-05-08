@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
+import { authenticatedFetch } from '../lib/api';
 
 const formatCurrency = (value: number): string => {
   if (value >= 1000000000) {
@@ -18,20 +19,13 @@ const RevenueStats: React.FC = () => {
   const [revenueThisMonth, setRevenueThisMonth] = useState(0);
   const [revenueLastMonth, setRevenueLastMonth] = useState(0);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     fetchRevenueStats();
   }, []);
 
   const fetchRevenueStats = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/analytics/dashboard/stats/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch('/analytics/dashboard/stats/');
 
       if (response.ok) {
         const data = await response.json();

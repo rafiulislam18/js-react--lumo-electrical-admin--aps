@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, TrendingDown, Package } from 'lucide-react';
+import { authenticatedFetch } from '../lib/api';
 
 interface LowStockItem {
   id: number;
@@ -12,20 +13,13 @@ interface LowStockItem {
 const LowStockAlert: React.FC = () => {
   const [lowStockItems, setLowStockItems] = useState<LowStockItem[]>([]);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     fetchLowStockAlerts();
   }, []);
 
   const fetchLowStockAlerts = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/analytics/low-stock-alerts/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch('/analytics/low-stock-alerts/');
 
       if (response.ok) {
         const data = await response.json();

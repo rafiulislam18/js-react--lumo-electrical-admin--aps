@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, TrendingUp } from 'lucide-react';
+import { authenticatedFetch } from '../lib/api';
 
 const OrderChart: React.FC = () => {
   const [timeRange, setTimeRange] = useState('12months');
@@ -7,8 +8,6 @@ const OrderChart: React.FC = () => {
   const [isTablet, setIsTablet] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
   const [chartData, setChartData] = useState<Array<{ month: string; value: number }>>([]);
-
-  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const handleResize = () => {
@@ -27,15 +26,8 @@ const OrderChart: React.FC = () => {
 
   const fetchOrderChart = async () => {
     try {
-      const token = localStorage.getItem('access_token');
       const period = timeRange === '12months' ? 'monthly' : timeRange;
-      const url = `${API_URL}/analytics/orders-chart/?period=${period}`;
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch(`/analytics/orders-chart/?period=${period}`);
 
       if (response.ok) {
         const data = await response.json();

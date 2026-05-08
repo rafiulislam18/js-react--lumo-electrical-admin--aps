@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Loader } from 'lucide-react';
+import { authenticatedFetch } from '../lib/api';
 
 interface CreateDeliveryPersonnelModalProps {
   onClose: () => void;
@@ -20,8 +21,6 @@ const CreateDeliveryPersonnelModal: React.FC<CreateDeliveryPersonnelModalProps> 
     password: '',
     confirm_password: '',
   });
-
-  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -67,26 +66,17 @@ const CreateDeliveryPersonnelModal: React.FC<CreateDeliveryPersonnelModalProps> 
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
-
-      const response = await fetch(
-        `${API_URL}/users/admin/delivery-personnel/register/`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            email: formData.email,
-            phone: formData.phone,
-            password: formData.password,
-            confirm_password: formData.confirm_password,
-          }),
-        }
-      );
+      const response = await authenticatedFetch('/users/admin/delivery-personnel/register/', {
+        method: 'POST',
+        body: JSON.stringify({
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          confirm_password: formData.confirm_password,
+        }),
+      });
 
       if (!response.ok) {
         const data = await response.json();

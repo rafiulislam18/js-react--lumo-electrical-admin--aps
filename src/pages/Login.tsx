@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, AlertCircle, Zap, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, Lock, User } from 'lucide-react';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -12,7 +12,9 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    if (token) navigate('/');
+    const role = localStorage.getItem('role');
+    if (token && role === 'admin') navigate('/');
+    else if (token && role === 'delivery_personnel') navigate('/courier/dashboard');
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -38,8 +40,13 @@ const Login: React.FC = () => {
 
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
+      localStorage.setItem('role', data.role);
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/');
+      if (data.role === 'delivery_personnel') {
+        navigate('/courier/dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError('An error occurred. Please try again.');
       console.error('Login error:', err);

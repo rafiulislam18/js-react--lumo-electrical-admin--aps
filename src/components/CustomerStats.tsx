@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Users, TrendingUp, TrendingDown } from 'lucide-react';
+import { authenticatedFetch } from '../lib/api';
 
 const CustomerStats: React.FC = () => {
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [newCustomersThisMonth, setNewCustomersThisMonth] = useState(0);
   const [newCustomersLastMonth, setNewCustomersLastMonth] = useState(0);
-
-  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     fetchCustomerStats();
@@ -14,12 +13,7 @@ const CustomerStats: React.FC = () => {
 
   const fetchCustomerStats = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/analytics/dashboard/stats/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch('/analytics/dashboard/stats/');
 
       if (response.ok) {
         const data = await response.json();

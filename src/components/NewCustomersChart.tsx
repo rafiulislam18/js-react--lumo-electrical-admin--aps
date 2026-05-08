@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, Users } from 'lucide-react';
+import { authenticatedFetch } from '../lib/api';
 
 const NewCustomersChart: React.FC = () => {
   const [timeRange, setTimeRange] = useState('monthly');
@@ -7,8 +8,6 @@ const NewCustomersChart: React.FC = () => {
   const [isTablet, setIsTablet] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
   const [chartData, setChartData] = useState<Array<{ label: string; value: number }>>([]);
-
-  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const handleResize = () => {
@@ -27,15 +26,8 @@ const NewCustomersChart: React.FC = () => {
 
   const fetchNewCustomersChart = async () => {
     try {
-      const token = localStorage.getItem('access_token');
       const period = timeRange === 'monthly' ? 'monthly' : timeRange;
-      const url = `${API_URL}/analytics/new-customers-chart/?period=${period}`;
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch(`/analytics/new-customers-chart/?period=${period}`);
 
       if (response.ok) {
         const data = await response.json();

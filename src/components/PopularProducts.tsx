@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, ShoppingCart, Crown, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { authenticatedFetch } from '../lib/api';
 
 interface Product {
   id: number;
@@ -16,20 +17,13 @@ const PopularProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const navigate = useNavigate();
 
-  const API_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     fetchPopularProducts();
   }, []);
 
   const fetchPopularProducts = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/analytics/popular-products/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await authenticatedFetch('/analytics/popular-products/');
 
       if (response.ok) {
         const data = await response.json();
@@ -138,7 +132,7 @@ const PopularProducts: React.FC = () => {
                         isTop ? 'text-amber-300' : 'text-emerald-300'
                       }`}
                     >
-                      R{ (product.price * product.sold_count).toLocaleString() }
+                      R{ (parseFloat(product.price) * product.sold_count).toLocaleString() }
                     </p>
                   </div>
                 </div>
