@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { authenticatedFetch } from '../lib/api';
-import { ArrowLeft, MapPin, Phone, Mail, Package, Receipt, MessageSquare } from 'lucide-react';
+import { ArrowLeft, MapPin, Phone, Mail, Package, Receipt, MessageSquare, CheckCircle2 } from 'lucide-react';
 
 interface OrderItem {
   product_name: string;
@@ -35,6 +35,8 @@ const CourierOrderDetail: React.FC = () => {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [marking, setMarking] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -51,6 +53,22 @@ const CourierOrderDetail: React.FC = () => {
     };
     fetchOrder();
   }, [orderId]);
+
+  const handleMarkDelivered = async () => {
+    setMarking(true);
+    try {
+      const response = await authenticatedFetch(`/orders/delivery/${orderId}/mark-delivered/`, {
+        method: 'PATCH',
+      });
+      if (!response.ok) throw new Error('Failed to mark as delivered');
+      navigate('/courier/dashboard');
+    } catch {
+      setError('Failed to mark order as delivered. Please try again.');
+    } finally {
+      setMarking(false);
+      setConfirming(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -190,6 +208,42 @@ const CourierOrderDetail: React.FC = () => {
             </div>
           </div>
         </section>
+
+        {/* Mark as Delivered */}
+        {!confirming ? (
+          <button
+            onClick={() => setConfirming(true)}
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all"
+          >
+            <CheckCircle2 size={17} />
+            Mark as Delivered
+          </button>
+        ) : (
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 space-y-3">
+            <p className="text-sm font-semibold text-white text-center">Confirm delivery for order #{order.id}?</p>
+            <p className="text-xs text-slate-400 text-center">This cannot be undone.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirming(false)}
+                disabled={marking}
+                className="flex-1 py-2.5 rounded-xl border border-slate-600 text-slate-300 text-sm font-medium hover:bg-slate-700/60 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleMarkDelivered}
+                disabled={marking}
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {marking ? (
+                  <><div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />Confirming...</>
+                ) : (
+                  <><CheckCircle2 size={15} />Confirm</>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
