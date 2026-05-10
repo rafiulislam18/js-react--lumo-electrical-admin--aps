@@ -9,8 +9,8 @@ import {
   Truck,
   ListTree,
   HelpCircle,
+  Star,
   LogOut,
-  ChevronDown,
   X
 } from 'lucide-react';
 
@@ -27,13 +27,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const menuItems = [
     { id: 'dashboard', path: '/', icon: Home, label: 'Dashboard' },
     { id: 'orders', path: '/orders', icon: ShoppingBag, label: 'Orders' },
+    { id: 'questions', path: '/questions', icon: HelpCircle, label: 'Questions' },
+    { id: 'reviews', path: '/reviews', icon: Star, label: 'Reviews' },
     { id: 'products', path: '/products', icon: Package, label: 'Products' },
     { id: 'categories', path: '/categories', icon: ListTree, label: 'Categories' },
     { id: 'customers', path: '/customers', icon: Users, label: 'Customers' },
     { id: 'delivery', path: '/delivery-personnel', icon: Truck, label: 'Delivery Personnel' },
-    // { id: 'shop', icon: ShoppingBag, label: 'Shop' },
-    // { id: 'income', icon: DollarSign, label: 'Income' },
-    // { id: 'promote', icon: TrendingUp, label: 'Promote' },
   ];
 
   // Determine active item based on current location
@@ -126,7 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         })}
       </nav>
 
-      <div className="relative p-4 border-t border-slate-800/80">
+      <div className="relative p-4 hidden sm:block border-t border-slate-800/80">
         <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-800/60 p-3 backdrop-blur">
           {/* User Info - 3/4 width */}
           <div className="flex-1 min-w-0">

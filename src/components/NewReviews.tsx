@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authenticatedFetch } from '../lib/api';
-import { Star, Send, Tag, Loader } from 'lucide-react';
+import { Star, Send, Tag, Loader, ArrowRight } from 'lucide-react';
 
 interface Review {
   id: number;
@@ -12,10 +13,10 @@ interface Review {
 }
 
 const NewReviews: React.FC = () => {
+  const navigate = useNavigate();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
-  const [avgRating, setAvgRating] = useState<number>(0);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -29,7 +30,6 @@ const NewReviews: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setReviews(data.reviews);
-        setAvgRating(data.avg_rating);
       }
     } catch (error) {
       console.error('Failed to fetch new reviews:', error);
@@ -96,9 +96,12 @@ const NewReviews: React.FC = () => {
               <span>unreplied</span>
             </p>
           </div>
-          <span className="rounded-full bg-gradient-to-br from-amber-500 to-yellow-600 px-3 py-1 text-xs font-bold text-white shadow-sm shadow-amber-500/20">
-            {reviews.length}
-          </span>
+          <button
+            onClick={() => navigate('/reviews')}
+            className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-400 transition-colors hover:bg-amber-500/10"
+          >
+            View All <ArrowRight size={13} />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto pr-1" style={{ maxHeight: '24rem', minHeight: '24rem' }}>

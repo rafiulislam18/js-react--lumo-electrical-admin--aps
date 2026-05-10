@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard';
 import Orders from './pages/Orders';
+import Questions from './pages/Questions';
+import Reviews from './pages/Reviews';
 import Products from './pages/Products';
 import CreateProduct from './pages/CreateProduct';
 import Customers from './pages/Customers';
@@ -54,6 +56,8 @@ function App() {
         >
           <Route path="/" element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/questions" element={<Questions />} />
+          <Route path="/reviews" element={<Reviews />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/create" element={<CreateProduct />} />
           <Route path="/categories" element={<Categories />} />

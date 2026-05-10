@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authenticatedFetch } from '../lib/api';
-import { HelpCircle, Send, MessageSquare, Tag, Loader } from 'lucide-react';
+import { HelpCircle, Send, MessageSquare, Tag, Loader, ArrowRight } from 'lucide-react';
 
 interface Question {
   id: number;
@@ -12,6 +13,7 @@ interface Question {
 }
 
 const NewQuestions: React.FC = () => {
+  const navigate = useNavigate();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
@@ -90,9 +92,12 @@ const NewQuestions: React.FC = () => {
             <h3 className="text-base font-bold text-white sm:text-lg lg:text-xl">New Questions</h3>
             <p className="mt-0.5 text-xs font-medium text-slate-400">{questions.length} unanswered</p>
           </div>
-          <span className="rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 px-3 py-1 text-xs font-bold text-white shadow-sm shadow-cyan-500/20">
-            {questions.length}
-          </span>
+          <button
+            onClick={() => navigate('/questions')}
+            className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-cyan-400 transition-colors hover:bg-cyan-500/10"
+          >
+            View All <ArrowRight size={13} />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto pr-1" style={{ maxHeight: '24rem', minHeight: '24rem' }}>
