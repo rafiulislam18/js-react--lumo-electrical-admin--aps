@@ -97,104 +97,97 @@ const NewOrders: React.FC = () => {
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase();
 
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6">
-      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl" />
-
-      <div className="relative flex flex-col">
-        <div className="mb-5 flex items-center gap-3 sm:mb-6">
-          <div className="rounded-xl bg-cyan-500/15 p-2.5 ring-1 ring-cyan-400/20">
-            <Truck size={18} className="text-cyan-300" />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-base font-bold text-white sm:text-lg lg:text-xl">New Orders</h3>
-            <p className="mt-0.5 text-xs font-medium text-slate-400">Awaiting courier assignment</p>
-          </div>
-          <span className="ml-auto rounded-full bg-gradient-to-br from-cyan-500 to-emerald-600 px-3 py-1 text-xs font-bold text-white shadow-sm shadow-cyan-500/20">
-            {pendingCount} pending
+    <div className="flex min-w-0 flex-col rounded-card border border-line bg-panel">
+      {/* Panel header */}
+      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-[11px]">
+        <span className="inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[.12em] text-dim">
+          <Truck size={13} className="text-accent" />
+          New Orders
+          <span className="font-mono text-[10.5px] normal-case tracking-normal text-mute">
+            awaiting courier
           </span>
-        </div>
-
-        <div className="flex-1 space-y-3 overflow-y-auto pr-1" style={{ maxHeight: '24rem' }}>
-          {orders.map(order => {
-            const isPending = order.status === 'order_placed';
-            return (
-              <div
-                key={order.id}
-                className={`group/order relative overflow-hidden rounded-xl border-l-4 p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:p-4 ${
-                  isPending
-                    ? 'border-l-amber-400 bg-amber-500/10 ring-1 ring-amber-400/20'
-                    : 'border-l-emerald-400 bg-emerald-500/10 ring-1 ring-emerald-400/20'
-                }`}
-              >
-                <div className="mb-3 flex items-start justify-between gap-2">
-                  <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                    {/* Customer avatar */}
-                    <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm ${
-                      isPending
-                        ? 'bg-gradient-to-br from-amber-400 to-orange-500'
-                        : 'bg-gradient-to-br from-emerald-400 to-cyan-500'
-                    }`}>
-                      {getInitials(order.customer_name)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-bold text-white">ORD-{order.id}</p>
-                        <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider ring-1 ${
-                          isPending
-                            ? 'bg-amber-500/15 text-amber-200 ring-amber-400/30'
-                            : 'bg-emerald-500/15 text-emerald-200 ring-emerald-400/30'
-                        }`}>
-                          {isPending ? 'Pending' : 'Confirmed'}
-                        </span>
-                      </div>
-                      <div className="mt-0.5 flex items-center gap-1">
-                        <User size={12} className="text-slate-400" />
-                        <p className="truncate text-xs text-slate-300">{order.customer_name}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-shrink-0 items-center gap-1 rounded-lg bg-slate-700/60 px-2 py-1 ring-1 ring-slate-600/40">
-                    <p className="text-sm font-extrabold text-white">R{parseFloat(order.total).toLocaleString()}</p>
-                  </div>
-                </div>
-
-                <div className="mb-3 flex items-center gap-1.5 text-xs text-slate-400">
-                  <Clock size={12} className="flex-shrink-0" />
-                  <p className="font-medium">{new Date(order.order_date).toLocaleDateString()}</p>
-                </div>
-
-                <div className="flex items-stretch gap-2">
-                  <select
-                    value={selectedAssignments[order.id] || ''}
-                    onChange={(e) => handleAssign(order.id, e.target.value)}
-                    className="flex-1 rounded-lg border border-slate-600/60 bg-slate-800/60 px-2.5 py-2 text-xs font-medium text-slate-200 transition-colors hover:border-cyan-400/40 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
-                  >
-                    <option value="" disabled>Select courier...</option>
-                    {deliveryPersonnel.map(person => (
-                      <option key={person.id} value={person.id}>{person.first_name} {person.last_name}</option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={() => handleConfirmAssignment(order.id)}
-                    disabled={!selectedAssignments[order.id] || assigning === order.id}
-                    className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-br from-cyan-500 to-emerald-600 px-3 py-2 text-xs font-bold text-white shadow-sm transition-all hover:shadow-md hover:shadow-cyan-500/30 disabled:cursor-not-allowed disabled:from-slate-600 disabled:to-slate-600 disabled:shadow-none"
-                  >
-                    <Send size={13} />
-                    <span className="hidden sm:inline">{assigning === order.id ? 'Assigning...' : 'Assign'}</span>
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {orders.length === 0 && (
-          <div className="py-8 text-center">
-            <Truck size={32} className="mx-auto mb-2 text-slate-600" />
-            <p className="text-sm text-slate-400">No new orders</p>
-          </div>
-        )}
+        </span>
+        <span className="inline-flex items-center gap-[5px] whitespace-nowrap rounded-[5px] border border-warn/[.28] bg-warn/[.13] px-2 py-[3px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] text-warn">
+          {pendingCount} pending
+        </span>
       </div>
+
+      <div className="flex-1 space-y-2.5 overflow-y-auto p-4" style={{ maxHeight: '24rem' }}>
+        {orders.map(order => {
+          const isPending = order.status === 'order_placed';
+          return (
+            <div
+              key={order.id}
+              className={`rounded-lg border border-line border-l-2 bg-panel2 px-3.5 py-[13px] ${
+                isPending ? 'border-l-warn' : 'border-l-accent'
+              }`}
+            >
+              <div className="mb-3 flex items-start justify-between gap-2">
+                <div className="flex min-w-0 flex-1 items-start gap-2.5">
+                  {/* Customer avatar */}
+                  <div className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-[7px] border border-line bg-panel font-mono text-xs font-bold text-dim">
+                    {getInitials(order.customer_name)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-mono text-[13px] font-semibold text-body">ORD-{order.id}</p>
+                      <span
+                        className={`inline-flex whitespace-nowrap rounded-[5px] px-2 py-[3px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] ${
+                          isPending
+                            ? 'border border-warn/[.28] bg-warn/[.13] text-warn'
+                            : 'border border-accent/[.28] bg-accent/[.13] text-accent'
+                        }`}
+                      >
+                        {isPending ? 'Pending' : 'Confirmed'}
+                      </span>
+                    </div>
+                    <div className="mt-0.5 flex items-center gap-1">
+                      <User size={12} className="text-mute" />
+                      <p className="truncate text-xs text-dim">{order.customer_name}</p>
+                    </div>
+                  </div>
+                </div>
+                <p className="flex-shrink-0 font-mono text-sm font-bold text-body">
+                  R{parseFloat(order.total).toLocaleString()}
+                </p>
+              </div>
+
+              <div className="mb-3 flex items-center gap-1.5 font-mono text-[11px] text-mute">
+                <Clock size={12} className="flex-shrink-0" />
+                <p>{new Date(order.order_date).toLocaleDateString()}</p>
+              </div>
+
+              <div className="flex items-stretch gap-2">
+                <select
+                  value={selectedAssignments[order.id] || ''}
+                  onChange={(e) => handleAssign(order.id, e.target.value)}
+                  className="min-w-0 flex-1 rounded-[7px] border border-line bg-panel px-2.5 py-2 text-xs text-body outline-none transition-colors focus:border-accent/50"
+                >
+                  <option value="" disabled>Select courier...</option>
+                  {deliveryPersonnel.map(person => (
+                    <option key={person.id} value={person.id}>{person.first_name} {person.last_name}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => handleConfirmAssignment(order.id)}
+                  disabled={!selectedAssignments[order.id] || assigning === order.id}
+                  className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 rounded-[7px] border border-accent bg-accent px-3 py-2 text-xs font-bold text-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:border-line disabled:bg-panel disabled:text-mute"
+                >
+                  <Send size={13} />
+                  <span className="hidden sm:inline">{assigning === order.id ? 'Assigning...' : 'Assign'}</span>
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {orders.length === 0 && (
+        <div className="py-[54px] text-center text-mute">
+          <Truck size={30} className="mx-auto opacity-50" />
+          <p className="mt-3 text-[13.5px] font-semibold text-dim">No new orders</p>
+        </div>
+      )}
     </div>
   );
 };

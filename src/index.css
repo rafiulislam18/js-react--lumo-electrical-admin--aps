@@ -2,6 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #root {
+:root {
+  --bg: #0a0b0d;
+  --bg2: #0c0d10;
+  --panel: #101216;
+  --panel2: #181b21;
+  --border: #23262d;
+  --text: #e9ebef;
+  --dim: #9aa0aa;
+  --mute: #5f6670;
+  --accent: #f6a821;
+  --accent-ink: #1a1205;
+  --pos: #5fcf80;
+  --neg: #f0726f;
+  --warn: #fbb845;
+  --info: #6aa6f5;
+}
+
+html,
+body,
+#root {
+  height: 100%;
   overflow-x: hidden;
+}
+
+body {
+  @apply bg-bg text-body font-sans antialiased;
+}
+
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+select option {
+  background: #14171c;
+  color: var(--text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--mute);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #ffffff1a;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ffffff2e;
+  background-clip: padding-box;
 }

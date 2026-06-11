@@ -44,19 +44,23 @@ interface CategoryModal {
 
 // ── Shared modal shell ─────────────────────────────────────────────────────
 const Modal = ({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) => (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div className="relative w-full max-w-md bg-slate-800/80 border border-slate-700/60 rounded-2xl shadow-2xl backdrop-blur overflow-hidden">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/60">
-        <h3 className="text-base font-bold text-white">{title}</h3>
+  <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[7vh] pb-[4vh] bg-black/60 animate-fade">
+    <div
+      className="w-full max-w-md max-h-[90%] flex flex-col bg-panel border border-line rounded-card shadow-[0_30px_80px_-20px_rgba(0,0,0,.87)] overflow-hidden animate-pop"
+    >
+      <div className="flex items-center gap-3 px-4 py-3.5 border-b border-line">
+        <div className="w-9 h-9 rounded-lg bg-accent/15 text-accent flex items-center justify-center shrink-0">
+          <Layers size={17} />
+        </div>
+        <h3 className="flex-1 min-w-0 font-mono font-semibold text-sm tracking-[.08em] uppercase text-body">{title}</h3>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/60 transition-colors"
+          className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition"
         >
-          <X size={16} />
+          <X size={15} />
         </button>
       </div>
-      {children}
+      <div className="overflow-y-auto flex-1">{children}</div>
     </div>
   </div>
 );
@@ -88,24 +92,21 @@ const CategoryRow = ({
   return (
     <>
       <div
-        className={`group relative flex items-center gap-3 rounded-xl border transition-all duration-200 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/5 hover:-translate-y-px ${
-          depth === 0
-            ? 'border-slate-700/60 bg-slate-800/40 backdrop-blur px-4 py-3'
-            : 'border-slate-700/30 bg-slate-800/20 backdrop-blur px-3 py-2.5'
+        className={`group relative flex items-center gap-3 rounded-lg border border-line transition-colors hover:border-[#3a3d44] ${
+          depth === 0 ? 'bg-panel px-4 py-3' : 'bg-panel2 px-3 py-2.5'
         }`}
         style={{ marginLeft: depth > 0 ? `${depth * 1.5}rem` : undefined }}
       >
         {depth > 0 && (
-          <div className="pointer-events-none absolute -left-5 top-1/2 h-px w-4 bg-slate-600/50" />
+          <div className="pointer-events-none absolute -left-5 top-1/2 h-px w-4 bg-line" />
         )}
-        <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100 rounded-xl" />
 
         {/* Expand toggle */}
         <div className="flex-shrink-0 w-7 flex items-center justify-center">
           {hasChildren ? (
             <button
               onClick={() => onToggleExpand(node.id)}
-              className="p-0.5 rounded-md text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-colors"
+              className="p-0.5 rounded-md text-dim hover:text-accent hover:bg-accent/10 transition-colors"
             >
               <ChevronRight
                 size={15}
@@ -113,43 +114,43 @@ const CategoryRow = ({
               />
             </button>
           ) : (
-            <div className="w-4 h-px bg-slate-600/40 mx-auto" />
+            <div className="w-4 h-px bg-line mx-auto" />
           )}
         </div>
 
         {/* Icon */}
         <div
-          className={`flex-shrink-0 rounded-lg p-1.5 ring-1 ${
+          className={`flex-shrink-0 rounded-[7px] p-1.5 border ${
             depth === 0
-              ? hasChildren ? 'bg-cyan-500/15 ring-cyan-400/20' : 'bg-emerald-500/15 ring-emerald-400/20'
-              : 'bg-slate-700/60 ring-slate-600/30'
+              ? hasChildren ? 'bg-accent/[.13] border-accent/[.26]' : 'bg-pos/[.13] border-pos/[.26]'
+              : 'bg-panel border-line'
           }`}
         >
           {hasChildren ? (
             isExpanded
-              ? <FolderOpen size={14} className={depth === 0 ? 'text-cyan-300' : 'text-slate-400'} />
-              : <Folder size={14} className={depth === 0 ? 'text-cyan-300' : 'text-slate-400'} />
+              ? <FolderOpen size={14} className={depth === 0 ? 'text-accent' : 'text-dim'} />
+              : <Folder size={14} className={depth === 0 ? 'text-accent' : 'text-dim'} />
           ) : (
-            <Tag size={14} className={depth === 0 ? 'text-emerald-300' : 'text-slate-400'} />
+            <Tag size={14} className={depth === 0 ? 'text-pos' : 'text-dim'} />
           )}
         </div>
 
         {/* Name + slug */}
         <div className="flex-1 min-w-0">
-          <p className={`font-semibold truncate ${depth === 0 ? 'text-white text-sm' : 'text-slate-200 text-xs'}`}>
+          <p className={`font-semibold truncate ${depth === 0 ? 'text-body text-sm' : 'text-dim text-xs'}`}>
             {node.name}
           </p>
-          <p className="text-[0.65rem] text-slate-500 truncate">{node.slug}</p>
+          <p className="font-mono text-[10.5px] tracking-[.08em] text-mute truncate">{node.slug}</p>
         </div>
 
         {/* Type badge */}
         <div className="hidden sm:block flex-shrink-0">
           {hasChildren ? (
-            <span className="inline-flex items-center gap-1 text-[0.6rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/20">
+            <span className="inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-accent bg-accent/[.13] border border-accent/[.28]">
               <Layers size={9} />Parent
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 text-[0.6rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/20">
+            <span className="inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-pos bg-pos/[.13] border border-pos/[.28]">
               <Tag size={9} />Leaf
             </span>
           )}
@@ -158,7 +159,7 @@ const CategoryRow = ({
         {/* Children count */}
         {hasChildren && (
           <div className="hidden sm:flex flex-shrink-0">
-            <span className="px-1.5 py-0.5 rounded bg-slate-700/60 ring-1 ring-slate-600/40 text-[0.65rem] font-semibold text-slate-300">
+            <span className="px-1.5 py-0.5 rounded bg-panel2 border border-line font-mono text-[10.5px] font-semibold text-dim">
               {node.children.length} sub
             </span>
           </div>
@@ -168,14 +169,14 @@ const CategoryRow = ({
         <div className="flex gap-1.5 flex-shrink-0">
           <button
             onClick={() => onEdit(node, parentId)}
-            className="p-1.5 text-cyan-300 bg-cyan-500/15 rounded-lg hover:bg-cyan-500/25 transition-colors ring-1 ring-cyan-400/20"
+            className="p-1.5 text-accent bg-accent/[.13] rounded-[7px] border border-accent/[.26] hover:bg-accent/25 transition-colors"
             title="Edit category"
           >
             <Edit2 size={13} />
           </button>
           <button
             onClick={() => onDelete(node.id, node.name)}
-            className="p-1.5 text-red-300 bg-red-500/15 rounded-lg hover:bg-red-500/25 transition-colors ring-1 ring-red-400/20"
+            className="p-1.5 text-neg bg-transparent rounded-[7px] border border-neg/30 hover:bg-neg/10 transition-colors"
             title="Delete category"
           >
             <Trash2 size={13} />
@@ -187,7 +188,7 @@ const CategoryRow = ({
       {hasChildren && isExpanded && (
         <div className="relative">
           <div
-            className="absolute top-0 bottom-0 w-px bg-slate-700/50"
+            className="absolute top-0 bottom-0 w-px bg-line"
             style={{ left: `${depth * 1.5 + 1.25}rem` }}
           />
           <div className="mt-1.5 space-y-1.5">
@@ -410,98 +411,94 @@ const Categories: React.FC = () => {
 
   return (
     <>
-      {/* Header */}
-      <div className="mb-6 lg:mb-8">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 tracking-tight">
-          Categories
-        </h1>
-        <p className="text-sm sm:text-base text-slate-400 font-medium">
-          Organize and manage product categories.
-        </p>
+      {/* Header — terminal status bar */}
+      <div className="flex items-center justify-between gap-4 flex-wrap mb-[18px]">
+        <div className="flex items-center gap-[11px]">
+          <span className="w-[7px] h-[7px] rounded-full bg-pos shadow-[0_0_8px_#5fcf80]" />
+          <h1 className="m-0 font-mono text-base font-semibold tracking-[.12em] uppercase text-body">Categories</h1>
+          <span className="font-mono text-[11.5px] text-mute tracking-[.04em]">// taxonomy</span>
+        </div>
       </div>
 
       {/* Stats — fixed at load time, unaffected by search */}
       <div className="grid grid-cols-3 gap-3 mb-6 lg:mb-8">
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-cyan-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-cyan-500/15 p-2 ring-1 ring-cyan-400/20">
-              <Layers size={16} className="text-cyan-300" />
+        <div className="bg-panel border border-line rounded-card px-4 py-3.5">
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="rounded-[7px] bg-accent/[.13] border border-accent/[.26] p-2">
+              <Layers size={16} className="text-accent" />
             </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Total</span>
+            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Total</span>
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{stats.total}</p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Categories</p>
+          <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">{stats.total}</p>
+          <p className="mt-2 font-mono text-[11px] text-mute">categories</p>
         </div>
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-sky-400/40 hover:shadow-lg hover:shadow-sky-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-sky-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-sky-500/15 p-2 ring-1 ring-sky-400/20">
-              <FolderOpen size={16} className="text-sky-300" />
+        <div className="bg-panel border border-line rounded-card px-4 py-3.5">
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="rounded-[7px] bg-info/[.13] border border-info/[.26] p-2">
+              <FolderOpen size={16} className="text-info" />
             </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Parents</span>
+            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Parents</span>
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{stats.parents}</p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">With Sub-categories</p>
+          <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">{stats.parents}</p>
+          <p className="mt-2 font-mono text-[11px] text-mute">with sub-categories</p>
         </div>
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-emerald-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-emerald-500/15 p-2 ring-1 ring-emerald-400/20">
-              <Tag size={16} className="text-emerald-300" />
+        <div className="bg-panel border border-line rounded-card px-4 py-3.5">
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="rounded-[7px] bg-pos/[.13] border border-pos/[.26] p-2">
+              <Tag size={16} className="text-pos" />
             </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Leaves</span>
+            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Leaves</span>
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{stats.leaves}</p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Leaf Categories</p>
+          <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">{stats.leaves}</p>
+          <p className="mt-2 font-mono text-[11px] text-mute">leaf categories</p>
         </div>
       </div>
 
       {/* Search and Add */}
       <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row gap-3">
-        <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10" size={18} />
+        <div className="flex-1 relative flex items-center">
+          <Search className="absolute left-2.5 text-mute pointer-events-none" size={14} />
           <input
             type="text"
             placeholder="Search categories..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-2.5 bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all text-sm"
+            className="w-full bg-panel border border-line rounded-[7px] pl-8 pr-3 py-2 text-[12.5px] text-body outline-none focus:border-accent/50 placeholder:text-mute transition-colors"
           />
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-br from-cyan-500 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/30 transition-all whitespace-nowrap"
+          className="inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-accent text-accent-ink border border-accent hover:brightness-110 transition whitespace-nowrap"
         >
-          <Plus size={18} />
+          <Plus size={14} />
           Add Category
         </button>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-6 flex items-center gap-3 p-4 bg-red-500/10 border border-red-400/30 rounded-xl backdrop-blur">
-          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-          <p className="text-sm text-red-300">{error}</p>
+        <div className="mb-6 flex items-center gap-3 p-4 bg-neg/10 border border-neg/30 rounded-card">
+          <AlertCircle className="w-5 h-5 text-neg flex-shrink-0" />
+          <p className="text-sm text-neg">{error}</p>
         </div>
       )}
 
       {/* Content */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-16">
-          <Loader className="w-8 h-8 text-cyan-400 animate-spin mb-3" />
-          <p className="text-slate-400">Loading categories...</p>
+          <Loader className="w-6 h-6 text-accent animate-spin mb-3" />
+          <p className="font-mono text-xs text-mute uppercase tracking-[.1em]">Loading categories…</p>
         </div>
       ) : visibleCategories.length === 0 ? (
-        <div className="text-center py-16">
-          <Layers className="w-12 h-12 mx-auto mb-3 text-slate-600" />
-          <p className="text-slate-300 text-lg">No categories found</p>
-          {searchTerm && <p className="text-slate-500 text-sm mt-2">Try adjusting your search</p>}
+        <div className="text-center py-[54px] text-mute">
+          <Layers size={30} className="mx-auto opacity-50" />
+          <p className="mt-3 text-[13.5px] font-semibold text-dim">No categories found</p>
+          {searchTerm && <p className="mt-1 text-xs">Try adjusting your search</p>}
         </div>
       ) : (
         <div className="space-y-2">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs text-slate-500 font-medium">
+            <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">
               {visibleCategories.length} root {visibleCategories.length === 1 ? 'category' : 'categories'}
             </p>
             <div className="flex gap-2">
@@ -513,14 +510,14 @@ const Categories: React.FC = () => {
                   collect(categories);
                   setExpandedIds(allParentIds);
                 }}
-                className="text-[0.7rem] font-semibold text-cyan-400 hover:text-cyan-300 transition-colors"
+                className="font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] text-accent hover:brightness-110 transition-colors"
               >
                 Expand all
               </button>
-              <span className="text-slate-600">·</span>
+              <span className="text-mute">·</span>
               <button
                 onClick={() => setExpandedIds(new Set())}
-                className="text-[0.7rem] font-semibold text-slate-400 hover:text-slate-300 transition-colors"
+                className="font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] text-dim hover:text-body transition-colors"
               >
                 Collapse all
               </button>
@@ -547,19 +544,19 @@ const Categories: React.FC = () => {
       {/* ── Create / Edit Modal ── */}
       {modal && (
         <Modal title={modal.mode === 'create' ? 'Add Category' : 'Edit Category'} onClose={closeModal}>
-          <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          <form onSubmit={handleSubmit} className="p-4 space-y-4">
             {/* Form error */}
             {formError && (
-              <div className="flex items-start gap-2.5 p-3 bg-red-500/10 border border-red-400/30 rounded-xl">
-                <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-red-300">{formError}</p>
+              <div className="flex items-start gap-2.5 p-3 bg-neg/10 border border-neg/30 rounded-[7px]">
+                <AlertCircle size={15} className="text-neg flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-neg">{formError}</p>
               </div>
             )}
 
             {/* Name */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-slate-300">
-                Name <span className="text-red-400">*</span>
+              <label className="block font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">
+                Name <span className="text-neg">*</span>
               </label>
               <input
                 ref={nameInputRef}
@@ -568,35 +565,35 @@ const Categories: React.FC = () => {
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="e.g. Circuit Breakers"
                 required
-                className="w-full px-3.5 py-2.5 bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-500 rounded-xl text-sm focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all"
+                className="w-full bg-panel2 border border-line rounded-[7px] px-3 py-2 text-[12.5px] text-body outline-none focus:border-accent/50 placeholder:text-mute transition-colors"
               />
             </div>
 
             {/* Slug */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-slate-300">
+              <label className="block font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">
                 Slug
-                <span className="ml-1.5 text-[0.65rem] font-normal text-slate-500">(auto-generated, or edit manually)</span>
+                <span className="ml-1.5 normal-case tracking-normal text-[10px]">(auto-generated, or edit manually)</span>
               </label>
               <input
                 type="text"
                 value={formData.slug}
                 onChange={(e) => handleSlugChange(e.target.value)}
                 placeholder="circuit-breakers"
-                className="w-full px-3.5 py-2.5 bg-slate-900/60 border border-slate-700/60 text-slate-300 placeholder-slate-500 rounded-xl text-sm font-mono focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all"
+                className="w-full bg-panel2 border border-line rounded-[7px] px-3 py-2 text-[12.5px] text-body font-mono outline-none focus:border-accent/50 placeholder:text-mute transition-colors"
               />
             </div>
 
             {/* Parent category */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-slate-300">
+              <label className="block font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">
                 Parent Category
-                <span className="ml-1.5 text-[0.65rem] font-normal text-slate-500">(leave empty for root)</span>
+                <span className="ml-1.5 normal-case tracking-normal text-[10px]">(leave empty for root)</span>
               </label>
               <select
                 value={formData.parent ?? ''}
                 onChange={(e) => setFormData((prev) => ({ ...prev, parent: e.target.value ? Number(e.target.value) : null }))}
-                className="w-full px-3.5 py-2.5 bg-slate-900/60 border border-slate-700/60 text-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all"
+                className="w-full bg-panel2 border border-line rounded-[7px] px-3 py-2 text-[12.5px] text-body outline-none focus:border-accent/50 transition-colors"
               >
                 <option value="">— None (Root category) —</option>
                 {flatCategories
@@ -614,14 +611,14 @@ const Categories: React.FC = () => {
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex-1 px-4 py-2.5 bg-slate-700/60 text-slate-200 rounded-xl font-semibold hover:bg-slate-700 transition-colors border border-slate-600/60 text-sm"
+                className="flex-1 inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-[#3a3d44] hover:text-body transition whitespace-nowrap"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={formLoading || !formData.name.trim()}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-br from-cyan-500 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+                className="flex-1 inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-accent text-accent-ink border border-accent hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
               >
                 {formLoading ? (
                   <><Loader size={14} className="animate-spin" /> Saving...</>
@@ -636,29 +633,33 @@ const Categories: React.FC = () => {
 
       {/* ── Delete Confirmation Modal ── */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="relative w-full max-w-sm bg-slate-800/80 border border-slate-700/60 rounded-2xl shadow-2xl backdrop-blur overflow-hidden">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-400/50 to-transparent" />
-            <div className="px-6 py-5">
-              <h3 className="text-base font-bold text-white mb-2">Delete Category</h3>
-              <p className="text-sm text-slate-300 mb-5">
+        <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[7vh] pb-[4vh] bg-black/60 animate-fade">
+          <div className="w-full max-w-sm bg-panel border border-line rounded-card shadow-[0_30px_80px_-20px_rgba(0,0,0,.87)] overflow-hidden animate-pop">
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-line">
+              <div className="w-9 h-9 rounded-lg bg-neg/15 text-neg flex items-center justify-center shrink-0">
+                <Trash2 size={17} />
+              </div>
+              <h3 className="font-mono font-semibold text-sm tracking-[.08em] uppercase text-body">Delete Category</h3>
+            </div>
+            <div className="p-4">
+              <p className="text-sm text-dim mb-5">
                 Are you sure you want to delete{' '}
-                <span className="font-semibold text-white">"{deleteConfirm.name}"</span>?
-                <span className="block mt-1 text-xs text-slate-500">
+                <span className="font-semibold text-body">"{deleteConfirm.name}"</span>?
+                <span className="block mt-1 text-xs text-mute">
                   Categories with products or sub-categories cannot be deleted.
                 </span>
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setDeleteConfirm(null)}
-                  className="flex-1 px-4 py-2.5 bg-slate-700/60 text-slate-200 rounded-xl font-semibold hover:bg-slate-700 transition-colors border border-slate-600/60 text-sm"
+                  className="flex-1 inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-[#3a3d44] hover:text-body transition whitespace-nowrap"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={deleting}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600/80 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  className="flex-1 inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-neg/15 text-neg border border-neg/30 hover:bg-neg/25 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
                 >
                   {deleting ? (
                     <><Loader size={14} className="animate-spin" /> Deleting...</>

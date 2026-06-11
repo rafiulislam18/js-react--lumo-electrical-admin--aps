@@ -72,17 +72,17 @@ const CourierOrderDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="h-8 w-8 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin" />
+      <div className="min-h-screen bg-bg flex items-center justify-center">
+        <div className="font-mono text-xs text-mute uppercase tracking-[.1em] animate-pulse">Loading…</div>
       </div>
     );
   }
 
   if (error || !order) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center gap-4 p-4">
-        <p className="text-red-300 text-sm">{error || 'Order not found.'}</p>
-        <button onClick={() => navigate('/courier/dashboard')} className="text-cyan-400 text-sm hover:underline">
+      <div className="min-h-screen bg-bg flex flex-col items-center justify-center gap-4 p-4">
+        <p className="text-neg text-xs">{error || 'Order not found.'}</p>
+        <button onClick={() => navigate('/courier/dashboard')} className="text-accent text-sm font-semibold hover:underline">
           Back to dashboard
         </button>
       </div>
@@ -92,21 +92,25 @@ const CourierOrderDetail: React.FC = () => {
   const fullAddress = `${order.delivery_address}, ${order.delivery_city}, ${order.delivery_province} ${order.delivery_postal_code}`;
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
-      {/* Header */}
-      <div className="border-b border-slate-700/60 bg-slate-800/60 backdrop-blur-xl sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
+    <div className="min-h-screen bg-bg text-body">
+      {/* Header — terminal status bar */}
+      <div className="border-b border-line bg-bg2 sticky top-0 z-10">
+        <div className="max-w-2xl mx-auto px-4 py-3.5 flex items-center gap-3">
           <button
             onClick={() => navigate('/courier/dashboard')}
-            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-slate-700/60 text-slate-400 hover:text-white transition-colors"
+            className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition shrink-0"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} />
           </button>
-          <div>
-            <p className="text-xs text-slate-400 font-medium">Delivery Order</p>
-            <p className="text-sm font-semibold text-white leading-tight">#{order.id}</p>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="w-[6px] h-[6px] rounded-full bg-pos shadow-[0_0_8px_#5fcf80] shrink-0" />
+              <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Delivery Order</p>
+            </div>
+            <p className="font-mono text-sm font-semibold text-body leading-tight">#{order.id}</p>
           </div>
-          <span className="ml-auto text-xs font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-full px-3 py-1">
+          <span className="ml-auto inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-warn bg-warn/[.13] border border-warn/[.28]">
+            <span className="w-1.5 h-1.5 rounded-full bg-warn" />
             Out for Delivery
           </span>
         </div>
@@ -115,44 +119,44 @@ const CourierOrderDetail: React.FC = () => {
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
 
         {/* Customer Info */}
-        <section className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-5">
-          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Customer</h2>
+        <section className="bg-panel border border-line rounded-card p-4">
+          <h2 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim mb-4">Customer</h2>
           <div className="space-y-3">
-            <p className="text-base font-semibold text-white">{order.customer_name}</p>
-            <div className="flex items-center gap-2.5 text-sm text-slate-300">
-              <Phone size={14} className="text-slate-500 shrink-0" />
+            <p className="text-base font-semibold text-body">{order.customer_name}</p>
+            <div className="flex items-center gap-2.5 font-mono text-xs text-dim">
+              <Phone size={14} className="text-mute shrink-0" />
               <span>{order.customer_phone}</span>
             </div>
-            <div className="flex items-center gap-2.5 text-sm text-slate-300">
-              <Mail size={14} className="text-slate-500 shrink-0" />
+            <div className="flex items-center gap-2.5 font-mono text-xs text-dim">
+              <Mail size={14} className="text-mute shrink-0" />
               <span>{order.customer_email}</span>
             </div>
           </div>
         </section>
 
         {/* Delivery Address */}
-        <section className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-5">
-          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Delivery Address</h2>
+        <section className="bg-panel border border-line rounded-card p-4">
+          <h2 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim mb-4">Delivery Address</h2>
           <div className="flex items-start gap-2.5">
-            <MapPin size={15} className="text-cyan-400 shrink-0 mt-0.5" />
-            <p className="text-sm text-slate-200 leading-relaxed">{fullAddress}</p>
+            <MapPin size={15} className="text-accent shrink-0 mt-0.5" />
+            <p className="text-sm text-body leading-relaxed">{fullAddress}</p>
           </div>
         </section>
 
         {/* Special Instructions */}
         {order.comment && (
-          <section className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5">
-            <h2 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <section className="bg-panel border border-line border-l-2 border-l-warn rounded-card p-4">
+            <h2 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-warn mb-3 flex items-center gap-2">
               <MessageSquare size={13} />
               Special Instructions
             </h2>
-            <p className="text-sm text-slate-300 leading-relaxed">{order.comment}</p>
+            <p className="text-sm text-dim leading-relaxed">{order.comment}</p>
           </section>
         )}
 
         {/* Order Items */}
-        <section className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-5">
-          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+        <section className="bg-panel border border-line rounded-card p-4">
+          <h2 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim mb-4 flex items-center gap-2">
             <Package size={13} />
             Items ({order.items_count})
           </h2>
@@ -163,18 +167,18 @@ const CourierOrderDetail: React.FC = () => {
                   <img
                     src={item.product_image}
                     alt={item.product_name}
-                    className="w-12 h-12 rounded-xl object-cover bg-slate-700 shrink-0"
+                    className="w-12 h-12 rounded-[7px] object-cover bg-panel2 border border-line shrink-0"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-xl bg-slate-700 flex items-center justify-center shrink-0">
-                    <Package size={16} className="text-slate-500" />
+                  <div className="w-12 h-12 rounded-[7px] bg-panel2 border border-line flex items-center justify-center shrink-0">
+                    <Package size={16} className="text-mute" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{item.product_name}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Qty: {item.quantity} × R {item.unit_price}</p>
+                  <p className="text-sm font-medium text-body truncate">{item.product_name}</p>
+                  <p className="font-mono text-[11px] text-mute mt-0.5">Qty: {item.quantity} × R {item.unit_price}</p>
                 </div>
-                <p className="text-sm font-semibold text-white shrink-0">
+                <p className="font-mono text-sm font-semibold text-body shrink-0">
                   R {(parseFloat(item.unit_price) * item.quantity).toFixed(2)}
                 </p>
               </div>
@@ -183,28 +187,28 @@ const CourierOrderDetail: React.FC = () => {
         </section>
 
         {/* Pricing Summary */}
-        <section className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-5">
-          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+        <section className="bg-panel border border-line rounded-card p-4">
+          <h2 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim mb-4 flex items-center gap-2">
             <Receipt size={13} />
             Summary
           </h2>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between text-slate-400">
+            <div className="flex justify-between text-dim">
               <span>Subtotal</span>
-              <span>R {order.subtotal}</span>
+              <span className="font-mono">R {order.subtotal}</span>
             </div>
-            <div className="flex justify-between text-slate-400">
+            <div className="flex justify-between text-dim">
               <span>Tax</span>
-              <span>R {order.tax}</span>
+              <span className="font-mono">R {order.tax}</span>
             </div>
-            <div className="flex justify-between text-slate-400">
+            <div className="flex justify-between text-dim">
               <span>Shipping</span>
-              <span>R {order.shipping}</span>
+              <span className="font-mono">R {order.shipping}</span>
             </div>
-            <div className="h-px bg-slate-700/60 my-1" />
-            <div className="flex justify-between text-base font-bold text-white">
+            <div className="h-px bg-line my-1" />
+            <div className="flex justify-between text-base font-bold text-body">
               <span>Total</span>
-              <span>R {order.total}</span>
+              <span className="font-mono text-accent">R {order.total}</span>
             </div>
           </div>
         </section>
@@ -213,30 +217,32 @@ const CourierOrderDetail: React.FC = () => {
         {!confirming ? (
           <button
             onClick={() => setConfirming(true)}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all"
+            className="w-full inline-flex items-center justify-center gap-[7px] py-3 text-[12.5px] font-bold rounded-[7px] bg-accent text-accent-ink border border-accent hover:brightness-110 transition"
           >
             <CheckCircle2 size={17} />
             Mark as Delivered
           </button>
         ) : (
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 space-y-3">
-            <p className="text-sm font-semibold text-white text-center">Confirm delivery for order #{order.id}?</p>
-            <p className="text-xs text-slate-400 text-center">This cannot be undone.</p>
+          <div className="bg-panel border border-pos/30 rounded-card p-4 space-y-3 animate-pop">
+            <p className="text-sm font-semibold text-body text-center">
+              Confirm delivery for order <span className="font-mono">#{order.id}</span>?
+            </p>
+            <p className="text-xs text-mute text-center">This cannot be undone.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirming(false)}
                 disabled={marking}
-                className="flex-1 py-2.5 rounded-xl border border-slate-600 text-slate-300 text-sm font-medium hover:bg-slate-700/60 transition-colors disabled:opacity-50"
+                className="flex-1 inline-flex items-center justify-center py-2.5 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-[#3a3d44] hover:text-body transition disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleMarkDelivered}
                 disabled={marking}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 text-[12.5px] font-bold rounded-[7px] bg-pos/15 text-pos border border-pos/40 hover:bg-pos/25 transition disabled:opacity-50"
               >
                 {marking ? (
-                  <><div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />Confirming...</>
+                  <><div className="h-3.5 w-3.5 rounded-full border-2 border-pos border-t-transparent animate-spin" />Confirming...</>
                 ) : (
                   <><CheckCircle2 size={15} />Confirm</>
                 )}

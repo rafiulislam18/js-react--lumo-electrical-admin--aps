@@ -37,121 +37,102 @@ const PopularProducts: React.FC = () => {
   // Use fetched data or fallback to empty
   const maxSold = products[0]?.sold_count || 1;
 
-  const rankStyles = [
-    'from-amber-300 via-yellow-400 to-amber-500 shadow-amber-300/50',
-    'from-slate-300 via-slate-400 to-slate-500 shadow-slate-300/50',
-    'from-orange-300 via-orange-400 to-amber-600 shadow-orange-300/50',
-    'from-emerald-300 via-emerald-400 to-green-600 shadow-emerald-300/50',
-    'from-emerald-300 via-emerald-400 to-green-600 shadow-emerald-300/50',
-  ];
-
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6">
-      <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl" />
+    <div className="flex min-w-0 flex-col rounded-card border border-line bg-panel">
+      {/* Panel header */}
+      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-[11px]">
+        <span className="inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[.12em] text-dim">
+          <TrendingUp size={13} className="text-accent" />
+          Popular Products
+        </span>
+        <span className="font-mono text-[11px] text-mute">TOP SELLERS</span>
+      </div>
 
-      <div className="relative">
-        <div className="mb-5 flex items-start gap-3 sm:mb-6">
-          <div className="rounded-xl bg-emerald-500/15 p-2.5 ring-1 ring-emerald-400/20">
-            <TrendingUp size={18} className="text-emerald-300" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-white sm:text-lg lg:text-xl">Popular Products</h3>
-            <p className="mt-0.5 text-xs font-medium text-slate-400">Top sellers this period</p>
-          </div>
-        </div>
+      {/* Table */}
+      <div className="min-w-0 overflow-x-auto">
+        <table className="w-full border-collapse font-mono">
+          <thead>
+            <tr>
+              <th className="whitespace-nowrap border-b border-line px-4 py-2.5 text-left font-mono text-[10px] font-semibold uppercase tracking-[.08em] text-mute">#</th>
+              <th className="whitespace-nowrap border-b border-line px-4 py-2.5 text-left font-mono text-[10px] font-semibold uppercase tracking-[.08em] text-mute">Product</th>
+              <th className="whitespace-nowrap border-b border-line px-4 py-2.5 text-right font-mono text-[10px] font-semibold uppercase tracking-[.08em] text-mute">Price</th>
+              <th className="whitespace-nowrap border-b border-line px-4 py-2.5 text-right font-mono text-[10px] font-semibold uppercase tracking-[.08em] text-mute">Sold</th>
+              <th className="whitespace-nowrap border-b border-line px-4 py-2.5 text-right font-mono text-[10px] font-semibold uppercase tracking-[.08em] text-mute">Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product, index) => {
+              const isTop = index === 0;
+              const widthPct = (product.sold_count / maxSold) * 100;
 
-        <div className="space-y-2.5">
-          {products.map((product, index) => {
-            const isTop = index === 0;
-            const widthPct = (product.sold_count / maxSold) * 100;
-
-            return (
-              <div
-                key={product.id}
-                className={`group/row relative overflow-hidden rounded-xl border p-3 transition-all duration-200 hover:shadow-md sm:p-4 ${
-                  isTop
-                    ? 'border-amber-400/30 bg-amber-500/10'
-                    : 'border-slate-700/60 bg-slate-800/40 hover:border-emerald-400/30 hover:bg-slate-700/40'
-                }`}
-              >
-                {/* Volume background bar */}
-                <div
-                  className={`pointer-events-none absolute left-0 top-0 h-full opacity-40 transition-all duration-500 ${
-                    isTop ? 'bg-gradient-to-r from-amber-500/20 to-transparent' : 'bg-gradient-to-r from-emerald-500/15 to-transparent'
-                  }`}
-                  style={{ width: `${widthPct}%` }}
-                />
-
-                <div className="relative flex items-center justify-between gap-3">
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    {/* Rank Badge */}
-                    <div
-                      className={`relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-xs font-extrabold text-white shadow-md sm:h-10 sm:w-10 sm:text-sm ${rankStyles[index]}`}
-                    >
-                      {isTop && (
-                        <Crown
-                          size={12}
-                          className="absolute -top-2 -right-1.5 rotate-12 fill-amber-400 text-amber-600"
-                        />
-                      )}
-                      {index + 1}
-                    </div>
-
-                    {/* Product Image */}
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-slate-700/60 ring-1 ring-slate-600/40 overflow-hidden shadow-sm transition-all duration-200 group-hover/row:shadow-md sm:h-12 sm:w-12">
-                      {product.image ? (
-                        <img src={`${import.meta.env.VITE_BASE_URL}${product.image}`} alt={product.name} className="h-full w-full object-cover" />
-                      ) : (
-                        <ShoppingCart size={16} className="text-slate-300" />
-                      )}
-                    </div>
-
-                    {/* Product Info */}
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className={`truncate text-xs font-bold transition-colors sm:text-sm ${
-                          isTop ? 'text-amber-200' : 'text-white group-hover/row:text-emerald-300'
-                        }`}
-                      >
+              return (
+                <tr key={product.id} className="transition-colors hover:bg-panel2/50">
+                  <td
+                    className={`border-b border-line px-4 py-2.5 align-middle font-mono text-xs font-bold ${
+                      isTop ? 'text-accent' : 'text-mute'
+                    }`}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {String(index + 1).padStart(2, '0')}
+                      {isTop && <Crown size={11} className="text-accent" />}
+                    </span>
+                  </td>
+                  <td className="border-b border-line px-4 py-2.5 align-middle">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center overflow-hidden rounded-[5px] border border-line bg-panel2">
+                        {product.image ? (
+                          <img
+                            src={`${import.meta.env.VITE_BASE_URL}${product.image}`}
+                            alt={product.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <ShoppingCart size={12} className="text-mute" />
+                        )}
+                      </div>
+                      <span className="max-w-[200px] truncate whitespace-nowrap text-[12.5px] text-body">
                         {product.name}
-                      </p>
-                      <p className="text-xs font-medium text-slate-400">R{product.price}</p>
+                      </span>
                     </div>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="flex flex-shrink-0 flex-col items-end gap-0.5">
-                    <div className="flex items-center gap-1.5">
-                      <ShoppingCart size={13} className={isTop ? 'text-amber-300' : 'text-emerald-300'} />
-                      <span className="text-xs font-extrabold text-white sm:text-sm">
+                  </td>
+                  <td className="whitespace-nowrap border-b border-line px-4 py-2.5 text-right align-middle font-mono text-[12.5px] text-dim">
+                    R{product.price}
+                  </td>
+                  <td className="whitespace-nowrap border-b border-line px-4 py-2.5 text-right align-middle">
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="hidden h-[5px] w-12 overflow-hidden rounded-full bg-panel2 sm:block">
+                        <span
+                          className="block h-full rounded-full bg-accent"
+                          style={{ width: `${widthPct}%` }}
+                        />
+                      </span>
+                      <span className="font-mono text-[12.5px] text-body">
                         {product.sold_count.toLocaleString()}
                       </span>
                     </div>
-                    <p
-                      className={`text-xs font-bold ${
-                        isTop ? 'text-amber-300' : 'text-emerald-300'
-                      }`}
-                    >
-                      R{ (parseFloat(product.price) * product.sold_count).toLocaleString() }
-                    </p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                  </td>
+                  <td className="whitespace-nowrap border-b border-line px-4 py-2.5 text-right align-middle font-mono text-[12.5px] font-bold text-accent">
+                    R{(parseFloat(product.price) * product.sold_count).toLocaleString()}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
-        <div className="mt-5 border-t border-slate-700/60 pt-4 sm:mt-6">
-          <button className="group/btn inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300 transition-all duration-200 hover:text-emerald-200 sm:text-sm"
-            onClick={() => navigate('/products')}
-          >
-            View All Products
-            <ArrowRight
-              size={14}
-              className="transition-transform duration-200 group-hover/btn:translate-x-1"
-            />
-          </button>
-        </div>
+      {/* Footer */}
+      <div className="px-4 py-3">
+        <button
+          className="group/btn inline-flex items-center gap-1.5 font-mono text-[11.5px] font-semibold uppercase tracking-[.05em] text-accent transition hover:brightness-110"
+          onClick={() => navigate('/products')}
+        >
+          View All Products
+          <ArrowRight
+            size={13}
+            className="transition-transform duration-200 group-hover/btn:translate-x-1"
+          />
+        </button>
       </div>
     </div>
   );

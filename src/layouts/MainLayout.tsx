@@ -7,17 +7,17 @@ const MainLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-800 via-slate-800 to-slate-700">
-      <Sidebar 
+    <div className="flex h-screen bg-bg">
+      <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
-      
+
       <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
         <Header onMenuClick={() => setSidebarOpen(true)}/>
-        
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-4 sm:p-6 lg:p-10">
+
+        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="px-4 sm:px-[22px] pt-5 pb-12 max-w-[1320px] mx-auto">
             {/* Page content will be rendered here via Outlet */}
             <Outlet />
           </div>

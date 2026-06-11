@@ -56,69 +56,49 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-slate-900">
-      {/* Background blobs */}
-      <div className="pointer-events-none absolute -top-32 -right-32 h-80 w-80 rounded-full bg-cyan-500/15 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 -left-32 h-80 w-80 rounded-full bg-emerald-500/15 blur-3xl" />
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-cyan-400/5 blur-3xl" />
-
-      {/* Subtle grid */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:48px_48px]" />
-
+    <div className="min-h-screen flex items-center justify-center p-4 bg-bg">
       {/* Card */}
-      <div className="relative w-full max-w-md z-10">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 shadow-2xl backdrop-blur-xl">
-          {/* Top accent line */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
-
+      <div className="w-full max-w-[380px] animate-pop">
+        <div className="bg-panel border border-line rounded-card overflow-hidden">
           {/* Header */}
-          <div className="relative px-8 pt-10 pb-8 text-center">
-            {/* Logo area */}
-            <div className="mb-5 inline-flex items-center justify-center rounded-2xl p-4">
-              <img src="/images/logo-light.png" alt="Lumo Electrical" className="h-16" />
+          <div className="px-7 pt-9 pb-7 text-center border-b border-line">
+            <img src="/images/logo-light.png" alt="Lumo Electrical" className="h-14 mx-auto mb-5" />
+
+            <div className="flex items-center justify-center gap-2">
+              <span className="w-[7px] h-[7px] rounded-full bg-pos shadow-[0_0_8px_#5fcf80]" />
+              <span className="font-mono text-[11px] font-semibold tracking-[.18em] uppercase text-body">
+                Admin Console
+              </span>
             </div>
-
-            {/* Badge */}
-            {/* <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-300">
-              <Zap size={11} />
-              <span>Admin Portal</span>
-            </div> */}
-
-            <h1 className="mb-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Admin Dashboard
-            </h1>
-            <p className="mt-1.5 text-sm font-medium text-slate-400">
-              Lumo Electrical Management System
+            <p className="mt-2 font-mono text-[11px] text-mute tracking-[.04em]">
+              // lumo electrical management
             </p>
           </div>
 
-          {/* Divider */}
-          <div className="mx-8 h-px bg-slate-700/60" />
-
           {/* Form */}
-          <form onSubmit={handleLogin} className="px-8 py-8 space-y-5">
+          <form onSubmit={handleLogin} className="px-7 py-7 space-y-5">
             {/* Error */}
             {error && (
-              <div className="flex items-start gap-2.5 rounded-xl border border-red-400/30 bg-red-500/10 p-3.5">
-                <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-300 font-medium">{error}</p>
+              <div className="flex items-start gap-2.5 rounded-[7px] border border-neg/30 bg-neg/10 p-3">
+                <AlertCircle size={14} className="text-neg flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-neg">{error}</p>
               </div>
             )}
 
             {/* Username */}
             <div className="space-y-1.5">
-              <label htmlFor="username" className="block text-xs font-semibold text-slate-300">
+              <label htmlFor="username" className="block font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">
                 Username
               </label>
               <div className="relative">
-                <User size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <User size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-mute" />
                 <input
                   id="username"
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter your username"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-500 rounded-xl text-sm focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all hover:border-slate-600"
+                  className="w-full bg-panel2 border border-line rounded-[7px] pl-9 pr-3 py-2.5 text-[12.5px] text-body outline-none focus:border-accent/50 placeholder:text-mute disabled:opacity-50"
                   disabled={loading}
                   required
                 />
@@ -127,25 +107,25 @@ const Login: React.FC = () => {
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label htmlFor="password" className="block text-xs font-semibold text-slate-300">
+              <label htmlFor="password" className="block font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">
                 Password
               </label>
               <div className="relative">
-                <Lock size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <Lock size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-mute" />
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full pl-10 pr-11 py-3 bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-500 rounded-xl text-sm focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all hover:border-slate-600"
+                  className="w-full bg-panel2 border border-line rounded-[7px] pl-9 pr-10 py-2.5 text-[12.5px] text-body outline-none focus:border-accent/50 placeholder:text-mute disabled:opacity-50"
                   disabled={loading}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-slate-300 hover:bg-slate-700/60 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded text-mute hover:text-body transition-colors"
                   disabled={loading}
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -157,11 +137,11 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading || !username || !password}
-              className="w-full flex items-center justify-center gap-2 py-3 mt-2 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="w-full inline-flex items-center justify-center gap-[7px] py-2.5 mt-2 text-[12.5px] font-bold rounded-[7px] bg-accent text-accent-ink border border-accent hover:brightness-110 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
-                  <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                  <div className="h-3.5 w-3.5 rounded-full border-2 border-accent-ink border-t-transparent animate-spin" />
                   <span>Signing in...</span>
                 </>
               ) : (
@@ -171,9 +151,9 @@ const Login: React.FC = () => {
           </form>
 
           {/* Footer */}
-          <div className="px-8 py-4 border-t border-slate-700/60 bg-slate-800/30 text-center">
-            <p className="text-[0.7rem] font-semibold uppercase tracking-wider text-slate-500">
-              🔒 Secure Admin Access &nbsp;·&nbsp; Authorized Users Only
+          <div className="px-7 py-3.5 border-t border-line bg-bg2 text-center">
+            <p className="font-mono text-[10px] uppercase tracking-[.12em] text-mute">
+              Secure access // authorized users only
             </p>
           </div>
         </div>

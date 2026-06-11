@@ -40,9 +40,9 @@ interface ProductDetail {
 }
 
 const inputClass =
-  'w-full px-3.5 py-2.5 bg-slate-900/60 border border-slate-700/60 text-white placeholder-slate-500 rounded-xl text-sm focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all hover:border-slate-600';
+  'w-full bg-panel2 border border-line rounded-[7px] px-3 py-2 text-[12.5px] text-body outline-none focus:border-accent/50 placeholder:text-mute transition-colors';
 
-const labelClass = 'block text-xs font-semibold text-slate-300 mb-1.5';
+const labelClass = 'block font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-1.5';
 
 const EditProduct: React.FC = () => {
   const navigate = useNavigate();
@@ -201,8 +201,8 @@ const EditProduct: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <Loader className="w-8 h-8 text-cyan-400 animate-spin mb-3" />
-        <p className="text-slate-400">Loading product...</p>
+        <Loader className="w-6 h-6 text-accent animate-spin mb-3" />
+        <p className="font-mono text-xs text-mute uppercase tracking-[.1em]">Loading product…</p>
       </div>
     );
   }
@@ -210,34 +210,37 @@ const EditProduct: React.FC = () => {
   return (
     <>
       {/* Header */}
-      <div className="mb-6 lg:mb-8">
+      <div className="mb-[18px]">
         <button
           onClick={() => navigate('/products')}
-          className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-cyan-300 transition-colors"
+          className="mb-4 inline-flex items-center gap-2 font-mono text-[11.5px] font-semibold uppercase tracking-[.08em] text-mute hover:text-body transition-colors"
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={14} />
           Back to Products
         </button>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 tracking-tight">
-          Edit Product
-        </h1>
-        <p className="text-sm sm:text-base text-slate-400 font-medium">
+        <div className="flex items-center gap-[11px]">
+          <span className="w-[7px] h-[7px] rounded-full bg-pos shadow-[0_0_8px_#5fcf80]" />
+          <h1 className="m-0 font-mono text-base font-semibold tracking-[.12em] uppercase text-body">
+            Edit Product
+          </h1>
+          <span className="font-mono text-[11.5px] text-mute tracking-[.04em]">// catalogue</span>
+        </div>
+        <p className="mt-2 text-[12.5px] text-dim">
           Update product information
         </p>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-6 flex items-start gap-2.5 p-3.5 bg-red-500/10 border border-red-400/30 rounded-xl">
-          <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-300 font-medium">{error}</p>
+        <div className="mb-6 flex items-start gap-2.5 p-3.5 bg-neg/10 border border-neg/30 rounded-card">
+          <AlertCircle size={15} className="text-neg flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-neg">{error}</p>
         </div>
       )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="max-w-3xl">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-6 space-y-6 shadow-xl">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
+        <div className="bg-panel border border-line rounded-card p-5 space-y-6">
 
           {/* Image Upload */}
           <div>
@@ -251,7 +254,7 @@ const EditProduct: React.FC = () => {
             />
             <label
               htmlFor="image-input"
-              className="group block w-full sm:w-2/3 lg:w-1/2 aspect-square cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-slate-700/60 hover:border-cyan-400/50 hover:bg-cyan-500/5 transition-all"
+              className="group block w-full sm:w-2/3 lg:w-1/2 aspect-square cursor-pointer overflow-hidden rounded-card border-2 border-dashed border-line bg-panel2 hover:border-accent/40 transition-colors"
             >
               {imagePreview ? (
                 <img
@@ -260,29 +263,29 @@ const EditProduct: React.FC = () => {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="flex h-full w-full flex-col items-center justify-center gap-2">
-                  <span className="rounded-xl bg-slate-700/60 p-3 ring-1 ring-slate-600/40 group-hover:bg-cyan-500/10 group-hover:ring-cyan-400/20 transition-all">
-                    <Upload size={20} className="text-slate-400 group-hover:text-cyan-300 transition-colors" />
+                <span className="flex h-full w-full flex-col items-center justify-center gap-2.5">
+                  <span className="rounded-lg bg-panel border border-line p-3 group-hover:border-accent/40 transition-colors">
+                    <Upload size={20} className="text-mute group-hover:text-accent transition-colors" />
                   </span>
-                  <span className="text-sm font-medium text-slate-400 group-hover:text-slate-300 transition-colors">
+                  <span className="font-mono text-[11px] uppercase tracking-[.08em] text-mute group-hover:text-dim transition-colors">
                     Click to change image
                   </span>
                 </span>
               )}
             </label>
-            <p className="mt-2 text-[0.7rem] text-slate-500 font-medium">
-              Use a <span className="text-slate-400 font-semibold">1:1 square image</span> for best results — non-square images may be cropped or distorted in product cards and listings.
+            <p className="mt-2 font-mono text-[10.5px] text-mute">
+              Use a <span className="text-dim font-semibold">1:1 square image</span> for best results — non-square images may be cropped or distorted in product cards and listings.
             </p>
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-slate-700/60" />
+          <div className="h-px bg-line" />
 
           {/* Basic Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>
-                Product Name <span className="text-red-400">*</span>
+                Product Name <span className="text-neg">*</span>
               </label>
               <input
                 type="text"
@@ -296,7 +299,7 @@ const EditProduct: React.FC = () => {
             </div>
             <div>
               <label className={labelClass}>
-                Category <span className="text-red-400">*</span>
+                Category <span className="text-neg">*</span>
               </label>
               <select
                 name="category"
@@ -317,7 +320,7 @@ const EditProduct: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>
-                Price (R) <span className="text-red-400">*</span>
+                Price (R) <span className="text-neg">*</span>
               </label>
               <input
                 type="number"
@@ -390,16 +393,16 @@ const EditProduct: React.FC = () => {
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-slate-700/60" />
+          <div className="h-px bg-line" />
 
           {/* Specifications */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="text-xs font-semibold text-slate-300">Specifications</label>
+              <label className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Specifications</label>
               <button
                 type="button"
                 onClick={handleAddSpecification}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-cyan-300 bg-cyan-500/10 rounded-lg hover:bg-cyan-500/20 ring-1 ring-cyan-400/20 transition-colors"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold text-accent bg-accent/10 rounded-[7px] hover:bg-accent/20 border border-accent/[.28] transition-colors"
               >
                 <Plus size={13} />
                 Add Row
@@ -425,7 +428,7 @@ const EditProduct: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleRemoveSpecification(index)}
-                    className="flex-shrink-0 p-2.5 text-red-300 bg-red-500/15 rounded-xl hover:bg-red-500/25 transition-colors ring-1 ring-red-400/20"
+                    className="flex-shrink-0 w-8 self-stretch flex items-center justify-center text-neg bg-neg/10 rounded-[7px] hover:bg-neg/20 transition-colors border border-neg/[.28]"
                   >
                     <X size={14} />
                   </button>
@@ -435,18 +438,18 @@ const EditProduct: React.FC = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-2 border-t border-slate-700/60">
+          <div className="flex gap-3 pt-4 border-t border-line">
             <button
               type="button"
               onClick={() => navigate('/products')}
-              className="flex-1 px-4 py-2.5 bg-slate-700/60 text-slate-200 rounded-xl font-semibold hover:bg-slate-700 transition-colors border border-slate-600/60 text-sm"
+              className="flex-1 inline-flex items-center justify-center px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel2 text-dim border border-line hover:border-[#3a3d44] hover:text-body transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-br from-cyan-500 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+              className="flex-1 inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-accent text-accent-ink border border-accent hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {submitting ? (
                 <>

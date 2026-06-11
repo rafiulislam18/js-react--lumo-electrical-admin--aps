@@ -164,86 +164,86 @@ const Customers: React.FC = () => {
 
   const getAvatarGradient = (type?: string) =>
     type === 'Trade'
-      ? 'from-violet-500 to-purple-600'
-      : 'from-cyan-500 to-sky-600';
+      ? 'text-accent border-accent/30'
+      : 'text-dim border-line';
 
   const getTypeBadge = (type?: string) => {
     if (type === 'Trade')
-      return 'bg-violet-500/15 text-violet-300 ring-1 ring-violet-400/25';
+      return 'text-accent bg-accent/[.13] border border-accent/[.28]';
     if (type === 'Retail')
-      return 'bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/25';
-    return 'bg-slate-700/60 text-slate-400 ring-1 ring-slate-600/40';
+      return 'text-pos bg-pos/[.13] border border-pos/[.28]';
+    return 'text-warn bg-warn/[.13] border border-warn/[.28]';
   };
 
   const DetailField = ({ label, value }: { label: string; value?: string }) => (
     <div>
-      <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500 mb-1">{label}</p>
-      <p className="text-sm font-medium text-slate-200">{value || '—'}</p>
+      <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-1">{label}</p>
+      <p className="text-sm font-medium text-body">{value || '—'}</p>
     </div>
   );
 
   return (
     <>
-      {/* Header */}
-      <div className="mb-6 lg:mb-8">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 tracking-tight">Customers</h1>
-        <p className="text-sm sm:text-base text-slate-400 font-medium">View and manage your customers.</p>
+      {/* Header — terminal status bar */}
+      <div className="flex items-center justify-between gap-4 flex-wrap mb-[18px]">
+        <div className="flex items-center gap-[11px]">
+          <span className="w-[7px] h-[7px] rounded-full bg-pos shadow-[0_0_8px_#5fcf80]" />
+          <h1 className="m-0 font-mono text-base font-semibold tracking-[.12em] uppercase text-body">Customers</h1>
+          <span className="font-mono text-[11.5px] text-mute tracking-[.04em]">// accounts</span>
+        </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6 lg:mb-8">
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-cyan-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-cyan-500/15 p-2 ring-1 ring-cyan-400/20">
-              <Users size={16} className="text-cyan-300" />
+        <div className="bg-panel border border-line rounded-card px-4 py-3.5">
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="rounded-[7px] bg-accent/[.13] border border-accent/[.26] p-2">
+              <Users size={16} className="text-accent" />
             </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Total</span>
+            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Total</span>
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{stats?.total ?? '—'}</p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Customers</p>
+          <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">{stats?.total ?? '—'}</p>
+          <p className="mt-2 font-mono text-[11px] text-mute">customers</p>
         </div>
 
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-violet-400/40 hover:shadow-lg hover:shadow-violet-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-violet-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-violet-500/15 p-2 ring-1 ring-violet-400/20">
-              <Building2 size={16} className="text-violet-300" />
+        <div className="bg-panel border border-line rounded-card px-4 py-3.5">
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="rounded-[7px] bg-info/[.13] border border-info/[.26] p-2">
+              <Building2 size={16} className="text-info" />
             </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Trade</span>
+            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Trade</span>
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
+          <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">
             {stats?.trade ?? '—'}
           </p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Trade Members</p>
+          <p className="mt-2 font-mono text-[11px] text-mute">trade members</p>
         </div>
 
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-emerald-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-emerald-500/15 p-2 ring-1 ring-emerald-400/20">
-              <BadgeCheck size={16} className="text-emerald-300" />
+        <div className="bg-panel border border-line rounded-card px-4 py-3.5">
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="rounded-[7px] bg-pos/[.13] border border-pos/[.26] p-2">
+              <BadgeCheck size={16} className="text-pos" />
             </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Retail</span>
+            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Retail</span>
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
+          <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">
             {stats?.retail ?? '—'}
           </p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Retail Members</p>
+          <p className="mt-2 font-mono text-[11px] text-mute">retail members</p>
         </div>
 
       </div>
 
       {/* Search + Filter + Sort */}
       <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row gap-3">
-        <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10" size={18} />
+        <div className="flex-1 relative flex items-center">
+          <Search className="absolute left-2.5 text-mute pointer-events-none" size={14} />
           <input
             type="text"
             placeholder="Search by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-2.5 bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all text-sm"
+            className="w-full bg-panel border border-line rounded-[7px] pl-8 pr-3 py-2 text-[12.5px] text-body outline-none focus:border-accent/50 placeholder:text-mute transition-colors"
           />
         </div>
 
@@ -252,20 +252,20 @@ const Customers: React.FC = () => {
           <button
             type="button"
             onClick={() => setShowFilterMenu(!showFilterMenu)}
-            className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
+            className={`inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
               showFilterMenu || customerTypeFilter !== 'all'
-                ? 'border-cyan-400/40 bg-slate-700/60 text-white'
-                : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
+                ? 'bg-accent/15 text-accent border-accent/40'
+                : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
             }`}
           >
-            <SlidersHorizontal size={16} />
+            <SlidersHorizontal size={14} />
             <span>Filter</span>
           </button>
           {showFilterMenu && (
-            <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
+            <div className="absolute right-0 mt-2 w-56 bg-panel rounded-card border border-line shadow-[0_30px_80px_-20px_rgba(0,0,0,.87)] z-20 animate-pop">
               <div className="p-4 space-y-4">
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+                  <label className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-2 block">
                     Customer Type
                   </label>
                   <div className="space-y-2">
@@ -275,10 +275,10 @@ const Customers: React.FC = () => {
                         setCurrentPage(1);
                         setShowFilterMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         customerTypeFilter === 'all'
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                          ? 'bg-accent/15 text-accent border border-accent/40'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
                       }`}
                     >
                       All Customers
@@ -289,10 +289,10 @@ const Customers: React.FC = () => {
                         setCurrentPage(1);
                         setShowFilterMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         customerTypeFilter === 'trade'
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                          ? 'bg-accent/15 text-accent border border-accent/40'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
                       }`}
                     >
                       Trade
@@ -303,10 +303,10 @@ const Customers: React.FC = () => {
                         setCurrentPage(1);
                         setShowFilterMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         customerTypeFilter === 'retail'
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                          ? 'bg-accent/15 text-accent border border-accent/40'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
                       }`}
                     >
                       Retail
@@ -323,20 +323,20 @@ const Customers: React.FC = () => {
           <button
             type="button"
             onClick={() => setShowSortMenu(!showSortMenu)}
-            className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
+            className={`inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
               showSortMenu || sortBy !== 'joined_newest'
-                ? 'border-cyan-400/40 bg-slate-700/60 text-white'
-                : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
+                ? 'bg-accent/15 text-accent border-accent/40'
+                : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
             }`}
           >
-            <ArrowUpDown size={16} />
+            <ArrowUpDown size={14} />
             <span>Sort</span>
           </button>
           {showSortMenu && (
-            <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
+            <div className="absolute right-0 mt-2 w-56 bg-panel rounded-card border border-line shadow-[0_30px_80px_-20px_rgba(0,0,0,.87)] z-20 animate-pop">
               <div className="p-4 space-y-4">
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+                  <label className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-2 block">
                     Sort By
                   </label>
                   <div className="space-y-2">
@@ -346,10 +346,10 @@ const Customers: React.FC = () => {
                         setCurrentPage(1);
                         setShowSortMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         sortBy === 'joined_newest'
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                          ? 'bg-accent/15 text-accent border border-accent/40'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
                       }`}
                     >
                       Joined: Newest
@@ -360,10 +360,10 @@ const Customers: React.FC = () => {
                         setCurrentPage(1);
                         setShowSortMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         sortBy === 'joined_oldest'
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                          ? 'bg-accent/15 text-accent border border-accent/40'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
                       }`}
                     >
                       Joined: Oldest
@@ -374,10 +374,10 @@ const Customers: React.FC = () => {
                         setCurrentPage(1);
                         setShowSortMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         sortBy === 'orders'
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                          ? 'bg-accent/15 text-accent border border-accent/40'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
                       }`}
                     >
                       Most Orders
@@ -388,10 +388,10 @@ const Customers: React.FC = () => {
                         setCurrentPage(1);
                         setShowSortMenu(false);
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         sortBy === 'spent'
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                          : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                          ? 'bg-accent/15 text-accent border border-accent/40'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
                       }`}
                     >
                       Highest Spent
@@ -406,23 +406,23 @@ const Customers: React.FC = () => {
 
       {/* Error */}
       {error && (
-        <div className="mb-6 flex items-center gap-3 p-4 bg-red-500/10 border border-red-400/30 rounded-xl backdrop-blur">
-          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-          <p className="text-sm text-red-300">{error}</p>
+        <div className="mb-6 flex items-center gap-3 p-4 bg-neg/10 border border-neg/30 rounded-card">
+          <AlertCircle className="w-5 h-5 text-neg flex-shrink-0" />
+          <p className="text-sm text-neg">{error}</p>
         </div>
       )}
 
       {/* Loading */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-16">
-          <Loader className="w-8 h-8 text-cyan-400 animate-spin mb-3" />
-          <p className="text-slate-400">Loading customers...</p>
+          <Loader className="w-6 h-6 text-accent animate-spin mb-3" />
+          <p className="font-mono text-xs text-mute uppercase tracking-[.1em]">Loading customers…</p>
         </div>
       ) : customers.length === 0 ? (
-        <div className="text-center py-16">
-          <Users className="w-12 h-12 mx-auto mb-3 text-slate-600" />
-          <p className="text-slate-300 text-lg">No customers found</p>
-          {debouncedSearch && <p className="text-slate-500 text-sm mt-2">Try adjusting your search</p>}
+        <div className="text-center py-[54px] text-mute">
+          <Users size={30} className="mx-auto opacity-50" />
+          <p className="mt-3 text-[13.5px] font-semibold text-dim">No customers found</p>
+          {debouncedSearch && <p className="mt-1 text-xs">Try adjusting your search</p>}
         </div>
       ) : (
         <>
@@ -434,37 +434,34 @@ const Customers: React.FC = () => {
               return (
                 <div
                   key={customer.id}
-                  className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur transition-all duration-300 hover:border-slate-600/60 hover:shadow-xl hover:shadow-black/20"
+                  className="overflow-hidden rounded-card border border-line bg-panel transition-colors hover:border-[#3a3d44]"
                 >
-                  {/* Top accent line on hover */}
-                  <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-
                   {/* Main row */}
                   <div className="p-4 sm:p-5">
                     <div className="flex items-center gap-4">
                       {/* Avatar */}
-                      <div className={`flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br ${getAvatarGradient(type)} flex items-center justify-center text-sm font-bold text-white shadow-lg`}>
+                      <div className={`flex-shrink-0 w-11 h-11 rounded-[7px] bg-panel2 border flex items-center justify-center text-xs font-bold font-mono ${getAvatarGradient(type)}`}>
                         {getInitials(customer.first_name, customer.last_name)}
                       </div>
 
                       {/* Name + contact */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-semibold text-white text-sm">
+                          <p className="font-semibold text-body text-sm">
                             {customer.first_name} {customer.last_name}
                           </p>
-                          <span className={`inline-flex items-center text-[0.6rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${getTypeBadge(type)}`}>
+                          <span className={`inline-flex items-center font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] ${getTypeBadge(type)}`}>
                             {type || 'Pending'}
                           </span>
                         </div>
                         <div className="flex items-center gap-3 mt-1 flex-wrap">
-                          <span className="flex items-center gap-1 text-xs text-slate-400">
-                            <Mail size={11} className="text-slate-500" />
+                          <span className="flex items-center gap-1 font-mono text-xs text-mute">
+                            <Mail size={11} className="text-mute" />
                             <span className="truncate max-w-[180px]">{customer.email}</span>
                           </span>
                           {customer.customer_profile?.phone && (
-                            <span className="hidden sm:flex items-center gap-1 text-xs text-slate-400">
-                              <Phone size={11} className="text-slate-500" />
+                            <span className="hidden sm:flex items-center gap-1 font-mono text-xs text-mute">
+                              <Phone size={11} className="text-mute" />
                               {customer.customer_profile.phone}
                             </span>
                           )}
@@ -474,19 +471,19 @@ const Customers: React.FC = () => {
                       {/* Stats */}
                       <div className="hidden sm:flex items-center gap-5 flex-shrink-0">
                         <div className="text-right">
-                          <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500 mb-0.5">Orders</p>
+                          <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-0.5">Orders</p>
                           <div className="flex items-center gap-1 justify-end">
-                            <ShoppingBag size={12} className="text-cyan-400" />
-                            <p className="text-sm font-bold text-white">{customer.total_orders}</p>
+                            <ShoppingBag size={12} className="text-dim" />
+                            <p className="font-mono text-sm font-bold text-body">{customer.total_orders}</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500 mb-0.5">Spent</p>
-                          <p className="text-sm font-bold text-white">R{customer.total_spent.toLocaleString()}</p>
+                          <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-0.5">Spent</p>
+                          <p className="font-mono text-sm font-bold text-accent">R{customer.total_spent.toLocaleString()}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500 mb-0.5">Joined</p>
-                          <p className="text-sm font-bold text-white">
+                          <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-0.5">Joined</p>
+                          <p className="font-mono text-sm font-bold text-body">
                             {new Date(customer.date_joined).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
                           </p>
                         </div>
@@ -496,10 +493,10 @@ const Customers: React.FC = () => {
                       {customer.customer_profile && (
                         <button
                           onClick={() => toggleExpand(customer.id)}
-                          className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] border transition-colors ${
                             isExpanded
-                              ? 'bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-400/30'
-                              : 'bg-slate-700/60 text-slate-400 hover:text-slate-200 hover:bg-slate-700 ring-1 ring-slate-600/40'
+                              ? 'bg-accent/15 text-accent border-accent/40'
+                              : 'bg-panel2 text-dim border-line hover:text-body hover:border-[#3a3d44]'
                           }`}
                         >
                           <ChevronDown
@@ -512,18 +509,18 @@ const Customers: React.FC = () => {
                     </div>
 
                     {/* Mobile quick stats */}
-                    <div className="sm:hidden flex gap-5 mt-3 pt-3 border-t border-slate-700/50 text-xs">
+                    <div className="sm:hidden flex gap-5 mt-3 pt-3 border-t border-line text-xs">
                       <div>
-                        <p className="text-slate-500 mb-0.5">Orders</p>
-                        <p className="font-bold text-white">{customer.total_orders}</p>
+                        <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-0.5">Orders</p>
+                        <p className="font-mono font-bold text-body">{customer.total_orders}</p>
                       </div>
                       <div>
-                        <p className="text-slate-500 mb-0.5">Spent</p>
-                        <p className="font-bold text-white">R{customer.total_spent.toLocaleString()}</p>
+                        <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-0.5">Spent</p>
+                        <p className="font-mono font-bold text-accent">R{customer.total_spent.toLocaleString()}</p>
                       </div>
                       <div>
-                        <p className="text-slate-500 mb-0.5">Joined</p>
-                        <p className="font-bold text-white">
+                        <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-0.5">Joined</p>
+                        <p className="font-mono font-bold text-body">
                           {new Date(customer.date_joined).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}
                         </p>
                       </div>
@@ -532,16 +529,16 @@ const Customers: React.FC = () => {
 
                   {/* Expanded details panel */}
                   {isExpanded && customer.customer_profile && (
-                    <div className="border-t border-slate-700/60 bg-slate-900/30 px-5 py-5 space-y-5">
+                    <div className="border-t border-line bg-bg2 px-5 py-5 space-y-5">
 
                       {/* Contact */}
                       <div>
                         <div className="flex items-center gap-2 mb-3">
-                          <div className="rounded-md bg-cyan-500/15 p-1 ring-1 ring-cyan-400/20">
-                            <Phone size={12} className="text-cyan-300" />
+                          <div className="rounded-md bg-accent/[.13] border border-accent/[.26] p-1">
+                            <Phone size={12} className="text-accent" />
                           </div>
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">Contact</h4>
-                          <div className="h-px flex-1 bg-slate-700/60" />
+                          <h4 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim">Contact</h4>
+                          <div className="h-px flex-1 bg-line" />
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                           <DetailField label="Phone" value={customer.customer_profile.phone} />
@@ -554,12 +551,12 @@ const Customers: React.FC = () => {
                         {/* Billing */}
                         <div>
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="rounded-md bg-sky-500/15 p-1 ring-1 ring-sky-400/20">
-                              <MapPin size={12} className="text-sky-300" />
+                            <div className="rounded-md bg-info/[.13] border border-info/[.26] p-1">
+                              <MapPin size={12} className="text-info" />
                             </div>
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">Billing Address</h4>
+                            <h4 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim">Billing Address</h4>
                           </div>
-                          <div className="rounded-xl border border-slate-700/40 bg-slate-800/40 p-3 space-y-2.5">
+                          <div className="rounded-lg border border-line bg-panel2 p-3 space-y-2.5">
                             <DetailField label="Address" value={customer.customer_profile.billing_address} />
                             <div className="grid grid-cols-2 gap-2.5">
                               <DetailField label="City" value={customer.customer_profile.billing_city} />
@@ -572,12 +569,12 @@ const Customers: React.FC = () => {
                         {/* Delivery */}
                         <div>
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="rounded-md bg-emerald-500/15 p-1 ring-1 ring-emerald-400/20">
-                              <MapPin size={12} className="text-emerald-300" />
+                            <div className="rounded-md bg-pos/[.13] border border-pos/[.26] p-1">
+                              <MapPin size={12} className="text-pos" />
                             </div>
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">Delivery Address</h4>
+                            <h4 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim">Delivery Address</h4>
                           </div>
-                          <div className="rounded-xl border border-slate-700/40 bg-slate-800/40 p-3 space-y-2.5">
+                          <div className="rounded-lg border border-line bg-panel2 p-3 space-y-2.5">
                             <DetailField label="Address" value={customer.customer_profile.delivery_address} />
                             <div className="grid grid-cols-2 gap-2.5">
                               <DetailField label="City" value={customer.customer_profile.delivery_city} />
@@ -592,11 +589,11 @@ const Customers: React.FC = () => {
                       {type === 'Trade' && (
                         <div>
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="rounded-md bg-violet-500/15 p-1 ring-1 ring-violet-400/20">
-                              <Building2 size={12} className="text-violet-300" />
+                            <div className="rounded-md bg-accent/[.13] border border-accent/[.26] p-1">
+                              <Building2 size={12} className="text-accent" />
                             </div>
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">Business Information</h4>
-                            <div className="h-px flex-1 bg-slate-700/60" />
+                            <h4 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim">Business Information</h4>
+                            <div className="h-px flex-1 bg-line" />
                           </div>
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                             <DetailField label="Company Name" value={customer.customer_profile.company_name} />
@@ -617,11 +614,11 @@ const Customers: React.FC = () => {
 
           {/* Pagination */}
           <div className="mt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-slate-400">
+            <div className="font-mono text-xs text-mute">
               Showing{' '}
-              <span className="font-semibold text-slate-200">{(currentPage - 1) * pageSize + 1}</span> to{' '}
-              <span className="font-semibold text-slate-200">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
-              <span className="font-semibold text-slate-200">{totalCount}</span> customers
+              <span className="font-semibold text-body">{(currentPage - 1) * pageSize + 1}</span> to{' '}
+              <span className="font-semibold text-body">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
+              <span className="font-semibold text-body">{totalCount}</span> customers
             </div>
 
             {totalPages > 1 && (
@@ -629,19 +626,19 @@ const Customers: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition"
                 >
-                  <ChevronLeft size={18} className="text-slate-300" />
+                  <ChevronLeft size={16} />
                 </button>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`min-w-10 h-10 rounded-lg font-medium transition-all ${
+                      className={`min-w-8 h-8 px-2 rounded-[7px] font-mono text-xs font-semibold transition ${
                         currentPage === page
-                          ? 'bg-gradient-to-br from-cyan-500 to-emerald-600 text-white shadow-md shadow-cyan-500/30'
-                          : 'border border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700/60 hover:text-white'
+                          ? 'bg-accent text-accent-ink border border-accent'
+                          : 'bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44]'
                       }`}
                     >
                       {page}
@@ -651,9 +648,9 @@ const Customers: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition"
                 >
-                  <ChevronRight size={18} className="text-slate-300" />
+                  <ChevronRight size={16} />
                 </button>
               </div>
             )}

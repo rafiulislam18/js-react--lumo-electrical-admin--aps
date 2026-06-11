@@ -93,53 +93,57 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ productId, onCl
   const getBadgeStyle = (badge: string) => {
     switch (badge) {
       case 'Hot':
-        return 'bg-gradient-to-br from-red-500 to-pink-600 text-white';
+        return 'text-neg border-neg/[.28]';
       case 'New':
-        return 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white';
+        return 'text-info border-info/[.28]';
       case 'Sale':
-        return 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white';
+        return 'text-accent border-accent/[.28]';
       default:
         return '';
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="relative w-full max-w-3xl max-h-[90vh] overflow-auto bg-slate-800/80 border border-slate-700/60 rounded-2xl shadow-2xl backdrop-blur">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
-
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[7vh] pb-[4vh] bg-black/60 animate-fade">
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-3xl max-h-[90%] flex flex-col bg-panel border border-line rounded-card shadow-[0_30px_80px_-20px_rgba(0,0,0,.87)] overflow-hidden animate-pop"
+      >
         {/* Header */}
-        <div className="sticky top-0 bg-slate-800/95 backdrop-blur border-b border-slate-700/50 p-6">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-bold text-white truncate">Product Details</h2>
-            <button
-              onClick={onClose}
-              className="flex-shrink-0 p-2 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-lg transition-colors"
-            >
-              <X size={20} />
-            </button>
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-line">
+          <div className="w-9 h-9 rounded-lg bg-accent/15 text-accent flex items-center justify-center shrink-0">
+            <Package size={17} />
           </div>
+          <div className="flex-1 min-w-0">
+            <span className="font-mono font-semibold text-sm tracking-[.08em] uppercase text-body">Product Details</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition shrink-0"
+          >
+            <X size={15} />
+          </button>
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-4 overflow-y-auto flex-1">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader className="w-8 h-8 text-cyan-400 animate-spin mb-3" />
-              <p className="text-slate-400">Loading product details...</p>
+              <Loader className="w-6 h-6 text-accent animate-spin mb-3" />
+              <p className="font-mono text-xs text-mute uppercase tracking-[.1em]">Loading product details…</p>
             </div>
           ) : error ? (
-            <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-400/30 rounded-xl">
-              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-              <p className="text-sm text-red-300">{error}</p>
+            <div className="flex items-center gap-3 p-4 bg-neg/10 border border-neg/30 rounded-card">
+              <AlertCircle className="w-5 h-5 text-neg flex-shrink-0" />
+              <p className="text-sm text-neg">{error}</p>
             </div>
           ) : product ? (
-            <div className="space-y-6">
+            <div className="space-y-5">
               {/* Image + Quick Info */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {/* Image */}
                 <div className="flex items-start">
-                  <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-900/60 border border-slate-700/40">
+                  <div className="relative w-full aspect-square rounded-card overflow-hidden bg-panel2 border border-line">
                     <img
                       src={product.image}
                       alt={product.name}
@@ -147,7 +151,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ productId, onCl
                     />
                     {product.badge && (
                       <div className="absolute top-3 left-3">
-                        <span className={`inline-flex text-xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded ${getBadgeStyle(product.badge)}`}>
+                        <span className={`inline-flex font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] px-2 py-[3px] rounded-[5px] bg-bg/70 backdrop-blur border ${getBadgeStyle(product.badge)}`}>
                           {product.badge}
                         </span>
                       </div>
@@ -156,56 +160,56 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ productId, onCl
                 </div>
 
                 {/* Quick Info */}
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3.5">
                   {/* Name & Category */}
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-cyan-300 mb-1">{product.category.name}</p>
-                    <h3 className="text-2xl font-bold text-white mb-2">{product.name}</h3>
+                    <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-1">{product.category.name}</p>
+                    <h3 className="text-xl font-bold text-body mb-1">{product.name}</h3>
                   </div>
 
                   {/* Rating & Sold */}
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     {product.avg_rating > 0 ? (
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/15 ring-1 ring-amber-400/20">
-                        <Star size={16} className="fill-amber-400 text-amber-400" />
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-warn/[.13] border border-warn/[.28]">
+                        <Star size={16} className="fill-warn text-warn" />
                         <div>
-                          <p className="font-bold text-amber-300">{product.avg_rating}</p>
-                          <p className="text-xs text-amber-300/70">({product.total_reviews} reviews)</p>
+                          <p className="font-mono font-bold text-warn leading-tight">{product.avg_rating}</p>
+                          <p className="font-mono text-[10.5px] text-warn/70">({product.total_reviews} reviews)</p>
                         </div>
                       </div>
                     ) : (
-                      <div className="px-3 py-2 text-slate-400 text-sm">No reviews yet</div>
+                      <div className="px-3 py-2 text-mute text-sm italic">No reviews yet</div>
                     )}
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-sky-500/15 ring-1 ring-sky-400/20">
-                      <TrendingUp size={16} className="text-sky-400" />
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-info/[.13] border border-info/[.28]">
+                      <TrendingUp size={16} className="text-info" />
                       <div>
-                        <p className="font-bold text-sky-300">{product.sold_count}</p>
-                        <p className="text-xs text-sky-300/70">Sold</p>
+                        <p className="font-mono font-bold text-info leading-tight">{product.sold_count}</p>
+                        <p className="font-mono text-[10.5px] text-info/70">Sold</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Stock Status */}
-                  <div className="rounded-lg border border-slate-700/40 bg-slate-700/20 p-3">
-                    <p className="text-xs font-semibold text-slate-500 mb-1">Stock Status</p>
+                  <div className="rounded-lg border border-line bg-panel2 p-3">
+                    <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-1.5">Stock Status</p>
                     <div className="flex items-center justify-between">
-                      <span className={`font-bold ${product.in_stock ? 'text-emerald-400' : 'text-red-400'}`}>
+                      <span className={`font-mono font-bold text-sm ${product.in_stock ? 'text-pos' : 'text-neg'}`}>
                         {product.in_stock ? 'In Stock' : 'Out of Stock'}
                       </span>
-                      <span className="text-sm text-slate-400">{product.stock_quantity} units</span>
+                      <span className="font-mono text-xs text-dim">{product.stock_quantity} units</span>
                     </div>
                   </div>
 
                   {/* Pricing */}
-                  <div className="rounded-lg border border-slate-700/40 bg-slate-700/20 p-3">
-                    <p className="text-xs font-semibold text-slate-500 mb-2">Price</p>
+                  <div className="rounded-lg border border-line bg-panel2 p-3">
+                    <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-1.5">Price</p>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold text-cyan-300">R{product.price}</span>
+                      <span className="font-mono text-2xl font-bold text-accent tracking-[-.02em]">R{product.price}</span>
                       {product.old_price && (
-                        <span className="text-lg line-through text-slate-500">R{product.old_price}</span>
+                        <span className="font-mono text-base line-through text-mute">R{product.old_price}</span>
                       )}
                       {product.discount_percentage > 0 && (
-                        <span className="text-sm font-bold text-rose-400">-{Math.round(product.discount_percentage)}%</span>
+                        <span className="font-mono text-sm font-bold text-neg">-{Math.round(product.discount_percentage)}%</span>
                       )}
                     </div>
                   </div>
@@ -213,24 +217,24 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ productId, onCl
               </div>
 
               {/* Description */}
-              <div className="rounded-xl border border-slate-700/40 bg-slate-700/20 p-4">
-                <h3 className="text-sm font-bold text-white mb-3">Description</h3>
-                <p className="text-sm text-slate-300 leading-relaxed">{product.description}</p>
+              <div className="rounded-card border border-line bg-panel2 p-4">
+                <h3 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim mb-3">Description</h3>
+                <p className="text-sm text-dim leading-relaxed">{product.description}</p>
               </div>
 
               {/* Specifications */}
               {product.specifications && Object.keys(product.specifications).length > 0 && (
-                <div className="rounded-xl border border-slate-700/40 bg-slate-700/20 p-4">
-                  <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                    <Package size={16} className="text-emerald-300" />
+                <div className="rounded-card border border-line bg-panel2 p-4">
+                  <h3 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim mb-4 flex items-center gap-2">
+                    <Package size={14} className="text-accent" />
                     Specifications
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {Object.entries(product.specifications).map(([key, value]) => (
-                      <div key={key} className="flex items-start gap-2 p-2 rounded bg-slate-800/60">
+                      <div key={key} className="flex items-start gap-2 p-2.5 rounded-lg bg-panel border border-line">
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-slate-500 mb-0.5">{key}</p>
-                          <p className="text-sm text-slate-200 break-words">{value}</p>
+                          <p className="font-mono text-[10.5px] tracking-[.08em] uppercase text-mute mb-0.5">{key}</p>
+                          <p className="text-sm text-body break-words">{value}</p>
                         </div>
                       </div>
                     ))}
@@ -240,25 +244,25 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ productId, onCl
 
               {/* Reviews */}
               {product.reviews && product.reviews.length > 0 && (
-                <div className="rounded-xl border border-slate-700/40 bg-slate-700/20 p-4">
-                  <h3 className="text-sm font-bold text-white mb-4">Recent Reviews</h3>
+                <div className="rounded-card border border-line bg-panel2 p-4">
+                  <h3 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim mb-4">Recent Reviews</h3>
                   <div className="space-y-3 max-h-64 overflow-y-auto">
                     {product.reviews.map((review) => (
-                      <div key={review.id} className="p-3 bg-slate-800/60 rounded border border-slate-700/40">
+                      <div key={review.id} className="p-3 bg-panel rounded-lg border border-line">
                         <div className="flex items-start justify-between mb-1.5">
-                          <p className="font-semibold text-white text-sm">{review.user}</p>
+                          <p className="font-semibold text-body text-sm">{review.user}</p>
                           <div className="flex items-center gap-0.5">
                             {Array.from({ length: 5 }).map((_, i) => (
                               <Star
                                 key={i}
                                 size={12}
-                                className={i < review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-600'}
+                                className={i < review.rating ? 'fill-warn text-warn' : 'text-line'}
                               />
                             ))}
                           </div>
                         </div>
-                        <p className="text-xs text-slate-400 mb-1">{formatDate(review.created_at)}</p>
-                        <p className="text-sm text-slate-300">{review.comment}</p>
+                        <p className="font-mono text-[11px] text-mute mb-1">{formatDate(review.created_at)}</p>
+                        <p className="text-sm text-dim">{review.comment}</p>
                       </div>
                     ))}
                   </div>
@@ -267,28 +271,28 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ productId, onCl
 
               {/* Questions & Answers */}
               {product.questions && product.questions.length > 0 && (
-                <div className="rounded-xl border border-slate-700/40 bg-slate-700/20 p-4">
-                  <h3 className="text-sm font-bold text-white mb-4">Questions & Answers</h3>
+                <div className="rounded-card border border-line bg-panel2 p-4">
+                  <h3 className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-dim mb-4">Questions & Answers</h3>
                   <div className="space-y-3 max-h-64 overflow-y-auto">
                     {product.questions.map((question) => (
-                      <div key={question.id} className="p-3 bg-slate-800/60 rounded border border-slate-700/40">
+                      <div key={question.id} className="p-3 bg-panel rounded-lg border border-line">
                         <div className="flex items-start justify-between mb-2">
-                          <p className="font-semibold text-white text-sm">{question.asked_by.first_name} {question.asked_by.last_name}</p>
-                          <span className={`text-xs px-2 py-1 rounded ${
+                          <p className="font-semibold text-body text-sm">{question.asked_by.first_name} {question.asked_by.last_name}</p>
+                          <span className={`inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] border ${
                             question.is_answered
-                              ? 'bg-emerald-500/15 text-emerald-300'
-                              : 'bg-amber-500/15 text-amber-300'
+                              ? 'text-pos bg-pos/[.13] border-pos/[.28]'
+                              : 'text-warn bg-warn/[.13] border-warn/[.28]'
                           }`}>
                             {question.is_answered ? 'Answered' : 'Pending'}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-300 mb-2"><strong>Q:</strong> {question.question}</p>
+                        <p className="text-sm text-dim mb-2"><strong className="text-body">Q:</strong> {question.question}</p>
                         {question.answer ? (
-                          <p className="text-sm text-slate-300 pl-3 border-l-2 border-cyan-400/30"><strong>A:</strong> {question.answer}</p>
+                          <p className="text-sm text-dim pl-3 border-l-2 border-accent/40"><strong className="text-body">A:</strong> {question.answer}</p>
                         ) : (
-                          <p className="text-sm text-slate-400 italic">No answer yet</p>
+                          <p className="text-sm text-mute italic">No answer yet</p>
                         )}
-                        <p className="text-xs text-slate-500 mt-2">{formatDate(question.created_at)}</p>
+                        <p className="font-mono text-[11px] text-mute mt-2">{formatDate(question.created_at)}</p>
                       </div>
                     ))}
                   </div>
@@ -296,7 +300,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ productId, onCl
               )}
 
               {/* Metadata */}
-              <div className="text-xs text-slate-500 space-y-1 p-3 rounded bg-slate-800/40">
+              <div className="font-mono text-[11px] text-mute space-y-1 p-3 rounded-lg bg-panel2 border border-line">
                 <p>Created: {formatDate(product.created_at)}</p>
                 <p>Last Updated: {formatDate(product.updated_at)}</p>
               </div>

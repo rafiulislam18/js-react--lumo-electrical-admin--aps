@@ -59,103 +59,99 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const userEmail = (() => {
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      return u.email || u.username || 'admin';
+    } catch {
+      return 'admin';
+    }
+  })();
+
   return (
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+        <div
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
-      
+
       {/* Sidebar */}
       <div className={`
         fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
-        w-64 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 h-screen flex flex-col border-r border-slate-800 shadow-xl
+        w-[244px] bg-bg2 h-screen flex flex-col border-r border-line
         transform transition-transform duration-300 ease-in-out lg:transform-none
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        {/* Decorative glow */}
-        <div className="pointer-events-none absolute -top-20 -left-10 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-32 -right-10 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
-
         {/* Mobile close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-800 hidden sm:block lg:hidden z-10"
+          className="absolute top-4 right-4 w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition lg:hidden z-10"
         >
-          <X size={20} className="text-slate-400" />
+          <X size={15} />
         </button>
 
-      <div className="relative p-6 hidden sm:block border-b border-slate-800/80">
-        <div className="flex items-center gap-2">
-          <div className="px-3 py-1.5">
-            <img src="/images/logo-light.png" alt="Lumo Electrical Logo" className="h-8 sm:h-10 w-auto" />
-          </div>
+        {/* Brand */}
+        <div className="px-[18px] pt-[18px] pb-4 border-b border-line">
+          <img src="/images/logo-light.png" alt="Lumo Electrical Logo" className="h-7 w-auto" />
         </div>
-      </div>
+        <div className="px-[18px] pt-3 pb-2">
+          <span className="font-mono text-[9.5px] tracking-[.18em] uppercase text-mute">Admin Console</span>
+        </div>
 
-      <nav className="relative flex-1 px-4 py-4 overflow-y-auto">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeItem === item.id;
-          return (
-            <div
-              key={item.id}
-              className={`relative flex items-center justify-between px-4 py-3.5 rounded-xl mb-2 cursor-pointer transition-all duration-200 group ${
-                isActive
-                  ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/10 text-white shadow-lg shadow-cyan-500/10 border border-cyan-400/30'
-                  : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
-              }`}
-              onClick={() => handleNavigate(item.path)}
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto px-3 pb-3 pt-1 flex flex-col gap-[3px]">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeItem === item.id;
+            return (
+              <button
+                key={item.id}
+                className={`relative flex items-center gap-[11px] px-3 py-[9px] rounded-lg cursor-pointer text-left transition-all duration-150 border ${
+                  isActive
+                    ? 'bg-accent/[.12] border-accent/[.28] text-body'
+                    : 'border-transparent text-dim hover:bg-panel hover:text-body'
+                }`}
+                onClick={() => handleNavigate(item.path)}
+              >
+                {isActive && (
+                  <span className="absolute -left-3 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-[3px] bg-accent" />
+                )}
+                <Icon size={17} className={`shrink-0 ${isActive ? 'text-accent' : ''}`} />
+                <span className={`flex-1 text-[13px] ${isActive ? 'font-semibold' : 'font-medium'}`}>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* System status */}
+        <div className="px-[18px] py-2.5 border-t border-line flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-pos shadow-[0_0_6px_#5fcf80]" />
+          <span className="font-mono text-[10px] tracking-[.1em] uppercase text-mute">System online</span>
+        </div>
+
+        {/* User */}
+        <div className="p-3 border-t border-line">
+          <div className="flex items-center gap-2.5 p-2 rounded-lg bg-panel border border-line">
+            <div className="w-[34px] h-[34px] rounded-[7px] bg-accent text-accent-ink flex items-center justify-center font-extrabold font-mono text-sm shrink-0">
+              A
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[12.5px] font-semibold text-body">Admin</div>
+              <div className="text-[10.5px] text-mute font-mono truncate">{userEmail}</div>
+            </div>
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              title={isLoggingOut ? 'Logging out…' : 'Log out'}
+              className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-neg hover:border-neg/40 transition disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
             >
-              {/* Active indicator bar */}
-              {isActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-gradient-to-b from-cyan-400 to-emerald-400" />
-              )}
-              <div className="flex items-center gap-3">
-                <Icon size={20} className={`transition-colors ${
-                  isActive ? 'text-cyan-300' : 'group-hover:text-cyan-300'
-                }`} />
-                <span className="font-medium text-sm">{item.label}</span>
-              </div>
-            </div>
-          );
-        })}
-      </nav>
-
-      <div className="relative p-4 hidden sm:block border-t border-slate-800/80">
-        <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-800/60 p-3 backdrop-blur">
-          {/* User Info - 3/4 width */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2.5 mb-1">
-              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-cyan-500/30">
-                A
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-white truncate">Admin</p>
-                <p className="text-[0.65rem] text-slate-400 truncate">
-                  {(() => { try { const u = JSON.parse(localStorage.getItem('user') || '{}'); return u.email || u.username || 'admin'; } catch { return 'admin'; } })()}
-                </p>
-              </div>
-            </div>
+              <LogOut size={15} />
+            </button>
           </div>
-
-          {/* Logout Button - 1/4 width, vertical stack */}
-          <button
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="flex-shrink-0 flex flex-col items-center justify-center gap-0.5 px-2.5 py-2 rounded-lg bg-slate-900/60 hover:bg-red-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group border border-slate-700/50 hover:border-red-400/40"
-            title="Logout"
-          >
-            <LogOut size={15} className="text-slate-400 group-hover:text-red-400 transition-colors" />
-            <span className="text-[0.65rem] font-semibold text-slate-400 group-hover:text-red-400 transition-colors text-center whitespace-nowrap">
-              {isLoggingOut ? 'Logging Out...' : 'Logout'}
-            </span>
-          </button>
         </div>
-      </div>
       </div>
     </>
   );

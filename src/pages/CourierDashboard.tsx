@@ -50,26 +50,29 @@ const CourierDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
-      {/* Header */}
-      <div className="border-b border-slate-700/60 bg-slate-800/60 backdrop-blur-xl sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-600">
-              <Truck size={18} />
+    <div className="min-h-screen bg-bg text-body">
+      {/* Header — terminal status bar */}
+      <div className="border-b border-line bg-bg2 sticky top-0 z-10">
+        <div className="max-w-2xl mx-auto px-4 py-3.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center justify-center w-9 h-9 rounded-[7px] bg-accent/15 border border-accent/30 text-accent shrink-0">
+              <Truck size={17} />
             </div>
-            <div>
-              <p className="text-xs text-slate-400 font-medium">Courier Portal</p>
-              <p className="text-sm font-semibold text-white leading-tight">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="w-[6px] h-[6px] rounded-full bg-pos shadow-[0_0_8px_#5fcf80] shrink-0" />
+                <p className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Courier Portal</p>
+              </div>
+              <p className="text-sm font-semibold text-body leading-tight truncate">
                 {user.first_name} {user.last_name}
               </p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-slate-700/60"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] bg-panel border border-line font-mono text-[11px] uppercase tracking-[.05em] text-dim hover:text-body hover:border-[#3a3d44] transition shrink-0"
           >
-            <LogOut size={14} />
+            <LogOut size={13} />
             <span>Logout</span>
           </button>
         </div>
@@ -77,67 +80,65 @@ const CourierDashboard: React.FC = () => {
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
         {/* Status banner */}
-        <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-5">
+        <div className="bg-panel border border-line rounded-card p-4">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-600/20 border border-cyan-500/30">
-              <Zap size={20} className="text-cyan-400" />
+            <div className="flex items-center justify-center w-11 h-11 rounded-[7px] bg-accent/15 border border-accent/30 shrink-0">
+              <Zap size={19} className="text-accent" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-white">Active Deliveries</p>
-              <p className="text-xs text-slate-400 mt-0.5">Orders assigned to you with out-for-delivery status</p>
+            <div className="min-w-0">
+              <p className="font-mono text-[11px] font-semibold tracking-[.12em] uppercase text-body">Active Deliveries</p>
+              <p className="text-xs text-mute mt-0.5">Orders assigned to you with out-for-delivery status</p>
             </div>
-            <div className="ml-auto text-right">
-              <p className="text-2xl font-bold text-white">{loading ? '—' : orders.length}</p>
-              <p className="text-xs text-slate-400">orders</p>
+            <div className="ml-auto text-right shrink-0">
+              <p className="font-mono text-[26px] font-semibold text-accent tracking-[-.02em] leading-none">{loading ? '—' : orders.length}</p>
+              <p className="font-mono text-[11px] text-mute mt-1">orders</p>
             </div>
           </div>
         </div>
 
         {/* Content */}
         {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="h-8 w-8 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin" />
+          <div className="font-mono text-xs text-mute uppercase tracking-[.1em] py-12 text-center animate-pulse">
+            Loading…
           </div>
         ) : error ? (
-          <div className="rounded-xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-300 text-center">
+          <div className="rounded-card border border-neg/30 bg-neg/10 p-4 text-xs text-neg text-center">
             {error}
           </div>
         ) : orders.length === 0 ? (
-          <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-10 text-center">
-            <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-slate-700/60 mx-auto mb-4">
-              <Package size={24} className="text-slate-400" />
-            </div>
-            <p className="text-base font-semibold text-white mb-1">No active deliveries</p>
-            <p className="text-sm text-slate-400">You have no orders out for delivery right now.</p>
+          <div className="bg-panel border border-line rounded-card text-center py-[54px] px-4 text-mute">
+            <Package size={30} className="mx-auto opacity-50" />
+            <p className="mt-3 text-[13.5px] font-semibold text-dim">No active deliveries</p>
+            <p className="mt-1 text-xs">You have no orders out for delivery right now.</p>
           </div>
         ) : (
           <div className="space-y-3">
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-4 hover:border-cyan-500/40 hover:bg-slate-800/60 transition-all"
+                className="bg-panel border border-line rounded-card p-4 hover:border-[#3a3d44] transition-colors"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-semibold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 rounded-full px-2.5 py-0.5">
+                      <span className="inline-flex items-center font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-warn bg-warn/[.13] border border-warn/[.28]">
                         #{order.id}
                       </span>
-                      <span className="text-xs text-slate-400">{order.items_count} item{order.items_count !== 1 ? 's' : ''}</span>
-                      <span className="text-xs font-semibold text-emerald-400 ml-auto">R {order.total}</span>
+                      <span className="font-mono text-[11px] text-mute">{order.items_count} item{order.items_count !== 1 ? 's' : ''}</span>
+                      <span className="font-mono text-xs font-bold text-accent ml-auto">R {order.total}</span>
                     </div>
 
-                    <p className="text-sm font-semibold text-white truncate">{order.customer_name}</p>
+                    <p className="text-sm font-semibold text-body truncate">{order.customer_name}</p>
 
-                    <div className="flex items-center gap-1.5 mt-1.5 text-xs text-slate-400">
-                      <MapPin size={12} className="shrink-0 text-slate-500" />
+                    <div className="flex items-center gap-1.5 mt-1.5 text-xs text-dim">
+                      <MapPin size={12} className="shrink-0 text-mute" />
                       <span className="truncate">
                         {order.delivery_address}, {order.delivery_city}, {order.delivery_province} {order.delivery_postal_code}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
-                      <Phone size={12} className="shrink-0 text-slate-500" />
+                    <div className="flex items-center gap-1.5 mt-1 font-mono text-[11px] text-mute">
+                      <Phone size={12} className="shrink-0 text-mute" />
                       <span>{order.phone}</span>
                     </div>
                   </div>
@@ -145,7 +146,7 @@ const CourierDashboard: React.FC = () => {
 
                 <button
                   onClick={() => navigate(`/courier/orders/${order.id}`)}
-                  className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-cyan-500/20 transition-all"
+                  className="mt-3 w-full inline-flex items-center justify-center gap-[7px] py-2.5 text-[12.5px] font-bold rounded-[7px] bg-accent text-accent-ink border border-accent hover:brightness-110 transition"
                 >
                   <span>View Details</span>
                   <ChevronRight size={15} />

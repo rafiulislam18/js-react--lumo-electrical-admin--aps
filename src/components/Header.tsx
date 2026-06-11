@@ -52,39 +52,39 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const initials = user?.first_name?.[0]?.toUpperCase() || 'A';
 
   return (
-    <header className="lg:hidden sticky top-0 z-10 border-b border-slate-800 bg-gradient-to-bl from-slate-900 via-slate-900/50 to-slate-900 px-4 sm:px-6 py-3">
+    <header className="lg:hidden sticky top-0 z-10 border-b border-line bg-bg2 px-4 sm:px-6 py-3">
       <div className="flex items-center justify-between gap-3">
 
         {/* Left: hamburger */}
         <button
           onClick={onMenuClick}
-          className="p-2 rounded-lg bg-slate-800/60 text-slate-400 hover:bg-slate-800 hover:text-white transition-all flex-shrink-0"
+          className="w-9 h-9 rounded-lg flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition shrink-0"
         >
-          <Menu size={18} />
+          <Menu size={16} />
         </button>
 
         {/* Centre: logo */}
         <div className="flex-1 flex justify-center">
-          <img src="/images/logo-light.png" alt="Lumo Electrical" className="h-8 sm:h-9 w-auto" />
+          <img src="/images/logo-light.png" alt="Lumo Electrical" className="h-7 sm:h-8 w-auto" />
         </div>
 
         {/* Right: avatar + dropdown */}
-        <div className="relative flex-shrink-0" ref={profileRef}>
+        <div className="relative shrink-0" ref={profileRef}>
           <button
             onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-500 flex items-center justify-center shadow-md shadow-cyan-500/30 transition-all hover:shadow-cyan-500/50 flex-shrink-0"
+            className="h-9 w-9 rounded-[7px] bg-accent text-accent-ink flex items-center justify-center font-extrabold font-mono text-sm shrink-0 hover:brightness-110 transition"
           >
-            <span className="text-xs font-bold text-white">{initials}</span>
+            {initials}
           </button>
 
           {isProfileOpen && (
-            <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden z-50">
+            <div className="absolute right-0 mt-2 w-56 rounded-card border border-line bg-panel shadow-[0_20px_50px_-12px_rgba(0,0,0,.87)] overflow-hidden z-50 animate-pop">
               {/* User info */}
-              <div className="px-4 py-3 border-b border-slate-800 bg-slate-800/60">
-                <p className="text-sm font-semibold text-white truncate">
+              <div className="px-4 py-3 border-b border-line">
+                <p className="text-[12.5px] font-semibold text-body truncate">
                   {user?.first_name} {user?.last_name}
                 </p>
-                <p className="text-[0.65rem] text-slate-400 truncate mt-0.5">{user?.email || user?.username}</p>
+                <p className="text-[10.5px] font-mono text-mute truncate mt-0.5">{user?.email || user?.username}</p>
               </div>
 
               {/* Logout */}
@@ -92,10 +92,10 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                 <button
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:bg-red-500/20 hover:text-red-400 border border-slate-700/50 hover:border-red-400/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-[7px] text-xs font-bold text-dim bg-panel border border-line hover:text-neg hover:border-neg/40 hover:bg-neg/10 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <LogOut size={14} />
-                  {isLoggingOut ? 'Logging out...' : 'Logout'}
+                  {isLoggingOut ? 'Logging out…' : 'Logout'}
                 </button>
               </div>
             </div>

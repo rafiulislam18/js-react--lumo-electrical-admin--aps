@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Package,
-  SlidersHorizontal,
   ArrowUpDown,
 } from 'lucide-react';
 import OrderDetailModal from '../components/OrderDetailModal';
@@ -74,7 +73,7 @@ const Orders: React.FC = () => {
 
   // Filter and sort state
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [paymentFilter, setPaymentFilter] = useState<string>('');
+  const [paymentFilter] = useState<string>('');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -163,26 +162,26 @@ const Orders: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'order_placed':
-        return 'bg-cyan-500/15 text-cyan-300 border border-cyan-400/30';
+        return 'text-warn bg-warn/[.13] border border-warn/[.28]';
       case 'out_for_delivery':
-        return 'bg-amber-500/15 text-amber-300 border border-amber-400/30';
+        return 'text-accent bg-accent/[.13] border border-accent/[.28]';
       case 'delivered':
-        return 'bg-emerald-500/15 text-emerald-300 border border-emerald-400/30';
+        return 'text-pos bg-pos/[.13] border border-pos/[.28]';
       default:
-        return 'bg-slate-700/40 text-slate-300';
+        return 'text-dim bg-panel2 border border-line';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'order_placed':
-        return <ShoppingBag size={16} />;
+        return <ShoppingBag size={12} />;
       case 'out_for_delivery':
-        return <Truck size={16} />;
+        return <Truck size={12} />;
       case 'delivered':
-        return <CheckCircle2 size={16} />;
+        return <CheckCircle2 size={12} />;
       default:
-        return <Clock size={16} />;
+        return <Clock size={12} />;
     }
   };
 
@@ -212,170 +211,106 @@ const Orders: React.FC = () => {
 
   return (
     <>
-      {/* Page Header */}
-      <div className="mb-6 lg:mb-8">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 tracking-tight">
-          Orders
-        </h1>
-        <p className="text-sm sm:text-base text-slate-400 font-medium">
-          Manage and track customer orders.
-        </p>
+      {/* Page Header — terminal status bar */}
+      <div className="flex items-center justify-between gap-4 flex-wrap mb-[18px]">
+        <div className="flex items-center gap-[11px]">
+          <span className="w-[7px] h-[7px] rounded-full bg-pos shadow-[0_0_8px_#5fcf80]" />
+          <h1 className="m-0 font-mono text-base font-semibold tracking-[.12em] uppercase text-body">
+            Orders
+          </h1>
+          <span className="font-mono text-[11.5px] text-mute tracking-[.04em]">// fulfilment</span>
+        </div>
       </div>
 
-      {/* Stats — premium glass cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 lg:mb-8">
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-cyan-500/15 blur-2xl transition-opacity group-hover:opacity-100" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-cyan-500/15 p-2 ring-1 ring-cyan-400/20">
-              <ShoppingBag size={16} className="text-cyan-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Total</span>
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        <div className="bg-panel border border-line rounded-card px-3.5 py-3 min-w-0">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Total</span>
+            <ShoppingBag size={14} className="text-accent" />
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{stats?.total ?? '—'}</p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">All Orders</p>
+          <p className="font-mono text-[22px] font-semibold text-body tracking-[-.02em] leading-none">{stats?.total ?? '—'}</p>
+          <p className="mt-1.5 font-mono text-[10.5px] text-mute">all orders</p>
         </div>
 
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-amber-400/40 hover:shadow-lg hover:shadow-amber-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-amber-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-amber-500/15 p-2 ring-1 ring-amber-400/20">
-              <Clock size={16} className="text-amber-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Pending</span>
+        <div className="bg-panel border border-line rounded-card px-3.5 py-3 min-w-0">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Pending</span>
+            <Clock size={14} className="text-warn" />
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
+          <p className="font-mono text-[22px] font-semibold text-warn tracking-[-.02em] leading-none">
             {stats?.order_placed ?? '—'}
           </p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Awaiting</p>
+          <p className="mt-1.5 font-mono text-[10.5px] text-mute">awaiting</p>
         </div>
 
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-sky-400/40 hover:shadow-lg hover:shadow-sky-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-sky-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-sky-500/15 p-2 ring-1 ring-sky-400/20">
-              <Truck size={16} className="text-sky-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">In Transit</span>
+        <div className="bg-panel border border-line rounded-card px-3.5 py-3 min-w-0">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">In Transit</span>
+            <Truck size={14} className="text-info" />
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
+          <p className="font-mono text-[22px] font-semibold text-info tracking-[-.02em] leading-none">
             {stats?.out_for_delivery ?? '—'}
           </p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Courier Assigned</p>
+          <p className="mt-1.5 font-mono text-[10.5px] text-mute">courier assigned</p>
         </div>
 
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-emerald-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-emerald-500/15 p-2 ring-1 ring-emerald-400/20">
-              <CheckCircle2 size={16} className="text-emerald-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Delivered</span>
+        <div className="bg-panel border border-line rounded-card px-3.5 py-3 min-w-0">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Delivered</span>
+            <CheckCircle2 size={14} className="text-pos" />
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
+          <p className="font-mono text-[22px] font-semibold text-pos tracking-[-.02em] leading-none">
             {stats?.delivered ?? '—'}
           </p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Completed</p>
+          <p className="mt-1.5 font-mono text-[10.5px] text-mute">completed</p>
         </div>
       </div>
 
-      {/* Search + Filter + Sort */}
-      <div className="mb-6 lg:mb-8">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10" size={18} />
+      {/* Status Tabs + Search + Sort */}
+      <div className="mb-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        {/* Status tabs — segmented control */}
+        <div className="inline-flex gap-[2px] bg-panel border border-line rounded-lg p-[3px] self-start max-w-full overflow-x-auto">
+          {[
+            { id: '', label: 'All', count: stats?.total },
+            { id: 'order_placed', label: 'Placed', count: stats?.order_placed },
+            { id: 'out_for_delivery', label: 'Out', count: stats?.out_for_delivery },
+            { id: 'delivered', label: 'Delivered', count: stats?.delivered },
+          ].map((t) => {
+            const on = statusFilter === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setStatusFilter(t.id);
+                  setCurrentPage(1);
+                  setShowFilterMenu(false);
+                }}
+                className={on
+                  ? 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md bg-panel2 text-body shadow-[inset_0_0_0_1px_#23262d] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'
+                  : 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md text-mute hover:text-dim font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'}
+              >
+                {t.label}
+                {t.count != null && (
+                  <span className={`text-[10.5px] font-bold rounded px-[5px] ${on ? 'text-accent bg-accent/15' : 'text-mute bg-panel2'}`}>
+                    {t.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex gap-2.5">
+          <div className="flex-1 lg:flex-none lg:w-[280px] relative flex items-center">
+            <Search className="absolute left-2.5 text-mute pointer-events-none" size={14} />
             <input
               type="text"
-              placeholder="Search by order ID, customer name, or email..."
+              placeholder="Search ID, customer, email…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-2.5 bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all text-sm"
+              className="w-full bg-panel border border-line rounded-[7px] pl-8 pr-3 py-2 text-[12.5px] text-body outline-none focus:border-accent/50 placeholder:text-mute transition-colors"
             />
-          </div>
-
-          {/* Filter Menu */}
-          <div className="relative filter-menu-container">
-            <button
-              type="button"
-              onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
-                showFilterMenu || statusFilter || paymentFilter
-                  ? 'border-cyan-400/40 bg-slate-700/60 text-white'
-                  : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
-              }`}
-            >
-              <SlidersHorizontal size={16} />
-              <span>Filter</span>
-            </button>
-            {showFilterMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
-                <div className="p-4 space-y-4">
-                  <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
-                      Order Status
-                    </label>
-                    <div className="space-y-2">
-                      <button
-                        onClick={() => {
-                          setStatusFilter('');
-                          setCurrentPage(1);
-                          setShowFilterMenu(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                          statusFilter === ''
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
-                        }`}
-                      >
-                        All Orders
-                      </button>
-                      <button
-                        onClick={() => {
-                          setStatusFilter('order_placed');
-                          setCurrentPage(1);
-                          setShowFilterMenu(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                          statusFilter === 'order_placed'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
-                        }`}
-                      >
-                        Order Placed
-                      </button>
-                      <button
-                        onClick={() => {
-                          setStatusFilter('out_for_delivery');
-                          setCurrentPage(1);
-                          setShowFilterMenu(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                          statusFilter === 'out_for_delivery'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
-                        }`}
-                      >
-                        Out for Delivery
-                      </button>
-                      <button
-                        onClick={() => {
-                          setStatusFilter('delivered');
-                          setCurrentPage(1);
-                          setShowFilterMenu(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                          statusFilter === 'delivered'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
-                        }`}
-                      >
-                        Delivered
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Sort Menu */}
@@ -383,23 +318,23 @@ const Orders: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowSortMenu(!showSortMenu)}
-              className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
+              className={`inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
                 showSortMenu || sortBy !== 'created_at'
-                  ? 'border-cyan-400/40 bg-slate-700/60 text-white'
-                  : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
+                  ? 'bg-accent/15 text-accent border-accent/40'
+                  : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
               }`}
             >
-              <ArrowUpDown size={16} />
+              <ArrowUpDown size={14} />
               <span>Sort</span>
             </button>
             {showSortMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
-                <div className="p-4 space-y-4">
+              <div className="absolute right-0 mt-2 w-56 bg-panel border border-line rounded-card shadow-[0_18px_50px_-12px_rgba(0,0,0,.85)] z-20 animate-pop">
+                <div className="p-3 space-y-3">
                   <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+                    <label className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-2 block">
                       Sort By
                     </label>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <button
                         onClick={() => {
                           setSortBy('created_at');
@@ -407,10 +342,10 @@ const Orders: React.FC = () => {
                           setCurrentPage(1);
                           setShowSortMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                           sortBy === 'created_at' && sortOrder === 'desc'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border border-accent/30 font-semibold'
+                            : 'bg-panel2 text-dim border border-transparent hover:text-body'
                         }`}
                       >
                         Date: Newest First
@@ -422,10 +357,10 @@ const Orders: React.FC = () => {
                           setCurrentPage(1);
                           setShowSortMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                           sortBy === 'created_at' && sortOrder === 'asc'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border border-accent/30 font-semibold'
+                            : 'bg-panel2 text-dim border border-transparent hover:text-body'
                         }`}
                       >
                         Date: Oldest First
@@ -437,10 +372,10 @@ const Orders: React.FC = () => {
                           setCurrentPage(1);
                           setShowSortMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                           sortBy === 'total' && sortOrder === 'desc'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border border-accent/30 font-semibold'
+                            : 'bg-panel2 text-dim border border-transparent hover:text-body'
                         }`}
                       >
                         Amount: Highest
@@ -452,10 +387,10 @@ const Orders: React.FC = () => {
                           setCurrentPage(1);
                           setShowSortMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                           sortBy === 'total' && sortOrder === 'asc'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border border-accent/30 font-semibold'
+                            : 'bg-panel2 text-dim border border-transparent hover:text-body'
                         }`}
                       >
                         Amount: Lowest
@@ -471,83 +406,78 @@ const Orders: React.FC = () => {
 
       {/* Error State */}
       {error && (
-        <div className="mb-6 flex items-center gap-3 p-4 bg-red-500/10 border border-red-400/30 rounded-xl backdrop-blur">
-          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-          <p className="text-sm text-red-300">{error}</p>
+        <div className="mb-5 flex items-center gap-3 p-4 bg-neg/10 border border-neg/30 rounded-card">
+          <AlertCircle className="w-5 h-5 text-neg flex-shrink-0" />
+          <p className="text-sm text-neg">{error}</p>
         </div>
       )}
 
       {/* Loading State */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
-          <Loader className="w-8 h-8 text-cyan-400 animate-spin mb-3" />
-          <p className="text-slate-400">Loading orders...</p>
+          <Loader className="w-7 h-7 text-accent animate-spin mb-3" />
+          <p className="font-mono text-xs text-mute uppercase tracking-[.1em]">Loading orders…</p>
         </div>
       ) : orders.length === 0 ? (
-        <div className="text-center py-12">
-          <Package className="w-12 h-12 mx-auto mb-3 text-slate-600" />
-          <p className="text-slate-300 text-lg">No orders found</p>
-          {debouncedSearch && <p className="text-slate-500 text-sm mt-2">Try adjusting your search</p>}
+        <div className="text-center py-[54px] text-mute">
+          <Package size={30} className="mx-auto opacity-50" />
+          <p className="mt-3 text-[13.5px] font-semibold text-dim">No orders found</p>
+          {debouncedSearch && <p className="mt-1 text-xs">Try adjusting your search</p>}
         </div>
       ) : (
         <>
-          {/* Orders List — premium glass cards */}
-          <div className="space-y-3 mb-8">
+          {/* Orders List */}
+          <div className="space-y-2.5 mb-6">
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:shadow-xl hover:shadow-cyan-500/10"
+                className="border border-line rounded-card bg-panel hover:bg-panel2/60 hover:border-[#3a3d44] transition-colors"
               >
-                {/* Subtle accent glow on hover */}
-                <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-
-                <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="p-3.5 sm:px-4 sm:py-[15px] flex flex-col sm:flex-row sm:items-center gap-4">
                   {/* Order ID, Avatar, Customer */}
                   <div className="flex-1 min-w-0 flex items-start gap-3">
-                    <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 ring-1 ring-cyan-400/20 flex items-center justify-center">
-                      <span className="text-sm font-bold text-cyan-300">
-                        {order.first_name?.[0]?.toUpperCase() || '#'}
-                      </span>
+                    <div className="w-[34px] h-[34px] rounded-[7px] shrink-0 flex items-center justify-center bg-panel2 border border-line text-dim font-bold font-mono text-xs">
+                      {order.first_name?.[0]?.toUpperCase() || '#'}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start gap-2 mb-1">
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-white">Order #{order.id}</p>
-                          <p className="text-xs text-slate-400 mt-0.5">
+                          <p className="font-mono text-[12.5px] font-bold text-body">ORD-{order.id}</p>
+                          <p className="text-xs text-dim mt-0.5">
                             {order.first_name} {order.last_name}
                           </p>
                         </div>
-                        <span className={`text-[0.7rem] font-bold px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 flex items-center gap-1 ${getStatusColor(order.status)}`}>
+                        <span className={`inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] px-2 py-[3px] rounded-[5px] whitespace-nowrap flex-shrink-0 ${getStatusColor(order.status)}`}>
                           {getStatusIcon(order.status)}
                           {formatStatus(order.status)}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 truncate">{order.email}</p>
-                      <p className="text-[0.7rem] text-slate-600 mt-0.5">{formatDate(order.created_at)}</p>
+                      <p className="text-xs text-mute truncate">{order.email}</p>
+                      <p className="font-mono text-[10.5px] text-mute mt-0.5">{formatDate(order.created_at)}</p>
                     </div>
                   </div>
 
                   {/* Vertical separator + details (hidden on mobile) */}
                   <div className="hidden sm:flex items-center gap-5 flex-shrink-0">
-                    <div className="h-12 w-px bg-slate-700/60" />
+                    <div className="h-12 w-px bg-line" />
                     <div className="grid grid-cols-4 gap-5 min-w-fit">
                       <div className="text-right">
-                        <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Items</p>
-                        <p className="text-sm font-bold text-white">{order.items_count}</p>
+                        <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Items</p>
+                        <p className="font-mono text-[13px] font-semibold text-dim">{order.items_count}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Amount</p>
-                        <p className="text-sm font-bold text-white">R{order.total}</p>
+                        <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Amount</p>
+                        <p className="font-mono text-[13px] font-bold text-accent">R{order.total}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Payment</p>
-                        <p className={`text-sm font-bold ${order.paid ? 'text-emerald-400' : 'text-red-400'}`}>
+                        <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Payment</p>
+                        <p className={`font-mono text-[13px] font-bold ${order.paid ? 'text-pos' : 'text-warn'}`}>
                           {order.paid ? 'Paid' : 'Pending'}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Courier</p>
-                        <p className="text-sm font-bold text-white">
+                        <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Courier</p>
+                        <p className={`text-[13px] font-semibold ${order.assigned_delivery_personnel_name ? 'text-body' : 'text-mute'}`}>
                           {order.assigned_delivery_personnel_name ? order.assigned_delivery_personnel_name.split(' ')[0] : '—'}
                         </p>
                       </div>
@@ -557,31 +487,31 @@ const Orders: React.FC = () => {
                   {/* View Button */}
                   <button
                     onClick={() => setSelectedOrderId(order.id)}
-                    className="px-4 py-2 bg-gradient-to-br from-cyan-500 to-emerald-600 text-white rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all font-semibold text-sm whitespace-nowrap"
+                    className="inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-accent text-accent-ink border border-accent hover:brightness-110 transition whitespace-nowrap"
                   >
                     View Details
                   </button>
                 </div>
 
                 {/* Mobile Details */}
-                <div className="sm:hidden px-4 pb-3 flex gap-5 text-xs border-t border-slate-700/50 pt-3">
+                <div className="sm:hidden px-3.5 pb-3 flex gap-5 border-t border-line pt-3">
                   <div>
-                    <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Items</p>
-                    <p className="font-bold text-white">{order.items_count}</p>
+                    <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Items</p>
+                    <p className="font-mono text-xs font-semibold text-dim">{order.items_count}</p>
                   </div>
                   <div>
-                    <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Amount</p>
-                    <p className="font-bold text-white">R{order.total}</p>
+                    <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Amount</p>
+                    <p className="font-mono text-xs font-bold text-accent">R{order.total}</p>
                   </div>
                   <div>
-                    <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Payment</p>
-                    <p className={`font-bold ${order.paid ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Payment</p>
+                    <p className={`font-mono text-xs font-bold ${order.paid ? 'text-pos' : 'text-warn'}`}>
                       {order.paid ? 'Paid' : 'Pending'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[0.65rem] uppercase tracking-wider text-slate-500 mb-0.5">Delivery</p>
-                    <p className="font-bold text-white">
+                    <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Delivery</p>
+                    <p className={`text-xs font-semibold ${order.assigned_delivery_personnel_name ? 'text-body' : 'text-mute'}`}>
                       {order.assigned_delivery_personnel_name ? order.assigned_delivery_personnel_name.split(' ')[0] : '—'}
                     </p>
                   </div>
@@ -591,11 +521,11 @@ const Orders: React.FC = () => {
           </div>
 
           {/* Pagination Info and Controls */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-slate-400">
-              Showing <span className="font-semibold text-slate-200">{(currentPage - 1) * pageSize + 1}</span> to{' '}
-              <span className="font-semibold text-slate-200">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
-              <span className="font-semibold text-slate-200">{totalCount}</span> orders
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="font-mono text-xs text-mute">
+              Showing <span className="font-semibold text-body">{(currentPage - 1) * pageSize + 1}</span> to{' '}
+              <span className="font-semibold text-body">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
+              <span className="font-semibold text-body">{totalCount}</span> orders
             </div>
 
             {totalPages > 1 && (
@@ -603,10 +533,10 @@ const Orders: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition"
                   title="Previous page"
                 >
-                  <ChevronLeft size={18} className="text-slate-300" />
+                  <ChevronLeft size={15} />
                 </button>
 
                 <div className="flex items-center gap-1">
@@ -614,10 +544,10 @@ const Orders: React.FC = () => {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`min-w-10 h-10 rounded-lg font-medium transition-all ${
+                      className={`min-w-8 h-8 px-2 rounded-[7px] font-mono text-xs font-semibold transition ${
                         currentPage === page
-                          ? 'bg-gradient-to-br from-cyan-500 to-emerald-600 text-white shadow-md shadow-cyan-500/30'
-                          : 'border border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700/60 hover:text-white'
+                          ? 'bg-accent text-accent-ink border border-accent font-bold'
+                          : 'bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44]'
                       }`}
                     >
                       {page}
@@ -628,10 +558,10 @@ const Orders: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition"
                   title="Next page"
                 >
-                  <ChevronRight size={18} className="text-slate-300" />
+                  <ChevronRight size={15} />
                 </button>
               </div>
             )}

@@ -164,11 +164,11 @@ const Products: React.FC = () => {
   const getBadgeStyle = (badge: string) => {
     switch (badge) {
       case 'Hot':
-        return 'bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/40 ring-1 ring-red-300/40';
+        return 'text-neg bg-neg/[.13] border border-neg/[.28]';
       case 'New':
-        return 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/40 ring-1 ring-emerald-300/40';
+        return 'text-info bg-info/[.13] border border-info/[.28]';
       case 'Sale':
-        return 'bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/40 ring-1 ring-amber-300/40';
+        return 'text-accent bg-accent/[.13] border border-accent/[.28]';
       default:
         return '';
     }
@@ -193,80 +193,73 @@ const Products: React.FC = () => {
 
   return (
     <>
-      <div className="mb-6 lg:mb-8">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 tracking-tight">
-          Products
-        </h1>
-        <p className="text-sm sm:text-base text-slate-400 font-medium">
-          Manage your product inventory and details.
-        </p>
+      {/* Page header — terminal status bar */}
+      <div className="flex items-center justify-between gap-4 flex-wrap mb-[18px]">
+        <div className="flex items-center gap-[11px]">
+          <span className="w-[7px] h-[7px] rounded-full bg-pos shadow-[0_0_8px_#5fcf80]" />
+          <h1 className="m-0 font-mono text-base font-semibold tracking-[.12em] uppercase text-body">
+            Products
+          </h1>
+          <span className="font-mono text-[11.5px] text-mute tracking-[.04em]">// catalogue</span>
+        </div>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            onClick={() => navigate('/products/create')}
+            className="inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-accent text-accent-ink border border-accent hover:brightness-110 transition whitespace-nowrap"
+          >
+            <Plus size={14} />
+            Add Product
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 lg:mb-8">
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-cyan-500/15 blur-2xl transition-opacity group-hover:opacity-100" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-cyan-500/15 p-2 ring-1 ring-cyan-400/20">
-              <Package size={16} className="text-cyan-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Total</span>
+        <div className="bg-panel border border-line rounded-card px-4 py-3.5 min-w-0">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Total</span>
+            <Package size={14} className="text-mute" />
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">{stats?.total ?? '—'}</p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Products</p>
+          <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">{stats?.total ?? '—'}</p>
+          <p className="mt-2 font-mono text-[11px] text-mute">products</p>
         </div>
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-emerald-400/40 hover:shadow-lg hover:shadow-emerald-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-emerald-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-emerald-500/15 p-2 ring-1 ring-emerald-400/20">
-              <CheckCircle2 size={16} className="text-emerald-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">In Stock</span>
+        <div className="bg-panel border border-line rounded-card px-4 py-3.5 min-w-0">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">In Stock</span>
+            <CheckCircle2 size={14} className="text-pos" />
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {stats?.in_stock ?? '—'}
-          </p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Available</p>
+          <p className="font-mono text-[26px] font-semibold text-pos tracking-[-.02em] leading-none">{stats?.in_stock ?? '—'}</p>
+          <p className="mt-2 font-mono text-[11px] text-mute">available</p>
         </div>
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-amber-400/40 hover:shadow-lg hover:shadow-amber-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-amber-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-amber-500/15 p-2 ring-1 ring-amber-400/20">
-              <XCircle size={16} className="text-amber-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Out of Stock</span>
+        <div className="bg-panel border border-line rounded-card px-4 py-3.5 min-w-0">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Out of Stock</span>
+            <XCircle size={14} className="text-neg" />
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {stats?.out_of_stock ?? '—'}
-          </p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Unavailable</p>
+          <p className="font-mono text-[26px] font-semibold text-neg tracking-[-.02em] leading-none">{stats?.out_of_stock ?? '—'}</p>
+          <p className="mt-2 font-mono text-[11px] text-mute">unavailable</p>
         </div>
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur p-4 transition-all duration-300 hover:border-sky-400/40 hover:shadow-lg hover:shadow-sky-500/10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-sky-500/15 blur-2xl" />
-          <div className="relative flex items-center justify-between mb-2">
-            <div className="rounded-lg bg-sky-500/15 p-2 ring-1 ring-sky-400/20">
-              <TrendingUp size={16} className="text-sky-300" />
-            </div>
-            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Sold</span>
+        <div className="bg-panel border border-line rounded-card px-4 py-3.5 min-w-0">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Sold</span>
+            <TrendingUp size={14} className="text-accent" />
           </div>
-          <p className="relative text-2xl lg:text-3xl font-bold text-white tracking-tight">
-            {stats?.total_sold ?? '—'}
-          </p>
-          <p className="relative mt-0.5 text-xs font-medium text-slate-400">Total Units</p>
+          <p className="font-mono text-[26px] font-semibold text-accent tracking-[-.02em] leading-none">{stats?.total_sold ?? '—'}</p>
+          <p className="mt-2 font-mono text-[11px] text-mute">total units</p>
         </div>
       </div>
 
       {/* Search + Filter + Sort */}
       <div className="mb-6 lg:mb-8">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 z-10" size={18} />
+          <div className="flex-1 relative flex items-center">
+            <Search className="absolute left-2.5 text-mute pointer-events-none" size={14} />
             <input
               type="text"
               placeholder="Search by name or category..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-2.5 bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400/60 focus:outline-none transition-all text-sm"
+              className="w-full bg-panel border border-line rounded-[7px] pl-8 pr-3 py-2 text-[12.5px] text-body outline-none focus:border-accent/50 placeholder:text-mute transition-colors"
             />
           </div>
 
@@ -275,33 +268,33 @@ const Products: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
+              className={`inline-flex items-center justify-center gap-[7px] px-3.5 py-2 rounded-[7px] border text-[12.5px] font-bold transition whitespace-nowrap ${
                 showFilterMenu || stockFilter !== 'all'
-                  ? 'border-cyan-400/40 bg-slate-700/60 text-white'
-                  : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
+                  ? 'bg-accent/15 text-accent border-accent/40'
+                  : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
               }`}
             >
-              <SlidersHorizontal size={16} />
+              <SlidersHorizontal size={14} />
               <span>Filter</span>
             </button>
             {showFilterMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
-                <div className="p-4 space-y-4">
+              <div className="absolute right-0 mt-2 w-56 bg-panel border border-line rounded-card shadow-[0_20px_50px_-12px_rgba(0,0,0,.87)] z-20 animate-pop">
+                <div className="p-3 space-y-3">
                   <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+                    <label className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-2 block">
                       Stock Status
                     </label>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <button
                         onClick={() => {
                           setStockFilter('all');
                           setCurrentPage(1);
                           setShowFilterMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] border transition-colors ${
                           stockFilter === 'all'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border-accent/30'
+                            : 'bg-panel2 text-dim border-transparent hover:text-body'
                         }`}
                       >
                         All Products
@@ -312,10 +305,10 @@ const Products: React.FC = () => {
                           setCurrentPage(1);
                           setShowFilterMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] border transition-colors ${
                           stockFilter === 'in_stock'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border-accent/30'
+                            : 'bg-panel2 text-dim border-transparent hover:text-body'
                         }`}
                       >
                         In Stock
@@ -326,10 +319,10 @@ const Products: React.FC = () => {
                           setCurrentPage(1);
                           setShowFilterMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] border transition-colors ${
                           stockFilter === 'out_of_stock'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border-accent/30'
+                            : 'bg-panel2 text-dim border-transparent hover:text-body'
                         }`}
                       >
                         Out of Stock
@@ -346,33 +339,33 @@ const Products: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowSortMenu(!showSortMenu)}
-              className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold backdrop-blur transition-all ${
+              className={`inline-flex items-center justify-center gap-[7px] px-3.5 py-2 rounded-[7px] border text-[12.5px] font-bold transition whitespace-nowrap ${
                 showSortMenu || sortBy !== 'newest'
-                  ? 'border-cyan-400/40 bg-slate-700/60 text-white'
-                  : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:text-white hover:border-cyan-400/40 hover:bg-slate-700/60'
+                  ? 'bg-accent/15 text-accent border-accent/40'
+                  : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
               }`}
             >
-              <ArrowUpDown size={16} />
+              <ArrowUpDown size={14} />
               <span>Sort</span>
             </button>
             {showSortMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur rounded-xl border border-slate-700 shadow-xl shadow-black/50 z-20">
-                <div className="p-4 space-y-4">
+              <div className="absolute right-0 mt-2 w-56 bg-panel border border-line rounded-card shadow-[0_20px_50px_-12px_rgba(0,0,0,.87)] z-20 animate-pop">
+                <div className="p-3 space-y-3">
                   <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 block">
+                    <label className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-2 block">
                       Sort By
                     </label>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <button
                         onClick={() => {
                           setSortBy('newest');
                           setCurrentPage(1);
                           setShowSortMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] border transition-colors ${
                           sortBy === 'newest'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border-accent/30'
+                            : 'bg-panel2 text-dim border-transparent hover:text-body'
                         }`}
                       >
                         Date: Newest First
@@ -383,10 +376,10 @@ const Products: React.FC = () => {
                           setCurrentPage(1);
                           setShowSortMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] border transition-colors ${
                           sortBy === 'oldest'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border-accent/30'
+                            : 'bg-panel2 text-dim border-transparent hover:text-body'
                         }`}
                       >
                         Date: Oldest First
@@ -397,10 +390,10 @@ const Products: React.FC = () => {
                           setCurrentPage(1);
                           setShowSortMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] border transition-colors ${
                           sortBy === 'price_high'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border-accent/30'
+                            : 'bg-panel2 text-dim border-transparent hover:text-body'
                         }`}
                       >
                         Price: High to Low
@@ -411,10 +404,10 @@ const Products: React.FC = () => {
                           setCurrentPage(1);
                           setShowSortMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] border transition-colors ${
                           sortBy === 'price_low'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border-accent/30'
+                            : 'bg-panel2 text-dim border-transparent hover:text-body'
                         }`}
                       >
                         Price: Low to High
@@ -425,10 +418,10 @@ const Products: React.FC = () => {
                           setCurrentPage(1);
                           setShowSortMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] border transition-colors ${
                           sortBy === 'popular'
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                            : 'bg-slate-700/30 text-slate-300 hover:bg-slate-700/50'
+                            ? 'bg-accent/15 text-accent border-accent/30'
+                            : 'bg-panel2 text-dim border-transparent hover:text-body'
                         }`}
                       >
                         Most Popular
@@ -439,36 +432,28 @@ const Products: React.FC = () => {
               </div>
             )}
           </div>
-
-          <button
-            onClick={() => navigate('/products/create')}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-br from-cyan-500 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/30 transition-all whitespace-nowrap"
-          >
-            <Plus size={18} />
-            Add Product
-          </button>
         </div>
       </div>
 
       {/* Error State */}
       {error && (
-        <div className="mb-6 flex items-center gap-3 p-4 bg-red-500/10 border border-red-400/30 rounded-xl backdrop-blur">
-          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-          <p className="text-sm text-red-300">{error}</p>
+        <div className="mb-6 flex items-center gap-3 p-4 bg-neg/10 border border-neg/30 rounded-card">
+          <AlertCircle className="w-5 h-5 text-neg flex-shrink-0" />
+          <p className="text-sm text-neg">{error}</p>
         </div>
       )}
 
       {/* Loading State */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
-          <Loader className="w-8 h-8 text-cyan-400 animate-spin mb-3" />
-          <p className="text-slate-400">Loading products...</p>
+          <Loader className="w-6 h-6 text-accent animate-spin mb-3" />
+          <p className="font-mono text-xs text-mute uppercase tracking-[.1em]">Loading products…</p>
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center py-12">
-          <Package className="w-12 h-12 mx-auto mb-3 text-slate-600" />
-          <p className="text-slate-300 text-lg">No products found</p>
-          {debouncedSearch && <p className="text-slate-500 text-sm mt-2">Try adjusting your search</p>}
+        <div className="text-center py-[54px] text-mute">
+          <Package size={30} className="mx-auto opacity-50" />
+          <p className="mt-3 text-[13.5px] font-semibold text-dim">No products found</p>
+          {debouncedSearch && <p className="mt-1 text-xs">Try adjusting your search</p>}
         </div>
       ) : (
         <>
@@ -477,15 +462,12 @@ const Products: React.FC = () => {
             {products.map((product) => (
               <div
                 key={product.id}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/40 hover:shadow-2xl hover:shadow-cyan-500/10"
+                className="group relative flex flex-col overflow-hidden rounded-card border border-line bg-panel transition-colors hover:border-[#3a3d44]"
               >
-                {/* Top accent line on hover */}
-                <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100 z-20" />
-
                 {/* Square Image */}
                 <button
                   onClick={() => setSelectedProductId(product.id)}
-                  className="relative h-36 sm:h-40 overflow-hidden bg-slate-900/60 w-full text-left"
+                  className="relative h-36 sm:h-40 overflow-hidden bg-panel2 w-full text-left border-b border-line"
                 >
                   <img
                     src={product.image}
@@ -493,14 +475,11 @@ const Products: React.FC = () => {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
 
-                  {/* Gradient overlay for badge readability */}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40 opacity-60" />
-
                   {/* Badge - top left */}
                   {product.badge && (
                     <div className="absolute top-2 left-2 z-10">
                       <span
-                        className={`inline-flex items-center text-[0.6rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded ${getBadgeStyle(product.badge)}`}
+                        className={`inline-flex items-center font-mono text-[10px] font-semibold uppercase tracking-[.05em] px-2 py-[3px] rounded-[5px] backdrop-blur bg-bg/70 ${getBadgeStyle(product.badge)}`}
                       >
                         {product.badge}
                       </span>
@@ -510,12 +489,12 @@ const Products: React.FC = () => {
                   {/* Stock pill - top right */}
                   <div className="absolute top-2 right-2 z-10">
                     {product.in_stock ? (
-                      <span className="inline-flex items-center gap-0.5 text-[0.6rem] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/90 text-white backdrop-blur ring-1 ring-emerald-300/40">
+                      <span className="inline-flex items-center gap-[5px] font-mono text-[10px] font-semibold uppercase tracking-[.05em] px-2 py-[3px] rounded-[5px] text-pos bg-bg/70 backdrop-blur border border-pos/[.28]">
                         <CheckCircle2 size={9} />
                         In Stock
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-0.5 text-[0.6rem] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-red-500/90 text-white backdrop-blur ring-1 ring-red-300/40">
+                      <span className="inline-flex items-center gap-[5px] font-mono text-[10px] font-semibold uppercase tracking-[.05em] px-2 py-[3px] rounded-[5px] text-neg bg-bg/70 backdrop-blur border border-neg/[.28]">
                         <XCircle size={9} />
                         Out
                       </span>
@@ -525,7 +504,7 @@ const Products: React.FC = () => {
                   {/* Discount pill - bottom left */}
                   {product.discount_percentage > 0 && (
                     <div className="absolute bottom-2 left-2 z-10">
-                      <span className="inline-flex items-center text-[0.65rem] font-extrabold px-2 py-0.5 rounded bg-gradient-to-br from-pink-500 to-rose-600 text-white ring-1 ring-pink-300/40">
+                      <span className="inline-flex items-center font-mono text-[10.5px] font-bold px-2 py-[3px] rounded-[5px] text-accent bg-bg/70 backdrop-blur border border-accent/[.28]">
                         -{Math.round(product.discount_percentage)}%
                       </span>
                     </div>
@@ -538,7 +517,7 @@ const Products: React.FC = () => {
                         e.stopPropagation();
                         setEditProductId(product.id);
                       }}
-                      className="p-2 text-white bg-cyan-500/90 backdrop-blur rounded-lg hover:bg-cyan-500 transition-colors ring-1 ring-cyan-300/40 shadow-lg shadow-cyan-500/30"
+                      className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-bg/80 backdrop-blur border border-line text-dim hover:text-accent hover:border-accent/40 transition-colors"
                       title="Edit product"
                     >
                       <Edit2 size={14} />
@@ -548,7 +527,7 @@ const Products: React.FC = () => {
                         e.stopPropagation();
                         setDeleteConfirm({ id: product.id, name: product.name });
                       }}
-                      className="p-2 text-white bg-red-500/90 backdrop-blur rounded-lg hover:bg-red-500 transition-colors ring-1 ring-red-300/40 shadow-lg shadow-red-500/30"
+                      className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-bg/80 backdrop-blur border border-line text-dim hover:text-neg hover:border-neg/40 transition-colors"
                       title="Delete product"
                     >
                       <Trash2 size={14} />
@@ -559,14 +538,14 @@ const Products: React.FC = () => {
                 {/* Info Section */}
                 <div className="relative flex flex-col flex-1 p-3">
                   {/* Category */}
-                  <p className="text-[0.6rem] font-bold uppercase tracking-wider text-cyan-300/80 mb-1">
+                  <p className="font-mono text-[10px] tracking-[.12em] uppercase text-mute mb-1 truncate">
                     {product.category.name}
                   </p>
 
                   {/* Name */}
                   <button
                     onClick={() => setSelectedProductId(product.id)}
-                    className="font-semibold text-white text-xs leading-snug mb-1.5 line-clamp-2 min-h-[2rem] text-left hover:text-cyan-300 transition-colors"
+                    className="font-semibold text-body text-xs leading-snug mb-1.5 line-clamp-2 min-h-[2rem] text-left hover:text-accent transition-colors"
                   >
                     {product.name}
                   </button>
@@ -575,31 +554,31 @@ const Products: React.FC = () => {
                   <div className="flex items-center gap-1.5 mb-2 min-h-[1rem]">
                     {product.avg_rating > 0 ? (
                       <>
-                        <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-500/15 ring-1 ring-amber-400/20">
-                          <Star size={10} className="fill-amber-400 text-amber-400" />
-                          <span className="text-[0.7rem] font-bold text-amber-300">{product.avg_rating}</span>
+                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-[5px] bg-warn/[.13] border border-warn/[.28]">
+                          <Star size={10} className="fill-warn text-warn" />
+                          <span className="font-mono text-[10.5px] font-bold text-warn">{product.avg_rating}</span>
                         </div>
-                        <span className="text-[0.7rem] text-slate-500 font-medium">
+                        <span className="font-mono text-[10.5px] text-mute">
                           ({product.total_reviews})
                         </span>
                       </>
                     ) : (
-                      <span className="text-[0.7rem] text-slate-600 font-medium italic">No reviews yet</span>
+                      <span className="text-[0.7rem] text-mute italic">No reviews yet</span>
                     )}
                   </div>
 
                   {/* Price + Sold count - bottom row */}
-                  <div className="mt-auto flex items-end justify-between gap-1 pt-2 border-t border-slate-700/50">
+                  <div className="mt-auto flex items-end justify-between gap-1 pt-2 border-t border-line">
                     <div className="min-w-0">
                       <div className="flex items-baseline gap-1 flex-wrap">
-                        <span className="text-sm font-bold text-white tracking-tight">R{product.price}</span>
+                        <span className="font-mono text-sm font-bold text-accent tracking-tight">R{product.price}</span>
                         {product.old_price && (
-                          <span className="text-[0.65rem] line-through text-slate-500">R{product.old_price}</span>
+                          <span className="font-mono text-[10.5px] line-through text-mute">R{product.old_price}</span>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-0.5 text-[0.65rem] font-semibold text-slate-400 whitespace-nowrap">
-                      <TrendingUp size={10} className="text-sky-400" />
+                    <div className="flex items-center gap-1 font-mono text-[10.5px] text-dim whitespace-nowrap">
+                      <TrendingUp size={10} className="text-pos" />
                       <span>{product.sold_count} sold</span>
                     </div>
                   </div>
@@ -608,14 +587,14 @@ const Products: React.FC = () => {
                   <div className="sm:hidden flex gap-2 mt-2">
                     <button
                       onClick={() => setEditProductId(product.id)}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-cyan-300 bg-cyan-500/15 rounded-lg hover:bg-cyan-500/25 transition-colors ring-1 ring-cyan-400/20 text-xs font-semibold"
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-accent bg-accent/10 rounded-[7px] hover:bg-accent/20 transition-colors border border-accent/[.28] text-xs font-bold"
                     >
                       <Edit2 size={12} />
                       Edit
                     </button>
                     <button
                       onClick={() => setDeleteConfirm({ id: product.id, name: product.name })}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-red-300 bg-red-500/15 rounded-lg hover:bg-red-500/25 transition-colors ring-1 ring-red-400/20 text-xs font-semibold"
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-neg bg-neg/10 rounded-[7px] hover:bg-neg/20 transition-colors border border-neg/[.28] text-xs font-bold"
                     >
                       <Trash2 size={12} />
                       Delete
@@ -628,10 +607,10 @@ const Products: React.FC = () => {
 
           {/* Pagination Info and Controls */}
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-slate-400">
-              Showing <span className="font-semibold text-slate-200">{(currentPage - 1) * pageSize + 1}</span> to{' '}
-              <span className="font-semibold text-slate-200">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
-              <span className="font-semibold text-slate-200">{totalCount}</span> products
+            <div className="font-mono text-xs text-mute">
+              Showing <span className="font-semibold text-body">{(currentPage - 1) * pageSize + 1}</span> to{' '}
+              <span className="font-semibold text-body">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
+              <span className="font-semibold text-body">{totalCount}</span> products
             </div>
 
             {totalPages > 1 && (
@@ -639,10 +618,10 @@ const Products: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   title="Previous page"
                 >
-                  <ChevronLeft size={18} className="text-slate-300" />
+                  <ChevronLeft size={16} />
                 </button>
 
                 <div className="flex items-center gap-1">
@@ -650,10 +629,10 @@ const Products: React.FC = () => {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`min-w-10 h-10 rounded-lg font-medium transition-all ${
+                      className={`min-w-8 h-8 px-2 rounded-[7px] font-mono text-xs font-bold transition-colors ${
                         currentPage === page
-                          ? 'bg-gradient-to-br from-cyan-500 to-emerald-600 text-white shadow-md shadow-cyan-500/30'
-                          : 'border border-slate-700 bg-slate-800/60 text-slate-300 hover:bg-slate-700/60 hover:text-white'
+                          ? 'bg-accent text-accent-ink border border-accent'
+                          : 'border border-line bg-panel text-dim hover:text-body hover:border-[#3a3d44]'
                       }`}
                     >
                       {page}
@@ -664,10 +643,10 @@ const Products: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   title="Next page"
                 >
-                  <ChevronRight size={18} className="text-slate-300" />
+                  <ChevronRight size={16} />
                 </button>
               </div>
             )}
@@ -677,27 +656,34 @@ const Products: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800/60 border border-slate-700/60 rounded-2xl max-w-sm w-full p-6 shadow-xl backdrop-blur">
-            <h3 className="text-lg font-bold text-white mb-2">Delete Product</h3>
-            <p className="text-sm text-slate-300 mb-6">
-              Are you sure you want to delete <span className="font-semibold text-white">{deleteConfirm.name}</span>? This action cannot be undone.
-            </p>
-            <div className="flex gap-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-fade">
+          <div className="w-full max-w-sm bg-panel border border-line rounded-card shadow-[0_30px_80px_-20px_rgba(0,0,0,.87)] overflow-hidden animate-pop">
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-line">
+              <div className="w-9 h-9 rounded-lg bg-neg/15 text-neg flex items-center justify-center shrink-0">
+                <Trash2 size={17} />
+              </div>
+              <span className="font-mono font-semibold text-sm tracking-[.08em] uppercase text-body">Delete Product</span>
+            </div>
+            <div className="p-4">
+              <p className="text-sm text-dim">
+                Are you sure you want to delete <span className="font-semibold text-body">{deleteConfirm.name}</span>? This action cannot be undone.
+              </p>
+            </div>
+            <div className="px-4 py-3 border-t border-line flex justify-end gap-2.5">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="flex-1 px-4 py-2.5 bg-slate-700/60 text-slate-200 rounded-lg font-semibold hover:bg-slate-700 transition-colors border border-slate-600"
+                className="inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-[#3a3d44] hover:text-body transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteProduct}
                 disabled={deleting}
-                className="flex-1 px-4 py-2.5 bg-red-600/80 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] text-neg bg-neg/15 border border-neg/40 hover:bg-neg/25 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {deleting ? (
                   <>
-                    <Loader size={16} className="animate-spin" />
+                    <Loader size={14} className="animate-spin" />
                     Deleting...
                   </>
                 ) : (

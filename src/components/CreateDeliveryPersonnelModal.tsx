@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Loader } from 'lucide-react';
+import { X, Loader, Truck } from 'lucide-react';
 import { authenticatedFetch } from '../lib/api';
 
 interface CreateDeliveryPersonnelModalProps {
@@ -96,148 +96,167 @@ const CreateDeliveryPersonnelModal: React.FC<CreateDeliveryPersonnelModalProps> 
     }
   };
 
+  const inputClass =
+    'w-full bg-panel2 border border-line rounded-[7px] px-3 py-2 text-[12.5px] text-body outline-none focus:border-accent/50 placeholder:text-mute disabled:opacity-50';
+  const labelClass =
+    'block font-mono text-[10.5px] tracking-[.12em] uppercase text-mute mb-1.5';
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[7vh] pb-[4vh] bg-black/60 animate-fade"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md max-h-[90%] flex flex-col bg-panel border border-line rounded-card shadow-[0_30px_80px_-20px_rgba(0,0,0,.87)] overflow-hidden animate-pop"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Add Delivery Personnel</h2>
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-line">
+          <div className="w-9 h-9 rounded-lg bg-accent/15 text-accent flex items-center justify-center shrink-0">
+            <Truck size={17} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <span className="font-mono font-semibold text-sm tracking-[.08em] uppercase text-body">New Personnel</span>
+            <div className="text-mute text-xs mt-0.5">Add a delivery courier</div>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition"
             aria-label="Close"
           >
-            <X size={24} />
+            <X size={15} />
           </button>
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Error Message */}
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-700">{error}</p>
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="p-4 overflow-y-auto flex-1 space-y-3.5">
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-neg/10 border border-neg/30 rounded-[7px]">
+                <p className="text-xs text-neg">{error}</p>
+              </div>
+            )}
+
+            {/* First Name */}
+            <div>
+              <label htmlFor="first_name" className={labelClass}>
+                First Name *
+              </label>
+              <input
+                type="text"
+                id="first_name"
+                name="first_name"
+                value={formData.first_name}
+                onChange={handleInputChange}
+                placeholder="John"
+                className={inputClass}
+                disabled={loading}
+              />
             </div>
-          )}
 
-          {/* First Name */}
-          <div>
-            <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1.5">
-              First Name *
-            </label>
-            <input
-              type="text"
-              id="first_name"
-              name="first_name"
-              value={formData.first_name}
-              onChange={handleInputChange}
-              placeholder="John"
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
-              disabled={loading}
-            />
-          </div>
+            {/* Last Name */}
+            <div>
+              <label htmlFor="last_name" className={labelClass}>
+                Last Name *
+              </label>
+              <input
+                type="text"
+                id="last_name"
+                name="last_name"
+                value={formData.last_name}
+                onChange={handleInputChange}
+                placeholder="Doe"
+                className={inputClass}
+                disabled={loading}
+              />
+            </div>
 
-          {/* Last Name */}
-          <div>
-            <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Last Name *
-            </label>
-            <input
-              type="text"
-              id="last_name"
-              name="last_name"
-              value={formData.last_name}
-              onChange={handleInputChange}
-              placeholder="Doe"
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
-              disabled={loading}
-            />
-          </div>
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className={labelClass}>
+                Email *
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="john@example.com"
+                className={inputClass}
+                disabled={loading}
+              />
+            </div>
 
-          {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Email *
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              placeholder="john@example.com"
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
-              disabled={loading}
-            />
-          </div>
+            {/* Phone */}
+            <div>
+              <label htmlFor="phone" className={labelClass}>
+                Phone *
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                placeholder="+27123456789"
+                className={inputClass}
+                disabled={loading}
+              />
+            </div>
 
-          {/* Phone */}
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Phone *
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              placeholder="+27123456789"
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
-              disabled={loading}
-            />
-          </div>
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className={labelClass}>
+                Password *
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Minimum 8 characters"
+                className={inputClass}
+                disabled={loading}
+              />
+            </div>
 
-          {/* Password */}
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Password *
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              placeholder="Minimum 8 characters"
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
-              disabled={loading}
-            />
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label htmlFor="confirm_password" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Confirm Password *
-            </label>
-            <input
-              type="password"
-              id="confirm_password"
-              name="confirm_password"
-              value={formData.confirm_password}
-              onChange={handleInputChange}
-              placeholder="Re-enter password"
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm"
-              disabled={loading}
-            />
+            {/* Confirm Password */}
+            <div>
+              <label htmlFor="confirm_password" className={labelClass}>
+                Confirm Password *
+              </label>
+              <input
+                type="password"
+                id="confirm_password"
+                name="confirm_password"
+                value={formData.confirm_password}
+                onChange={handleInputChange}
+                placeholder="Re-enter password"
+                className={inputClass}
+                disabled={loading}
+              />
+            </div>
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="px-4 py-3 border-t border-line flex justify-end gap-2.5">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-[#3a3d44] hover:text-body transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-accent text-accent-ink border border-accent hover:brightness-110 transition whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading && <Loader size={16} className="animate-spin" />}
+              {loading && <Loader size={14} className="animate-spin" />}
               {loading ? 'Creating...' : 'Create'}
             </button>
           </div>
