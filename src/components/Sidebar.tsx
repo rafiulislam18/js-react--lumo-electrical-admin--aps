@@ -130,6 +130,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <div className="px-[18px] py-2.5 border-t border-line flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-pos shadow-[0_0_6px_#5fcf80]" />
           <span className="font-mono text-[10px] tracking-[.1em] uppercase text-mute">System online</span>
+          <span className="ml-auto font-mono text-[10px] tracking-[.1em] text-mute">v2.1</span>
         </div>
 
         {/* User */}

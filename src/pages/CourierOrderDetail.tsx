@@ -111,7 +111,7 @@ const CourierOrderDetail: React.FC = () => {
           </div>
           <span className="ml-auto inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-warn bg-warn/[.13] border border-warn/[.28]">
             <span className="w-1.5 h-1.5 rounded-full bg-warn" />
-            Out for Delivery
+            Courier Assigned
           </span>
         </div>
       </div>

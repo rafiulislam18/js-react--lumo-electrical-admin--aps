@@ -14,6 +14,7 @@ import {
   ArrowUpDown,
 } from 'lucide-react';
 import OrderDetailModal from '../components/OrderDetailModal';
+import OrdersPageStats from '../components/OrdersPageStats';
 
 export interface AdminOrder {
   id: number;
@@ -22,7 +23,7 @@ export interface AdminOrder {
   total: string;
   paid: boolean;
   items_count: number;
-  status: 'order_placed' | 'out_for_delivery' | 'delivered';
+  status: 'order_placed' | 'assigned_courier' | 'delivered';
   first_name: string;
   last_name: string;
   email: string;
@@ -45,7 +46,7 @@ export interface AdminOrder {
 interface OrderStats {
   total: number;
   order_placed: number;
-  out_for_delivery: number;
+  assigned_courier: number;
   delivered: number;
 }
 
@@ -163,8 +164,8 @@ const Orders: React.FC = () => {
     switch (status) {
       case 'order_placed':
         return 'text-warn bg-warn/[.13] border border-warn/[.28]';
-      case 'out_for_delivery':
-        return 'text-accent bg-accent/[.13] border border-accent/[.28]';
+      case 'assigned_courier':
+        return 'text-info bg-info/[.13] border border-info/[.28]';
       case 'delivered':
         return 'text-pos bg-pos/[.13] border border-pos/[.28]';
       default:
@@ -176,7 +177,7 @@ const Orders: React.FC = () => {
     switch (status) {
       case 'order_placed':
         return <ShoppingBag size={12} />;
-      case 'out_for_delivery':
+      case 'assigned_courier':
         return <Truck size={12} />;
       case 'delivered':
         return <CheckCircle2 size={12} />;
@@ -189,8 +190,8 @@ const Orders: React.FC = () => {
     switch (status) {
       case 'order_placed':
         return 'Order Placed';
-      case 'out_for_delivery':
-        return 'Out for Delivery';
+      case 'assigned_courier':
+        return 'Courier Assigned';
       case 'delivered':
         return 'Delivered';
       default:
@@ -223,49 +224,7 @@ const Orders: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-        <div className="bg-panel border border-line rounded-card px-3.5 py-3 min-w-0">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Total</span>
-            <ShoppingBag size={14} className="text-accent" />
-          </div>
-          <p className="font-mono text-[22px] font-semibold text-body tracking-[-.02em] leading-none">{stats?.total ?? '—'}</p>
-          <p className="mt-1.5 font-mono text-[10.5px] text-mute">all orders</p>
-        </div>
-
-        <div className="bg-panel border border-line rounded-card px-3.5 py-3 min-w-0">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Pending</span>
-            <Clock size={14} className="text-warn" />
-          </div>
-          <p className="font-mono text-[22px] font-semibold text-warn tracking-[-.02em] leading-none">
-            {stats?.order_placed ?? '—'}
-          </p>
-          <p className="mt-1.5 font-mono text-[10.5px] text-mute">awaiting</p>
-        </div>
-
-        <div className="bg-panel border border-line rounded-card px-3.5 py-3 min-w-0">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">In Transit</span>
-            <Truck size={14} className="text-info" />
-          </div>
-          <p className="font-mono text-[22px] font-semibold text-info tracking-[-.02em] leading-none">
-            {stats?.out_for_delivery ?? '—'}
-          </p>
-          <p className="mt-1.5 font-mono text-[10.5px] text-mute">courier assigned</p>
-        </div>
-
-        <div className="bg-panel border border-line rounded-card px-3.5 py-3 min-w-0">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Delivered</span>
-            <CheckCircle2 size={14} className="text-pos" />
-          </div>
-          <p className="font-mono text-[22px] font-semibold text-pos tracking-[-.02em] leading-none">
-            {stats?.delivered ?? '—'}
-          </p>
-          <p className="mt-1.5 font-mono text-[10.5px] text-mute">completed</p>
-        </div>
-      </div>
+      <OrdersPageStats stats={stats} />
 
       {/* Status Tabs + Search + Sort */}
       <div className="mb-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
@@ -274,7 +233,7 @@ const Orders: React.FC = () => {
           {[
             { id: '', label: 'All', count: stats?.total },
             { id: 'order_placed', label: 'Placed', count: stats?.order_placed },
-            { id: 'out_for_delivery', label: 'Out', count: stats?.out_for_delivery },
+            { id: 'assigned_courier', label: 'Assigned', count: stats?.assigned_courier },
             { id: 'delivered', label: 'Delivered', count: stats?.delivered },
           ].map((t) => {
             const on = statusFilter === t.id;
@@ -426,91 +385,161 @@ const Orders: React.FC = () => {
         </div>
       ) : (
         <>
-          {/* Orders List */}
-          <div className="space-y-2.5 mb-6">
+          {/* Orders Table (md+) */}
+          <div className="hidden md:block mb-6 overflow-hidden rounded-card border border-line bg-panel">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-line">
+                  {['Order', 'Customer', 'Date', 'Items', 'Total', 'Paid', 'Status', 'Courier', ''].map((h, i) => (
+                    <th
+                      key={i}
+                      className={`px-4 py-2.5 font-mono text-[9.5px] font-semibold uppercase tracking-[.12em] text-mute ${
+                        ['Items', 'Total', 'Paid'].includes(h) ? 'text-right' : 'text-left'
+                      }`}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr
+                    key={order.id}
+                    onClick={() => setSelectedOrderId(order.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedOrderId(order.id);
+                      }
+                    }}
+                    tabIndex={0}
+                    className="group border-b border-line last:border-b-0 cursor-pointer outline-none transition-colors hover:bg-panel2/60 focus-visible:bg-panel2/60"
+                  >
+                    {/* Order */}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="font-mono text-[12.5px] font-bold text-body">ORD-{order.id}</span>
+                    </td>
+
+                    {/* Customer — avatar + name + city */}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-[30px] h-[30px] rounded-[7px] shrink-0 flex items-center justify-center bg-panel2 border border-line text-dim font-bold font-mono text-[11px]">
+                          {order.first_name?.[0]?.toUpperCase() || '#'}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[12.5px] font-semibold text-body truncate">{order.first_name} {order.last_name}</p>
+                          <p className="text-[11px] text-mute truncate">{order.delivery_city}</p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Date */}
+                    <td className="px-4 py-3 whitespace-nowrap font-mono text-[11.5px] text-dim">
+                      {formatDate(order.created_at)}
+                    </td>
+
+                    {/* Items */}
+                    <td className="px-4 py-3 text-right whitespace-nowrap font-mono text-[12.5px] text-dim">
+                      {order.items_count}
+                    </td>
+
+                    {/* Total */}
+                    <td className="px-4 py-3 text-right whitespace-nowrap font-mono text-[12.5px] font-bold text-accent">
+                      R{order.total}
+                    </td>
+
+                    {/* Paid */}
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                      <span className={`inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] px-2 py-[3px] rounded-[5px] ${
+                        order.paid
+                          ? 'text-pos bg-pos/[.13] border border-pos/[.28]'
+                          : 'text-warn bg-warn/[.13] border border-warn/[.28]'
+                      }`}>
+                        {order.paid ? 'Paid' : 'Unpaid'}
+                      </span>
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className={`inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] px-2 py-[3px] rounded-[5px] ${getStatusColor(order.status)}`}>
+                        {getStatusIcon(order.status)}
+                        {formatStatus(order.status)}
+                      </span>
+                    </td>
+
+                    {/* Courier */}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className={`text-[12.5px] font-semibold ${order.assigned_delivery_personnel_name ? 'text-body' : 'text-mute'}`}>
+                        {order.assigned_delivery_personnel_name
+                          ? `${order.assigned_delivery_personnel_name.split(' ')[0]} ${order.assigned_delivery_personnel_name.split(' ')[1]?.[0] ? order.assigned_delivery_personnel_name.split(' ')[1][0] + '.' : ''}`.trim()
+                          : '—'}
+                      </span>
+                    </td>
+
+                    {/* Chevron */}
+                    <td className="px-3 py-3 text-right">
+                      <ChevronRight size={16} className="inline text-mute transition-colors group-hover:text-dim" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Orders Cards (mobile) */}
+          <div className="md:hidden space-y-2.5 mb-6">
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="border border-line rounded-card bg-panel hover:bg-panel2/60 hover:border-[#3a3d44] transition-colors"
+                role="button"
+                tabIndex={0}
+                onClick={() => setSelectedOrderId(order.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setSelectedOrderId(order.id);
+                  }
+                }}
+                className="border border-line rounded-card bg-panel hover:bg-panel2/60 hover:border-[#3a3d44] transition-colors cursor-pointer outline-none focus-visible:border-accent/60 focus-visible:ring-1 focus-visible:ring-accent/40"
               >
-                <div className="p-3.5 sm:px-4 sm:py-[15px] flex flex-col sm:flex-row sm:items-center gap-4">
-                  {/* Order ID, Avatar, Customer */}
-                  <div className="flex-1 min-w-0 flex items-start gap-3">
-                    <div className="w-[34px] h-[34px] rounded-[7px] shrink-0 flex items-center justify-center bg-panel2 border border-line text-dim font-bold font-mono text-xs">
-                      {order.first_name?.[0]?.toUpperCase() || '#'}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start gap-2 mb-1">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-mono text-[12.5px] font-bold text-body">ORD-{order.id}</p>
-                          <p className="text-xs text-dim mt-0.5">
-                            {order.first_name} {order.last_name}
-                          </p>
-                        </div>
-                        <span className={`inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] px-2 py-[3px] rounded-[5px] whitespace-nowrap flex-shrink-0 ${getStatusColor(order.status)}`}>
-                          {getStatusIcon(order.status)}
-                          {formatStatus(order.status)}
-                        </span>
-                      </div>
-                      <p className="text-xs text-mute truncate">{order.email}</p>
-                      <p className="font-mono text-[10.5px] text-mute mt-0.5">{formatDate(order.created_at)}</p>
-                    </div>
+                <div className="p-3.5 flex items-start gap-3">
+                  <div className="w-[34px] h-[34px] rounded-[7px] shrink-0 flex items-center justify-center bg-panel2 border border-line text-dim font-bold font-mono text-xs">
+                    {order.first_name?.[0]?.toUpperCase() || '#'}
                   </div>
-
-                  {/* Vertical separator + details (hidden on mobile) */}
-                  <div className="hidden sm:flex items-center gap-5 flex-shrink-0">
-                    <div className="h-12 w-px bg-line" />
-                    <div className="grid grid-cols-4 gap-5 min-w-fit">
-                      <div className="text-right">
-                        <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Items</p>
-                        <p className="font-mono text-[13px] font-semibold text-dim">{order.items_count}</p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start gap-2 mb-1">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-mono text-[12.5px] font-bold text-body">ORD-{order.id}</p>
+                        <p className="text-xs text-dim mt-0.5">{order.first_name} {order.last_name}</p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Amount</p>
-                        <p className="font-mono text-[13px] font-bold text-accent">R{order.total}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Payment</p>
-                        <p className={`font-mono text-[13px] font-bold ${order.paid ? 'text-pos' : 'text-warn'}`}>
-                          {order.paid ? 'Paid' : 'Pending'}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Courier</p>
-                        <p className={`text-[13px] font-semibold ${order.assigned_delivery_personnel_name ? 'text-body' : 'text-mute'}`}>
-                          {order.assigned_delivery_personnel_name ? order.assigned_delivery_personnel_name.split(' ')[0] : '—'}
-                        </p>
-                      </div>
+                      <span className={`inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] px-2 py-[3px] rounded-[5px] whitespace-nowrap flex-shrink-0 ${getStatusColor(order.status)}`}>
+                        {getStatusIcon(order.status)}
+                        {formatStatus(order.status)}
+                      </span>
                     </div>
+                    <p className="text-xs text-mute truncate">{order.delivery_city}</p>
+                    <p className="font-mono text-[10.5px] text-mute mt-0.5">{formatDate(order.created_at)}</p>
                   </div>
-
-                  {/* View Button */}
-                  <button
-                    onClick={() => setSelectedOrderId(order.id)}
-                    className="inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-accent text-accent-ink border border-accent hover:brightness-110 transition whitespace-nowrap"
-                  >
-                    View Details
-                  </button>
                 </div>
 
-                {/* Mobile Details */}
-                <div className="sm:hidden px-3.5 pb-3 flex gap-5 border-t border-line pt-3">
+                <div className="px-3.5 pb-3 flex gap-5 border-t border-line pt-3">
                   <div>
                     <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Items</p>
                     <p className="font-mono text-xs font-semibold text-dim">{order.items_count}</p>
                   </div>
                   <div>
-                    <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Amount</p>
+                    <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Total</p>
                     <p className="font-mono text-xs font-bold text-accent">R{order.total}</p>
                   </div>
                   <div>
-                    <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Payment</p>
+                    <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Paid</p>
                     <p className={`font-mono text-xs font-bold ${order.paid ? 'text-pos' : 'text-warn'}`}>
-                      {order.paid ? 'Paid' : 'Pending'}
+                      {order.paid ? 'Paid' : 'Unpaid'}
                     </p>
                   </div>
                   <div>
-                    <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Delivery</p>
+                    <p className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute mb-1">Courier</p>
                     <p className={`text-xs font-semibold ${order.assigned_delivery_personnel_name ? 'text-body' : 'text-mute'}`}>
                       {order.assigned_delivery_personnel_name ? order.assigned_delivery_personnel_name.split(' ')[0] : '—'}
                     </p>
@@ -574,6 +603,7 @@ const Orders: React.FC = () => {
         <OrderDetailModal
           orderId={selectedOrderId}
           onClose={() => setSelectedOrderId(null)}
+          onAssigned={fetchOrders}
         />
       )}
     </>

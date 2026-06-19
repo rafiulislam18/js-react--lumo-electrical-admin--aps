@@ -43,15 +43,25 @@ const RevenueStats: React.FC = () => {
     : '0';
   const isPositive = parseFloat(percentageChange) >= 0;
 
+  // Relative bar widths: the larger of the two months fills the bar
+  const peak = Math.max(revenueThisMonth, revenueLastMonth, 1);
+  const thisPct = (revenueThisMonth / peak) * 100;
+  const lastPct = (revenueLastMonth / peak) * 100;
+
   return (
-    <div className="rounded-card border border-line bg-panel px-4 py-3.5">
-      <div className="mb-2.5 flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-[.12em] text-mute">
-          <DollarSign size={12} className="text-accent" />
-          Revenue
-        </span>
+    <div className="flex flex-col gap-3 rounded-card border border-line bg-panel px-4 py-3.5">
+      {/* Header: icon chip + label + delta */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] border border-accent/[.28] bg-accent/[.13] text-accent">
+            <DollarSign size={14} />
+          </span>
+          <span className="truncate font-mono text-[10.5px] uppercase tracking-[.12em] text-mute">
+            Revenue · Total
+          </span>
+        </div>
         <span
-          className={`inline-flex items-center gap-[3px] font-mono text-[11.5px] font-semibold ${
+          className={`inline-flex shrink-0 items-center gap-[3px] font-mono text-[11.5px] font-semibold ${
             isPositive ? 'text-pos' : 'text-neg'
           }`}
         >
@@ -62,17 +72,33 @@ const RevenueStats: React.FC = () => {
       </div>
 
       {/* Total */}
-      <p className="font-mono text-[26px] font-semibold leading-none tracking-[-.02em] text-body">
+      <p className="font-mono text-[28px] font-semibold leading-none tracking-[-.02em] text-body">
         R{formatCurrency(overallTotal)}
+        <span className="ml-1.5 font-mono text-[10px] font-medium uppercase tracking-[.12em] text-mute">
+          All-time
+        </span>
       </p>
 
-      {/* This Month vs Last Month */}
-      <div className="mt-3 flex items-center justify-between border-t border-line pt-2 font-mono text-[11px] text-dim">
-        <span>
-          R{formatCurrency(revenueThisMonth)}
-          <span className="text-mute"> mo</span>
-        </span>
-        <span className="text-mute">prev R{formatCurrency(revenueLastMonth)}</span>
+      {/* This month / Last month progress bars */}
+      <div className="flex flex-col gap-2.5 border-t border-line pt-3">
+        <div>
+          <div className="mb-1 flex items-center justify-between font-mono">
+            <span className="text-[10px] uppercase tracking-[.12em] text-mute">This Month</span>
+            <span className="text-[11px] font-bold text-body">R{formatCurrency(revenueThisMonth)}</span>
+          </div>
+          <div className="h-[5px] overflow-hidden rounded-full bg-panel2">
+            <div className="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${thisPct}%` }} />
+          </div>
+        </div>
+        <div>
+          <div className="mb-1 flex items-center justify-between font-mono">
+            <span className="text-[10px] uppercase tracking-[.12em] text-mute">Last Month</span>
+            <span className="text-[11px] font-bold text-dim">R{formatCurrency(revenueLastMonth)}</span>
+          </div>
+          <div className="h-[5px] overflow-hidden rounded-full bg-panel2">
+            <div className="h-full rounded-full bg-mute transition-all duration-500" style={{ width: `${lastPct}%` }} />
+          </div>
+        </div>
       </div>
     </div>
   );

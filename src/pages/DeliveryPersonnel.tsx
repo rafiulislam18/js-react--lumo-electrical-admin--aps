@@ -16,6 +16,8 @@ import {
   Package,
 } from 'lucide-react';
 import CreateDeliveryPersonnelModal from '../components/CreateDeliveryPersonnelModal';
+import DeliveryPersonnelDetailModal from '../components/DeliveryPersonnelDetailModal';
+import OrderDetailModal from '../components/OrderDetailModal';
 
 interface DeliveryPersonnel {
   id: number;
@@ -31,6 +33,10 @@ interface DeliveryPersonnel {
 
 interface DeliveryPersonnelStats {
   total: number;
+  with_active: number;
+  without_active: number;
+  active_deliveries: number;
+  total_delivered: number;
 }
 
 interface DeliveryPersonnelListResponse {
@@ -54,6 +60,9 @@ const DeliveryPersonnelPage: React.FC = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [detailPerson, setDetailPerson] = useState<DeliveryPersonnel | null>(null);
+  const [detailOrderId, setDetailOrderId] = useState<number | null>(null);
+  const [availabilityFilter, setAvailabilityFilter] = useState<'all' | 'active' | 'idle'>('all');
 
   // Stats locked at initial load — not affected by search or pagination
   const [stats, setStats] = useState<DeliveryPersonnelStats | null>(null);
@@ -68,7 +77,7 @@ const DeliveryPersonnelPage: React.FC = () => {
 
   useEffect(() => {
     fetchPersonnel();
-  }, [currentPage, pageSize, debouncedSearch, refreshTrigger]);
+  }, [currentPage, pageSize, debouncedSearch, availabilityFilter, refreshTrigger]);
 
   const fetchPersonnel = useCallback(async () => {
     try {
@@ -79,6 +88,7 @@ const DeliveryPersonnelPage: React.FC = () => {
         page_size: pageSize.toString(),
       });
       if (debouncedSearch) params.append('search', debouncedSearch);
+      if (availabilityFilter !== 'all') params.append('availability', availabilityFilter);
       const response = await authenticatedFetch(`/users/admin/delivery-personnel/?${params}`);
       if (!response.ok) {
         const errorText = await response.text();
@@ -93,7 +103,7 @@ const DeliveryPersonnelPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearch]);
+  }, [currentPage, pageSize, debouncedSearch, availabilityFilter]);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -154,20 +164,83 @@ const DeliveryPersonnelPage: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-3 mb-6 lg:mb-8 max-w-xs">
-        <div className="bg-panel border border-line rounded-card px-4 py-3.5">
-          <div className="flex items-center justify-between mb-2.5">
-            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Couriers</span>
-            <Truck size={14} className="text-accent" />
-          </div>
-          <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">{stats?.total ?? '—'}</p>
-          <p className="mt-2 font-mono text-[11px] text-mute">total personnel</p>
-        </div>
-      </div>
+      {(() => {
+        const orderTotal = stats ? stats.active_deliveries + stats.total_delivered : 0;
+        const deliveredPct = orderTotal > 0 ? Math.round((stats!.total_delivered / orderTotal) * 100) : 0;
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 lg:mb-8">
+            {/* Total personnel */}
+            <div className="bg-panel border border-line rounded-card px-4 py-3.5">
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Couriers</span>
+                <Truck size={14} className="text-accent" />
+              </div>
+              <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">{stats?.total ?? '—'}</p>
+              <p className="mt-2 font-mono text-[11px] text-mute">total personnel</p>
+            </div>
 
-      {/* Search and Add */}
-      <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row gap-3">
-        <div className="flex-1 relative flex items-center">
+            {/* Active vs Delivered */}
+            <div className="bg-panel border border-line rounded-card px-4 py-3.5">
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Deliveries</span>
+                <CheckCircle2 size={14} className="text-pos" />
+              </div>
+              <p className="font-mono text-[26px] font-semibold text-pos tracking-[-.02em] leading-none">
+                {stats ? `${deliveredPct}% delivered` : '—'}
+              </p>
+              {/* Two-segment bar: delivered (green) + active (amber) */}
+              <div className="mt-3 flex h-2 w-full overflow-hidden rounded-full bg-panel2">
+                {stats && orderTotal > 0 && (
+                  <>
+                    <div className="bg-pos" style={{ width: `${(stats.total_delivered / orderTotal) * 100}%` }} />
+                    <div className="bg-warn" style={{ width: `${(stats.active_deliveries / orderTotal) * 100}%` }} />
+                  </>
+                )}
+              </div>
+              <div className="mt-2.5 flex flex-wrap items-center gap-x-3.5 gap-y-1 font-mono text-[11px] text-mute">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-pos" />Delivered {stats?.total_delivered ?? '—'}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-warn" />Active {stats?.active_deliveries ?? '—'}
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Tabs + Search */}
+      <div className="mb-6 lg:mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        {/* Availability tabs */}
+        <div className="flex sm:inline-flex gap-[2px] bg-panel border border-line rounded-lg p-[3px] max-w-full overflow-x-auto">
+          {([
+            { value: 'all', label: 'All', count: stats?.total },
+            { value: 'active', label: 'With Active Deliveries', count: stats?.with_active },
+            { value: 'idle', label: 'No Active Deliveries', count: stats?.without_active },
+          ] as const).map(({ value, label, count }) => {
+            const on = availabilityFilter === value;
+            return (
+              <button
+                key={value}
+                onClick={() => { setAvailabilityFilter(value); setCurrentPage(1); }}
+                className={on
+                  ? 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md bg-panel2 text-body shadow-[inset_0_0_0_1px_#23262d] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'
+                  : 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md text-mute hover:text-dim font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'}
+              >
+                {label}
+                {count != null && (
+                  <span className={`text-[10.5px] font-bold rounded px-[5px] ${on ? 'text-accent bg-accent/15' : 'text-mute bg-panel2'}`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Search */}
+        <div className="relative flex items-center lg:w-[280px]">
           <Search className="absolute left-2.5 text-mute pointer-events-none" size={14} />
           <input
             type="text"
@@ -197,7 +270,9 @@ const DeliveryPersonnelPage: React.FC = () => {
         <div className="text-center py-[54px] text-mute">
           <Truck size={30} className="mx-auto opacity-50" />
           <p className="mt-3 text-[13.5px] font-semibold text-dim">No delivery personnel found</p>
-          {debouncedSearch && <p className="mt-1 text-xs">Try adjusting your search</p>}
+          {(debouncedSearch || availabilityFilter !== 'all') && (
+            <p className="mt-1 text-xs">Try adjusting your search or filter</p>
+          )}
         </div>
       ) : (
         <>
@@ -205,7 +280,16 @@ const DeliveryPersonnelPage: React.FC = () => {
             {personnel.map((person) => (
               <div
                 key={person.id}
-                className="bg-panel border border-line rounded-card hover:border-[#3a3d44] transition-colors"
+                role="button"
+                tabIndex={0}
+                onClick={() => setDetailPerson(person)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setDetailPerson(person);
+                  }
+                }}
+                className="bg-panel border border-line rounded-card hover:bg-panel2/40 hover:border-[#3a3d44] transition-colors cursor-pointer outline-none focus-visible:border-accent/60 focus-visible:ring-1 focus-visible:ring-accent/40"
               >
                 <div className="p-4 sm:p-5 flex items-center gap-4">
                   {/* Avatar */}
@@ -270,12 +354,18 @@ const DeliveryPersonnelPage: React.FC = () => {
 
                   {/* Delete */}
                   <button
-                    onClick={() => setDeleteConfirm({ id: person.id, name: `${person.first_name} ${person.last_name}` })}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteConfirm({ id: person.id, name: `${person.first_name} ${person.last_name}` });
+                    }}
                     className="flex-shrink-0 w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-neg/30 text-neg hover:bg-neg/10 transition"
                     title="Remove personnel"
                   >
                     <Trash2 size={15} />
                   </button>
+
+                  {/* Click affordance */}
+                  <ChevronRight size={18} className="flex-shrink-0 text-mute" />
                 </div>
 
                 {/* Mobile stats and joined */}
@@ -351,6 +441,23 @@ const DeliveryPersonnelPage: React.FC = () => {
         <CreateDeliveryPersonnelModal
           onClose={() => setShowModal(false)}
           onSuccess={handlePersonnelCreated}
+        />
+      )}
+
+      {/* Personnel Detail Modal — order IDs by status */}
+      {detailPerson && (
+        <DeliveryPersonnelDetailModal
+          personnel={detailPerson}
+          onClose={() => setDetailPerson(null)}
+          onOpenOrder={(orderId) => setDetailOrderId(orderId)}
+        />
+      )}
+
+      {/* Order Detail Modal — opened from an order chip */}
+      {detailOrderId !== null && (
+        <OrderDetailModal
+          orderId={detailOrderId}
+          onClose={() => setDetailOrderId(null)}
         />
       )}
 

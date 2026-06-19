@@ -8,15 +8,14 @@ import {
   Phone,
   MapPin,
   Building2,
-  ChevronDown,
   AlertCircle,
   Loader,
   ChevronLeft,
   ChevronRight,
   Users,
   ShoppingBag,
-  BadgeCheck,
 } from 'lucide-react';
+import CustomersPageStats from '../components/CustomersPageStats';
 
 interface CustomerProfile {
   phone?: string;
@@ -54,6 +53,14 @@ interface CustomerStats {
   total: number;
   trade: number;
   retail: number;
+  acquisition_series: number[];
+  acquisition_change: number | null;
+  acquisition_last_12: number;
+  new_30d: number;
+  returning_30d: number;
+  not_ordered: number;
+  returning_pct: number;
+  avg_order_value: number;
 }
 
 interface CustomerListResponse {
@@ -194,45 +201,7 @@ const Customers: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6 lg:mb-8">
-        <div className="bg-panel border border-line rounded-card px-4 py-3.5">
-          <div className="flex items-center justify-between mb-2.5">
-            <div className="rounded-[7px] bg-accent/[.13] border border-accent/[.26] p-2">
-              <Users size={16} className="text-accent" />
-            </div>
-            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Total</span>
-          </div>
-          <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">{stats?.total ?? '—'}</p>
-          <p className="mt-2 font-mono text-[11px] text-mute">customers</p>
-        </div>
-
-        <div className="bg-panel border border-line rounded-card px-4 py-3.5">
-          <div className="flex items-center justify-between mb-2.5">
-            <div className="rounded-[7px] bg-info/[.13] border border-info/[.26] p-2">
-              <Building2 size={16} className="text-info" />
-            </div>
-            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Trade</span>
-          </div>
-          <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">
-            {stats?.trade ?? '—'}
-          </p>
-          <p className="mt-2 font-mono text-[11px] text-mute">trade members</p>
-        </div>
-
-        <div className="bg-panel border border-line rounded-card px-4 py-3.5">
-          <div className="flex items-center justify-between mb-2.5">
-            <div className="rounded-[7px] bg-pos/[.13] border border-pos/[.26] p-2">
-              <BadgeCheck size={16} className="text-pos" />
-            </div>
-            <span className="font-mono text-[10.5px] tracking-[.12em] uppercase text-mute">Retail</span>
-          </div>
-          <p className="font-mono text-[26px] font-semibold text-body tracking-[-.02em] leading-none">
-            {stats?.retail ?? '—'}
-          </p>
-          <p className="mt-2 font-mono text-[11px] text-mute">retail members</p>
-        </div>
-
-      </div>
+      <CustomersPageStats stats={stats} />
 
       {/* Search + Filter + Sort */}
       <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row gap-3">
@@ -437,7 +406,26 @@ const Customers: React.FC = () => {
                   className="overflow-hidden rounded-card border border-line bg-panel transition-colors hover:border-[#3a3d44]"
                 >
                   {/* Main row */}
-                  <div className="p-4 sm:p-5">
+                  <div
+                    {...(customer.customer_profile
+                      ? {
+                          role: 'button' as const,
+                          tabIndex: 0,
+                          onClick: () => toggleExpand(customer.id),
+                          onKeyDown: (e: React.KeyboardEvent) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              toggleExpand(customer.id);
+                            }
+                          },
+                        }
+                      : {})}
+                    className={`p-4 sm:p-5 outline-none ${
+                      customer.customer_profile
+                        ? 'cursor-pointer transition-colors hover:bg-panel2/40 focus-visible:bg-panel2/40'
+                        : ''
+                    }`}
+                  >
                     <div className="flex items-center gap-4">
                       {/* Avatar */}
                       <div className={`flex-shrink-0 w-11 h-11 rounded-[7px] bg-panel2 border flex items-center justify-center text-xs font-bold font-mono ${getAvatarGradient(type)}`}>
@@ -489,22 +477,12 @@ const Customers: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Expand button */}
+                      {/* Expand affordance */}
                       {customer.customer_profile && (
-                        <button
-                          onClick={() => toggleExpand(customer.id)}
-                          className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] border transition-colors ${
-                            isExpanded
-                              ? 'bg-accent/15 text-accent border-accent/40'
-                              : 'bg-panel2 text-dim border-line hover:text-body hover:border-[#3a3d44]'
-                          }`}
-                        >
-                          <ChevronDown
-                            size={14}
-                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-                          />
-                          <span className="hidden sm:inline">Details</span>
-                        </button>
+                        <ChevronRight
+                          size={18}
+                          className={`flex-shrink-0 text-mute transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+                        />
                       )}
                     </div>
 

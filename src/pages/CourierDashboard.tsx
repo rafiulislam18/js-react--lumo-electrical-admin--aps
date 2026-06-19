@@ -109,7 +109,7 @@ const CourierDashboard: React.FC = () => {
           <div className="bg-panel border border-line rounded-card text-center py-[54px] px-4 text-mute">
             <Package size={30} className="mx-auto opacity-50" />
             <p className="mt-3 text-[13.5px] font-semibold text-dim">No active deliveries</p>
-            <p className="mt-1 text-xs">You have no orders out for delivery right now.</p>
+            <p className="mt-1 text-xs">You have no orders assigned to you right now.</p>
           </div>
         ) : (
           <div className="space-y-3">

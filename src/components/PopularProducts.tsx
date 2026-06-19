@@ -34,8 +34,9 @@ const PopularProducts: React.FC = () => {
     }
   };
 
-  // Use fetched data or fallback to empty
-  const maxSold = products[0]?.sold_count || 1;
+  // Top 6, as in the Command mockup
+  const topProducts = products.slice(0, 6);
+  const maxSold = topProducts[0]?.sold_count || 1;
 
   return (
     <div className="flex min-w-0 flex-col rounded-card border border-line bg-panel">
@@ -45,7 +46,7 @@ const PopularProducts: React.FC = () => {
           <TrendingUp size={13} className="text-accent" />
           Popular Products
         </span>
-        <span className="font-mono text-[11px] text-mute">TOP SELLERS</span>
+        <span className="font-mono text-[11px] text-mute">TOP 6</span>
       </div>
 
       {/* Table */}
@@ -61,7 +62,7 @@ const PopularProducts: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map((product, index) => {
+            {topProducts.map((product, index) => {
               const isTop = index === 0;
               const widthPct = (product.sold_count / maxSold) * 100;
 

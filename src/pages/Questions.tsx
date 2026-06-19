@@ -2,20 +2,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { authenticatedFetch } from '../lib/api';
 import {
   Search,
-  HelpCircle,
   CheckCircle2,
-  Clock,
-  Tag,
-  MessageSquare,
   Send,
   Loader,
   AlertCircle,
   ChevronLeft,
   ChevronRight,
-  SlidersHorizontal,
   ArrowUpDown,
   Package,
 } from 'lucide-react';
+import QuestionsPageStats from '../components/QuestionsPageStats';
 
 interface Question {
   id: number;
@@ -24,12 +20,16 @@ interface Question {
   asker_name: string;
   date: string;
   is_answered: boolean;
+  answer: string | null;
+  answered_at: string | null;
 }
 
 interface QuestionStats {
   total: number;
   unanswered: number;
   answered: number;
+  avg_response_hours: number | null;
+  response_weekly: (number | null)[];
 }
 
 interface QuestionListResponse {
@@ -51,8 +51,7 @@ const Questions: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<QuestionStats | null>(null);
 
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('false');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showSortMenu, setShowSortMenu] = useState(false);
@@ -64,16 +63,15 @@ const Questions: React.FC = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (!target.closest('.filter-menu-container') && !target.closest('.sort-menu-container')) {
-        setShowFilterMenu(false);
+      if (!target.closest('.sort-menu-container')) {
         setShowSortMenu(false);
       }
     };
-    if (showFilterMenu || showSortMenu) {
+    if (showSortMenu) {
       document.addEventListener('click', handleClickOutside);
       return () => document.removeEventListener('click', handleClickOutside);
     }
-  }, [showFilterMenu, showSortMenu]);
+  }, [showSortMenu]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -158,7 +156,16 @@ const Questions: React.FC = () => {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const getProductInitial = (product: string) => product.charAt(0).toUpperCase();
+  const getInitials = (name: string) =>
+    name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w.charAt(0).toUpperCase())
+      .join('') || '?';
+
+  const formatDate = (value: string) =>
+    new Date(value).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
     <>
@@ -174,92 +181,48 @@ const Questions: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6 lg:mb-8">
-        <div className="bg-panel border border-line rounded-lg px-3.5 py-2.5">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Total</span>
-            <HelpCircle size={13} className="text-info" />
-          </div>
-          <p className="font-mono text-[19px] font-semibold text-body mt-1 leading-none">{stats?.total ?? '—'}</p>
-          <p className="mt-1.5 font-mono text-[11px] text-mute">all questions</p>
+      <QuestionsPageStats stats={stats} />
+
+      {/* Status Tabs + Search + Sort */}
+      <div className="mb-6 lg:mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        {/* Status segmented tabs — left */}
+        <div className="inline-flex gap-[2px] bg-panel border border-line rounded-lg p-[3px] self-start max-w-full overflow-x-auto">
+          {([
+            { value: 'false', label: 'Unanswered', count: stats?.unanswered },
+            { value: 'true', label: 'Answered', count: stats?.answered },
+            { value: '', label: 'All', count: stats?.total },
+          ] as const).map(({ value, label, count }) => {
+            const on = statusFilter === value;
+            return (
+              <button
+                key={label}
+                onClick={() => { setStatusFilter(value); setCurrentPage(1); }}
+                className={on
+                  ? 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md bg-panel2 text-body shadow-[inset_0_0_0_1px_#23262d] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'
+                  : 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md text-mute hover:text-dim font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'}
+              >
+                {label}
+                {count != null && (
+                  <span className={`text-[10.5px] font-bold rounded px-[5px] ${on ? 'text-accent bg-accent/15' : 'text-mute bg-panel2'}`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="bg-panel border border-line rounded-lg px-3.5 py-2.5">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Pending</span>
-            <Clock size={13} className="text-warn" />
-          </div>
-          <p className="font-mono text-[19px] font-semibold text-warn mt-1 leading-none">{stats?.unanswered ?? '—'}</p>
-          <p className="mt-1.5 font-mono text-[11px] text-mute">unanswered</p>
-        </div>
-
-        <div className="bg-panel border border-line rounded-lg px-3.5 py-2.5">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Done</span>
-            <CheckCircle2 size={13} className="text-pos" />
-          </div>
-          <p className="font-mono text-[19px] font-semibold text-pos mt-1 leading-none">{stats?.answered ?? '—'}</p>
-          <p className="mt-1.5 font-mono text-[11px] text-mute">answered</p>
-        </div>
-      </div>
-
-      {/* Search + Filter + Sort */}
-      <div className="mb-6 lg:mb-8">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-mute z-10" size={14} />
+        {/* Search + Sort — right */}
+        <div className="flex gap-2.5">
+          <div className="flex-1 lg:flex-none lg:w-[280px] relative flex items-center">
+            <Search className="absolute left-2.5 text-mute pointer-events-none" size={14} />
             <input
               type="text"
-              placeholder="Search by product, question, or asker name..."
+              placeholder="Search by product, question, or asker..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-8 pr-3 py-2 bg-panel border border-line rounded-[7px] text-[12.5px] text-body placeholder:text-mute outline-none focus:border-accent/50 transition"
             />
-          </div>
-
-          {/* Filter Menu */}
-          <div className="relative filter-menu-container">
-            <button
-              type="button"
-              onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className={`inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
-                showFilterMenu || statusFilter
-                  ? 'bg-panel2 text-body border-accent/40'
-                  : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
-              }`}
-            >
-              <SlidersHorizontal size={14} />
-              <span>Filter</span>
-              {statusFilter && (
-                <span className="ml-1 w-2 h-2 rounded-full bg-accent flex-shrink-0" />
-              )}
-            </button>
-            {showFilterMenu && (
-              <div className="absolute right-0 mt-2 w-52 bg-panel rounded-card border border-line shadow-[0_30px_80px_-20px_rgba(0,0,0,.87)] z-20 animate-pop">
-                <div className="p-4 space-y-2">
-                  <label className="font-mono text-[10.5px] font-semibold tracking-[.12em] uppercase text-mute mb-2 block">
-                    Status
-                  </label>
-                  {([
-                    { value: '', label: 'All Questions' },
-                    { value: 'false', label: 'Unanswered' },
-                    { value: 'true', label: 'Answered' },
-                  ] as const).map(({ value, label }) => (
-                    <button
-                      key={value}
-                      onClick={() => { setStatusFilter(value); setCurrentPage(1); setShowFilterMenu(false); }}
-                      className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors border ${
-                        statusFilter === value
-                          ? 'bg-accent/15 text-accent border-accent/30'
-                          : 'bg-panel2 text-dim border-transparent hover:text-body'
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Sort Menu */}
@@ -334,61 +297,72 @@ const Questions: React.FC = () => {
               <div
                 key={item.id}
                 className={`border border-line rounded-lg bg-panel2 transition-colors hover:border-[#3a3d44] ${
-                  item.is_answered ? '' : 'border-l-2 border-l-warn'
+                  item.is_answered ? '' : 'border-l-2 border-l-warn hover:border-l-warn'
                 }`}
               >
                 <div className="px-3.5 py-[13px] sm:p-4">
                   <div className="flex gap-3.5">
-                    {/* Avatar */}
+                    {/* Avatar — asker initials */}
                     <div className="w-[34px] h-[34px] rounded-[7px] shrink-0 flex items-center justify-center bg-panel border border-line text-dim font-bold font-mono text-xs">
-                      {getProductInitial(item.product)}
+                      {getInitials(item.asker_name)}
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      {/* Product + Status */}
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <Tag size={12} className="flex-shrink-0 text-accent" />
-                          <p className="text-[11.5px] font-semibold text-accent truncate">{item.product}</p>
-                        </div>
+                      {/* Name + Status + Date */}
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[13px] font-semibold text-body truncate">{item.asker_name}</span>
                         {item.is_answered ? (
-                          <span className="flex-shrink-0 inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-pos bg-pos/[.13] border border-pos/[.28]">
-                            <CheckCircle2 size={10} /> Answered
+                          <span className="flex-shrink-0 inline-flex items-center gap-[5px] font-mono text-[10px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-pos bg-pos/[.13] border border-pos/[.28]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-pos" /> Answered
                           </span>
                         ) : (
-                          <span className="flex-shrink-0 inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-warn bg-warn/[.13] border border-warn/[.28]">
-                            <Clock size={10} /> Pending
+                          <span className="flex-shrink-0 inline-flex items-center gap-[5px] font-mono text-[10px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-warn bg-warn/[.13] border border-warn/[.28]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-warn" /> Unanswered
                           </span>
                         )}
+                        <span className="ml-auto flex-shrink-0 font-mono text-[10.5px] text-mute">{formatDate(item.date)}</span>
+                      </div>
+
+                      {/* Product */}
+                      <div className="flex items-center gap-1.5 mb-2 min-w-0">
+                        <Package size={12} className="flex-shrink-0 text-accent" />
+                        <p className="text-[11.5px] font-semibold text-accent truncate">{item.product}</p>
                       </div>
 
                       {/* Question */}
-                      <p className="text-[13.5px] leading-[1.55] text-dim mb-2">
-                        <MessageSquare size={12} className="mr-1.5 inline text-mute" />
-                        {item.question}
-                      </p>
+                      <p className="text-[13.5px] leading-[1.55] text-dim">{item.question}</p>
 
-                      {/* Meta + Reply button */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 text-[11px] text-mute">
-                          <span className="font-semibold text-[12px] text-body">{item.asker_name}</span>
-                          <span>·</span>
-                          <span className="font-mono">{new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</span>
+                      {/* Footer — Reply button (open) or answer (answered) */}
+                      {item.is_answered ? (
+                        <div className="mt-2.5">
+                          <div className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-pos">
+                            <CheckCircle2 size={12} /> Replied by Admin
+                          </div>
+                          {item.answer && (
+                            <div className="mt-2 flex gap-3 rounded-[7px] border border-line bg-panel px-3 py-2.5">
+                              <p className="min-w-0 flex-1 text-[12.5px] leading-[1.55] text-dim">{item.answer}</p>
+                              {item.answered_at && (
+                                <p className="flex-shrink-0 font-mono text-[10px] text-mute">{formatDate(item.answered_at)}</p>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        {!item.is_answered && (
+                      ) : (
+                        <div className="mt-2.5">
                           <button
                             onClick={() => handleReply(item.id)}
                             disabled={submitting && replyingTo === item.id}
-                            className={`inline-flex items-center gap-[7px] px-2.5 py-1.5 text-xs font-bold rounded-[7px] border transition whitespace-nowrap ${
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-[7px] border transition whitespace-nowrap ${
                               replyingTo === item.id
                                 ? 'bg-accent/15 text-accent border-accent/30'
                                 : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
                             }`}
                           >
-                            {replyingTo === item.id ? 'Cancel' : 'Answer'}
+                            <Send size={12} />
+                            {replyingTo === item.id ? 'Cancel' : 'Reply'}
                           </button>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 

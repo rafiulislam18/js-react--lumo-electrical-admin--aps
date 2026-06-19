@@ -17,7 +17,7 @@ const MainLayout: React.FC = () => {
         <Header onMenuClick={() => setSidebarOpen(true)}/>
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="px-4 sm:px-[22px] pt-5 pb-12 max-w-[1320px] mx-auto">
+          <div className="px-4 sm:px-[22px] pt-5 pb-12 max-w-[1320px] 2xl:max-w-[1760px] min-[1920px]:max-w-[2200px] mx-auto">
             {/* Page content will be rendered here via Outlet */}
             <Outlet />
           </div>

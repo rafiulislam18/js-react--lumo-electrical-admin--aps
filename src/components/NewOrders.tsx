@@ -19,8 +19,16 @@ interface DeliveryPersonnel {
   last_name: string;
 }
 
-const NewOrders: React.FC = () => {
+interface NewOrdersProps {
+  /** Render only the rows (no panel chrome) — used inside the dashboard modal. */
+  bare?: boolean;
+  /** Reports the number of unassigned orders upward (dock button counts). */
+  onCountChange?: (count: number) => void;
+}
+
+const NewOrders: React.FC<NewOrdersProps> = ({ bare = false, onCountChange }) => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [deliveryPersonnel, setDeliveryPersonnel] = useState<DeliveryPersonnel[]>([]);
   const [assigning, setAssigning] = useState<number | null>(null);
 
@@ -29,6 +37,11 @@ const NewOrders: React.FC = () => {
     fetchDeliveryPersonnel();
   }, []);
 
+  // Report the true total (not just the ≤10 shown) so dashboard badges stay accurate
+  useEffect(() => {
+    onCountChange?.(totalCount);
+  }, [totalCount, onCountChange]);
+
   const fetchUnassignedOrders = async () => {
     try {
       const response = await authenticatedFetch('/analytics/unassigned-paid-orders/');
@@ -36,6 +49,7 @@ const NewOrders: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setOrders(data.orders);
+        setTotalCount(data.count ?? data.orders.length);
       }
     } catch (error) {
       console.error('Failed to fetch unassigned orders:', error);
@@ -76,12 +90,15 @@ const NewOrders: React.FC = () => {
       });
 
       if (response.ok) {
+        // Optimistically drop the assigned order, then silently refetch so the
+        // next order (the 11th) slides into the freed slot and count updates.
         setOrders(prev => prev.filter(o => o.id !== orderId));
         setSelectedAssignments(prev => {
           const updated = { ...prev };
           delete updated[orderId];
           return updated;
         });
+        fetchUnassignedOrders();
       } else {
         alert(`Failed to assign order ${orderId} to ${personName}`);
       }
@@ -95,6 +112,86 @@ const NewOrders: React.FC = () => {
 
   const pendingCount = orders.filter(o => o.status === 'order_placed').length;
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+  const rows = orders.map(order => {
+    const isPending = order.status === 'order_placed';
+    return (
+      <div
+        key={order.id}
+        className={`rounded-lg border border-line border-l-2 bg-panel2 px-3.5 py-[13px] ${
+          isPending ? 'border-l-warn' : 'border-l-accent'
+        }`}
+      >
+        <div className="mb-3 flex items-start justify-between gap-2">
+          <div className="flex min-w-0 flex-1 items-start gap-2.5">
+            {/* Customer avatar */}
+            <div className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-[7px] border border-line bg-panel font-mono text-xs font-bold text-dim">
+              {getInitials(order.customer_name)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-mono text-[13px] font-semibold text-body">ORD-{order.id}</p>
+                <span
+                  className={`inline-flex whitespace-nowrap rounded-[5px] px-2 py-[3px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] ${
+                    isPending
+                      ? 'border border-warn/[.28] bg-warn/[.13] text-warn'
+                      : 'border border-accent/[.28] bg-accent/[.13] text-accent'
+                  }`}
+                >
+                  {isPending ? 'Pending' : 'Confirmed'}
+                </span>
+              </div>
+              <div className="mt-0.5 flex items-center gap-1">
+                <User size={12} className="text-mute" />
+                <p className="truncate text-xs text-dim">{order.customer_name}</p>
+              </div>
+            </div>
+          </div>
+          <p className="flex-shrink-0 font-mono text-sm font-bold text-body">
+            R{parseFloat(order.total).toLocaleString()}
+          </p>
+        </div>
+
+        <div className="mb-3 flex items-center gap-1.5 font-mono text-[11px] text-mute">
+          <Clock size={12} className="flex-shrink-0" />
+          <p>{new Date(order.order_date).toLocaleDateString()}</p>
+        </div>
+
+        <div className="flex items-stretch gap-2">
+          <select
+            value={selectedAssignments[order.id] || ''}
+            onChange={(e) => handleAssign(order.id, e.target.value)}
+            className="min-w-0 flex-1 rounded-[7px] border border-line bg-panel px-2.5 py-2 text-xs text-body outline-none transition-colors focus:border-accent/50"
+          >
+            <option value="" disabled>Select courier...</option>
+            {deliveryPersonnel.map(person => (
+              <option key={person.id} value={person.id}>{person.first_name} {person.last_name}</option>
+            ))}
+          </select>
+          <button
+            onClick={() => handleConfirmAssignment(order.id)}
+            disabled={!selectedAssignments[order.id] || assigning === order.id}
+            className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 rounded-[7px] border border-accent bg-accent px-3 py-2 text-xs font-bold text-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:border-line disabled:bg-panel disabled:text-mute"
+          >
+            <Send size={13} />
+            <span className="hidden sm:inline">{assigning === order.id ? 'Assigning...' : 'Assign'}</span>
+          </button>
+        </div>
+      </div>
+    );
+  });
+
+  const empty = (
+    <div className="py-[54px] text-center text-mute">
+      <Truck size={30} className="mx-auto opacity-50" />
+      <p className="mt-3 text-[13.5px] font-semibold text-dim">No new orders</p>
+      <p className="mt-1 text-xs">Nothing awaiting a courier</p>
+    </div>
+  );
+
+  if (bare) {
+    return orders.length > 0 ? <div className="space-y-2.5">{rows}</div> : empty;
+  }
 
   return (
     <div className="flex min-w-0 flex-col rounded-card border border-line bg-panel">
@@ -113,81 +210,10 @@ const NewOrders: React.FC = () => {
       </div>
 
       <div className="flex-1 space-y-2.5 overflow-y-auto p-4" style={{ maxHeight: '24rem' }}>
-        {orders.map(order => {
-          const isPending = order.status === 'order_placed';
-          return (
-            <div
-              key={order.id}
-              className={`rounded-lg border border-line border-l-2 bg-panel2 px-3.5 py-[13px] ${
-                isPending ? 'border-l-warn' : 'border-l-accent'
-              }`}
-            >
-              <div className="mb-3 flex items-start justify-between gap-2">
-                <div className="flex min-w-0 flex-1 items-start gap-2.5">
-                  {/* Customer avatar */}
-                  <div className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-[7px] border border-line bg-panel font-mono text-xs font-bold text-dim">
-                    {getInitials(order.customer_name)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-mono text-[13px] font-semibold text-body">ORD-{order.id}</p>
-                      <span
-                        className={`inline-flex whitespace-nowrap rounded-[5px] px-2 py-[3px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] ${
-                          isPending
-                            ? 'border border-warn/[.28] bg-warn/[.13] text-warn'
-                            : 'border border-accent/[.28] bg-accent/[.13] text-accent'
-                        }`}
-                      >
-                        {isPending ? 'Pending' : 'Confirmed'}
-                      </span>
-                    </div>
-                    <div className="mt-0.5 flex items-center gap-1">
-                      <User size={12} className="text-mute" />
-                      <p className="truncate text-xs text-dim">{order.customer_name}</p>
-                    </div>
-                  </div>
-                </div>
-                <p className="flex-shrink-0 font-mono text-sm font-bold text-body">
-                  R{parseFloat(order.total).toLocaleString()}
-                </p>
-              </div>
-
-              <div className="mb-3 flex items-center gap-1.5 font-mono text-[11px] text-mute">
-                <Clock size={12} className="flex-shrink-0" />
-                <p>{new Date(order.order_date).toLocaleDateString()}</p>
-              </div>
-
-              <div className="flex items-stretch gap-2">
-                <select
-                  value={selectedAssignments[order.id] || ''}
-                  onChange={(e) => handleAssign(order.id, e.target.value)}
-                  className="min-w-0 flex-1 rounded-[7px] border border-line bg-panel px-2.5 py-2 text-xs text-body outline-none transition-colors focus:border-accent/50"
-                >
-                  <option value="" disabled>Select courier...</option>
-                  {deliveryPersonnel.map(person => (
-                    <option key={person.id} value={person.id}>{person.first_name} {person.last_name}</option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => handleConfirmAssignment(order.id)}
-                  disabled={!selectedAssignments[order.id] || assigning === order.id}
-                  className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 rounded-[7px] border border-accent bg-accent px-3 py-2 text-xs font-bold text-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:border-line disabled:bg-panel disabled:text-mute"
-                >
-                  <Send size={13} />
-                  <span className="hidden sm:inline">{assigning === order.id ? 'Assigning...' : 'Assign'}</span>
-                </button>
-              </div>
-            </div>
-          );
-        })}
+        {rows}
       </div>
 
-      {orders.length === 0 && (
-        <div className="py-[54px] text-center text-mute">
-          <Truck size={30} className="mx-auto opacity-50" />
-          <p className="mt-3 text-[13.5px] font-semibold text-dim">No new orders</p>
-        </div>
-      )}
+      {orders.length === 0 && empty}
     </div>
   );
 };

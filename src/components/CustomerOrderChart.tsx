@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Users, ShoppingCart } from 'lucide-react';
 import { authenticatedFetch } from '../lib/api';
 
 interface BreakdownItem {
@@ -8,9 +7,19 @@ interface BreakdownItem {
   percentage: number;
 }
 
+const formatRand = (value: number): string => {
+  if (value >= 1000000) {
+    return 'R' + (value / 1000000).toFixed(1) + 'M';
+  } else if (value >= 1000) {
+    return 'R' + (value / 1000).toFixed(1) + 'K';
+  }
+  return 'R' + value.toFixed(2);
+};
+
 const CustomerOrderChart: React.FC = () => {
   const [breakdownData, setBreakdownData] = useState<BreakdownItem[]>([]);
   const [totalCustomers, setTotalCustomers] = useState(0);
+  const [avgOrderValue, setAvgOrderValue] = useState<number | null>(null);
 
   useEffect(() => {
     fetchCustomerOrderBreakdown();
@@ -24,115 +33,124 @@ const CustomerOrderChart: React.FC = () => {
         const data = await response.json();
         setBreakdownData(data.breakdown);
         setTotalCustomers(data.total_customers || 0);
+        const avg = parseFloat(data.avg_order_value);
+        setAvgOrderValue(Number.isNaN(avg) ? null : avg);
       }
     } catch (error) {
       console.error('Failed to fetch customer order breakdown:', error);
     }
   };
 
-  // Find the data for "Ordered This Month"
-  const orderedData = breakdownData.find(d => d.type === 'Ordered This Month') || { type: 'Ordered This Month', count: 0, percentage: 0 };
-  const notOrderedData = breakdownData.find(d => d.type.includes("Didn't Order")) || { type: "Didn't Order", count: 0, percentage: 0 };
+  // Last 30 days' three-way split: returning, new, and didn't order.
+  const returningData = breakdownData.find(d => d.type === 'Returning Customers') || { type: 'Returning Customers', count: 0, percentage: 0 };
+  const newData = breakdownData.find(d => d.type === 'New Customers') || { type: 'New Customers', count: 0, percentage: 0 };
+  const noOrderData = breakdownData.find(d => d.type.includes("Didn't Order")) || { type: "Didn't Order", count: 0, percentage: 0 };
 
-  const withOrdersPercent = orderedData.percentage;
-  const withoutOrdersPercent = notOrderedData.percentage;
+  // Center of the donut shows the share that ordered at all in the last 30 days.
+  const orderedPercent = returningData.percentage + newData.percentage;
 
-  const radius = 70;
+  // Donut geometry (size 120, thickness 18)
+  const size = 120;
+  const thickness = 18;
+  const radius = (size - thickness) / 2;
   const circumference = 2 * Math.PI * radius;
-  const withOrdersStrokeDashoffset = circumference - (withOrdersPercent / 100) * circumference;
+
+  // Each segment is drawn as a dash of length (pct * circumference), offset by
+  // the cumulative length of the segments before it. Negative dashoffset
+  // advances the dash clockwise around the (already -90°-rotated) circle.
+  const segments = [
+    { data: returningData, color: '#f6a821' }, // accent (amber)
+    { data: newData, color: '#6aa9ff' },       // blue
+    { data: noOrderData, color: '#3a3d44' },   // muted grey
+  ];
+  let cumulative = 0;
+  const arcs = segments.map((seg) => {
+    const len = (seg.data.percentage / 100) * circumference;
+    const arc = { color: seg.color, len, offset: -cumulative };
+    cumulative += len;
+    return arc;
+  });
+
+  const legend = [
+    { label: returningData.type, count: returningData.count, percentage: returningData.percentage, swatch: 'bg-[#f6a821]' },
+    { label: newData.type, count: newData.count, percentage: newData.percentage, swatch: 'bg-[#6aa9ff]' },
+    { label: noOrderData.type, count: noOrderData.count, percentage: noOrderData.percentage, swatch: 'bg-[#3a3d44]' },
+  ];
 
   return (
     <div className="flex min-w-0 flex-col rounded-card border border-line bg-panel">
       {/* Panel header */}
       <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-[11px]">
-        <span className="inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[.12em] text-dim">
-          <Users size={13} className="text-accent" />
+        <span className="font-mono text-[11px] font-semibold uppercase tracking-[.12em] text-dim">
           Customer Split
         </span>
-        <span className="font-mono text-[11px] text-mute">THIS MONTH</span>
+        <span className="font-mono text-[11px] text-mute">LAST 30 DAYS</span>
       </div>
 
       <div className="min-w-0 flex-1 p-4">
-        <div className="flex flex-col items-center justify-center gap-8 sm:flex-row sm:gap-12 lg:gap-16">
-          {/* Circular Chart */}
-          <div className="flex flex-col items-center">
-            <div className="relative h-52 w-52">
-              <svg className="relative h-full w-full -rotate-90 transform" viewBox="0 0 160 160">
-                <circle cx="80" cy="80" r={radius} fill="none" stroke="#181b21" strokeWidth="16" />
+        <div className="flex flex-col items-center gap-[18px] sm:flex-row">
+          {/* Donut */}
+          <div className="relative shrink-0" style={{ width: size, height: size }}>
+            <svg className="h-full w-full -rotate-90 transform" viewBox={`0 0 ${size} ${size}`}>
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                fill="none"
+                stroke="#181b21"
+                strokeWidth={thickness}
+              />
+              {arcs.map((arc, i) => (
                 <circle
-                  cx="80"
-                  cy="80"
+                  key={i}
+                  cx={size / 2}
+                  cy={size / 2}
                   r={radius}
                   fill="none"
-                  stroke="#f6a821"
-                  strokeWidth="16"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={withOrdersStrokeDashoffset}
+                  stroke={arc.color}
+                  strokeWidth={thickness}
+                  strokeDasharray={`${arc.len} ${circumference - arc.len}`}
+                  strokeDashoffset={arc.offset}
                   strokeLinecap="butt"
                   className="transition-all duration-700"
                 />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="font-mono text-3xl font-semibold tracking-[-.02em] text-body">
-                  {withOrdersPercent.toFixed(0)}%
-                </p>
-                <p className="mt-1 font-mono text-[9.5px] uppercase tracking-[.12em] text-mute">
-                  With Orders
-                </p>
-              </div>
+              ))}
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="font-mono text-[22px] font-semibold text-body">
+                {orderedPercent.toFixed(0)}%
+              </span>
+              <span className="font-mono text-[9.5px] uppercase tracking-[.12em] text-mute">
+                Ordered
+              </span>
             </div>
-            <p className="mt-5 text-center text-sm text-dim">
-              Out of{' '}
-              <span className="font-mono font-bold text-body">{totalCustomers.toLocaleString()}</span>{' '}
-              total customers
-            </p>
           </div>
 
           {/* Legend */}
-          <div className="w-full space-y-3 sm:w-auto sm:min-w-[220px]">
-            {/* Ordered This Month */}
-            <div className="rounded-lg border border-line border-l-2 border-l-accent bg-panel2 p-3.5">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="h-[9px] w-[9px] rounded-[2px] bg-accent" />
-                <ShoppingCart size={13} className="text-accent" />
-                <p className="font-mono text-xs font-semibold text-body">Ordered This Month</p>
+          <div className="flex w-full min-w-0 flex-1 flex-col gap-2.5">
+            {legend.map((b) => (
+              <div key={b.label} className="flex items-center gap-2 font-mono">
+                <span className={`h-[9px] w-[9px] shrink-0 rounded-[2px] ${b.swatch}`} />
+                <span className="min-w-0 flex-1 truncate text-xs text-dim">
+                  {b.label}
+                  <span className="text-mute"> · {b.count.toLocaleString()}</span>
+                </span>
+                <span className="text-[13px] font-bold text-body">{b.percentage.toFixed(0)}%</span>
               </div>
-              <p className="font-mono text-2xl font-semibold tracking-[-.02em] text-body">
-                {orderedData.count.toLocaleString()}
-                <span className="ml-1.5 font-mono text-[10.5px] uppercase tracking-[.08em] text-mute">customers</span>
-              </p>
-              <div className="mt-2 flex items-center gap-2">
-                <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-panel">
-                  <div
-                    className="h-full rounded-full bg-accent"
-                    style={{ width: `${withOrdersPercent}%` }}
-                  />
-                </div>
-                <p className="font-mono text-[11px] font-bold text-accent">{withOrdersPercent.toFixed(1)}%</p>
+            ))}
+
+            <div className="mt-1 border-t border-line pt-2.5 font-mono">
+              <span className="text-[9.5px] uppercase tracking-[.12em] text-mute">
+                Avg Order Value · Last 30 Days
+              </span>
+              <div className="mt-1 text-[19px] font-semibold text-body">
+                {avgOrderValue !== null ? formatRand(avgOrderValue) : '—'}
               </div>
             </div>
 
-            {/* Didn't Order */}
-            <div className="rounded-lg border border-line border-l-2 border-l-[#3a3d44] bg-panel2 p-3.5">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="h-[9px] w-[9px] rounded-[2px] bg-[#3a3d44]" />
-                <ShoppingCart size={13} className="text-dim" />
-                <p className="font-mono text-xs font-semibold text-body">Didn't Order</p>
-              </div>
-              <p className="font-mono text-2xl font-semibold tracking-[-.02em] text-body">
-                {notOrderedData.count.toLocaleString()}
-                <span className="ml-1.5 font-mono text-[10.5px] uppercase tracking-[.08em] text-mute">customers</span>
-              </p>
-              <div className="mt-2 flex items-center gap-2">
-                <div className="h-[5px] flex-1 overflow-hidden rounded-full bg-panel">
-                  <div
-                    className="h-full rounded-full bg-[#3a3d44]"
-                    style={{ width: `${withoutOrdersPercent}%` }}
-                  />
-                </div>
-                <p className="font-mono text-[11px] font-bold text-dim">{withoutOrdersPercent.toFixed(1)}%</p>
-              </div>
-            </div>
+            <p className="font-mono text-[10.5px] text-mute">
+              of {totalCustomers.toLocaleString()} total customers
+            </p>
           </div>
         </div>
       </div>

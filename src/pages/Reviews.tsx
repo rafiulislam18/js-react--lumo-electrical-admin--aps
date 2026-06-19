@@ -4,8 +4,6 @@ import {
   Search,
   Star,
   CheckCircle2,
-  Clock,
-  Tag,
   Send,
   Loader,
   AlertCircle,
@@ -15,6 +13,7 @@ import {
   ArrowUpDown,
   Package,
 } from 'lucide-react';
+import ReviewsPageStats from '../components/ReviewsPageStats';
 
 interface Review {
   id: number;
@@ -24,6 +23,8 @@ interface Review {
   reviewer_name: string;
   date: string;
   is_replied: boolean;
+  reply: string | null;
+  replied_at: string | null;
 }
 
 interface ReviewStats {
@@ -31,6 +32,7 @@ interface ReviewStats {
   unreplied: number;
   replied: number;
   avg_rating: number;
+  rating_counts: Record<string, number>;
 }
 
 interface ReviewListResponse {
@@ -64,7 +66,7 @@ const Reviews: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<ReviewStats | null>(null);
 
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('false');
   const [ratingFilter, setRatingFilter] = useState<string>('');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [sortBy, setSortBy] = useState('date');
@@ -172,8 +174,17 @@ const Reviews: React.FC = () => {
   };
 
   const totalPages = Math.ceil(totalCount / pageSize);
-  const hasActiveFilter = statusFilter || ratingFilter;
-  const getProductInitial = (product: string) => product.charAt(0).toUpperCase();
+
+  const getInitials = (name: string) =>
+    name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w.charAt(0).toUpperCase())
+      .join('') || '?';
+
+  const formatDate = (value: string) =>
+    new Date(value).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
     <>
@@ -189,141 +200,105 @@ const Reviews: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 lg:mb-8">
-        <div className="bg-panel border border-line rounded-lg px-3.5 py-2.5">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Total</span>
-            <Star size={13} className="text-info" />
-          </div>
-          <p className="font-mono text-[19px] font-semibold text-body mt-1 leading-none">{stats?.total ?? '—'}</p>
-          <p className="mt-1.5 font-mono text-[11px] text-mute">all reviews</p>
+      <ReviewsPageStats stats={stats} />
+
+      {/* Status Tabs + Search + Filter + Sort */}
+      <div className="mb-6 lg:mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        {/* Status segmented tabs — left */}
+        <div className="inline-flex gap-[2px] bg-panel border border-line rounded-lg p-[3px] self-start max-w-full overflow-x-auto">
+          {([
+            { value: 'false', label: 'Unreplied', count: stats?.unreplied },
+            { value: 'true', label: 'Replied', count: stats?.replied },
+            { value: '', label: 'All', count: stats?.total },
+          ] as const).map(({ value, label, count }) => {
+            const on = statusFilter === value;
+            return (
+              <button
+                key={label}
+                onClick={() => { setStatusFilter(value); setCurrentPage(1); }}
+                className={on
+                  ? 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md bg-panel2 text-body shadow-[inset_0_0_0_1px_#23262d] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'
+                  : 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md text-mute hover:text-dim font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'}
+              >
+                {label}
+                {count != null && (
+                  <span className={`text-[10.5px] font-bold rounded px-[5px] ${on ? 'text-accent bg-accent/15' : 'text-mute bg-panel2'}`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="bg-panel border border-line rounded-lg px-3.5 py-2.5">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Pending</span>
-            <Clock size={13} className="text-warn" />
-          </div>
-          <p className="font-mono text-[19px] font-semibold text-warn mt-1 leading-none">{stats?.unreplied ?? '—'}</p>
-          <p className="mt-1.5 font-mono text-[11px] text-mute">unreplied</p>
-        </div>
-
-        <div className="bg-panel border border-line rounded-lg px-3.5 py-2.5">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Done</span>
-            <CheckCircle2 size={13} className="text-pos" />
-          </div>
-          <p className="font-mono text-[19px] font-semibold text-pos mt-1 leading-none">{stats?.replied ?? '—'}</p>
-          <p className="mt-1.5 font-mono text-[11px] text-mute">replied</p>
-        </div>
-
-        <div className="bg-panel border border-line rounded-lg px-3.5 py-2.5">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9.5px] tracking-[.12em] uppercase text-mute">Rating</span>
-            <Star size={13} className="text-warn fill-warn" />
-          </div>
-          <p className="font-mono text-[19px] font-semibold text-accent mt-1 leading-none">
-            {stats?.avg_rating != null ? stats.avg_rating.toFixed(1) : '—'}
-          </p>
-          <p className="mt-1.5 font-mono text-[11px] text-mute">avg rating / 5.0</p>
-        </div>
-      </div>
-
-      {/* Search + Filter + Sort */}
-      <div className="mb-6 lg:mb-8">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-mute z-10" size={14} />
+        {/* Search + Filter + Sort — right */}
+        <div className="flex gap-2.5">
+          <div className="flex-1 lg:flex-none lg:w-[260px] relative flex items-center">
+            <Search className="absolute left-2.5 text-mute pointer-events-none" size={14} />
             <input
               type="text"
-              placeholder="Search by product, review, or reviewer name..."
+              placeholder="Search reviews…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-8 pr-3 py-2 bg-panel border border-line rounded-[7px] text-[12.5px] text-body placeholder:text-mute outline-none focus:border-accent/50 transition"
             />
           </div>
 
-          {/* Filter Menu */}
+          {/* Filter Menu — rating only */}
           <div className="relative filter-menu-container">
             <button
               type="button"
               onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className={`inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
-                showFilterMenu || hasActiveFilter
+              className={`inline-flex items-center justify-center gap-[7px] px-2.5 sm:px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
+                showFilterMenu || ratingFilter
                   ? 'bg-panel2 text-body border-accent/40'
                   : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
               }`}
             >
               <SlidersHorizontal size={14} />
-              <span>Filter</span>
-              {hasActiveFilter && (
+              <span className="hidden sm:inline">Filter</span>
+              {ratingFilter && (
                 <span className="ml-1 w-2 h-2 rounded-full bg-accent flex-shrink-0" />
               )}
             </button>
             {showFilterMenu && (
               <div className="absolute right-0 mt-2 w-52 bg-panel rounded-card border border-line shadow-[0_30px_80px_-20px_rgba(0,0,0,.87)] z-20 animate-pop">
-                <div className="p-4 space-y-4">
-                  {/* Status filter */}
-                  <div className="space-y-2">
-                    <label className="font-mono text-[10.5px] font-semibold tracking-[.12em] uppercase text-mute block">
-                      Status
-                    </label>
-                    {([
-                      { value: '', label: 'All Reviews' },
-                      { value: 'false', label: 'Unreplied' },
-                      { value: 'true', label: 'Replied' },
-                    ] as const).map(({ value, label }) => (
-                      <button
-                        key={value}
-                        onClick={() => { setStatusFilter(value); setCurrentPage(1); }}
-                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors border ${
-                          statusFilter === value
-                            ? 'bg-accent/15 text-accent border-accent/30'
-                            : 'bg-panel2 text-dim border-transparent hover:text-body'
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-
+                <div className="p-4 space-y-2">
                   {/* Rating filter */}
-                  <div className="space-y-2">
-                    <label className="font-mono text-[10.5px] font-semibold tracking-[.12em] uppercase text-mute block">
-                      Rating
-                    </label>
+                  <label className="font-mono text-[10.5px] font-semibold tracking-[.12em] uppercase text-mute block">
+                    Rating
+                  </label>
+                  <button
+                    onClick={() => { setRatingFilter(''); setCurrentPage(1); }}
+                    className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors border ${
+                      ratingFilter === ''
+                        ? 'bg-accent/15 text-accent border-accent/30'
+                        : 'bg-panel2 text-dim border-transparent hover:text-body'
+                    }`}
+                  >
+                    All Ratings
+                  </button>
+                  {[5, 4, 3, 2, 1].map((r) => (
                     <button
-                      onClick={() => { setRatingFilter(''); setCurrentPage(1); }}
-                      className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors border ${
-                        ratingFilter === ''
+                      key={r}
+                      onClick={() => { setRatingFilter(String(r)); setCurrentPage(1); setShowFilterMenu(false); }}
+                      className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors border flex items-center gap-2 ${
+                        ratingFilter === String(r)
                           ? 'bg-accent/15 text-accent border-accent/30'
                           : 'bg-panel2 text-dim border-transparent hover:text-body'
                       }`}
                     >
-                      All Ratings
+                      <StarRating rating={r} size={10} />
+                      <span>{r} star{r !== 1 ? 's' : ''}</span>
                     </button>
-                    {[5, 4, 3, 2, 1].map((r) => (
-                      <button
-                        key={r}
-                        onClick={() => { setRatingFilter(String(r)); setCurrentPage(1); }}
-                        className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors border flex items-center gap-2 ${
-                          ratingFilter === String(r)
-                            ? 'bg-accent/15 text-accent border-accent/30'
-                            : 'bg-panel2 text-dim border-transparent hover:text-body'
-                        }`}
-                      >
-                        <StarRating rating={r} size={10} />
-                        <span>{r} star{r !== 1 ? 's' : ''}</span>
-                      </button>
-                    ))}
-                  </div>
+                  ))}
 
-                  {hasActiveFilter && (
+                  {ratingFilter && (
                     <button
-                      onClick={() => { setStatusFilter(''); setRatingFilter(''); setCurrentPage(1); setShowFilterMenu(false); }}
+                      onClick={() => { setRatingFilter(''); setCurrentPage(1); setShowFilterMenu(false); }}
                       className="w-full text-center px-3 py-2 rounded-[7px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] text-mute hover:text-body hover:bg-panel2 transition-colors"
                     >
-                      Clear Filters
+                      Clear Rating
                     </button>
                   )}
                 </div>
@@ -336,14 +311,14 @@ const Reviews: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowSortMenu(!showSortMenu)}
-              className={`inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
+              className={`inline-flex items-center justify-center gap-[7px] px-2.5 sm:px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
                 showSortMenu || sortBy !== 'date' || sortOrder !== 'desc'
                   ? 'bg-panel2 text-body border-accent/40'
                   : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
               }`}
             >
               <ArrowUpDown size={14} />
-              <span>Sort</span>
+              <span className="hidden sm:inline">Sort</span>
             </button>
             {showSortMenu && (
               <div className="absolute right-0 mt-2 w-52 bg-panel rounded-card border border-line shadow-[0_30px_80px_-20px_rgba(0,0,0,.87)] z-20 animate-pop">
@@ -403,66 +378,73 @@ const Reviews: React.FC = () => {
               <div
                 key={item.id}
                 className={`border border-line rounded-lg bg-panel2 transition-colors hover:border-[#3a3d44] ${
-                  item.is_replied ? '' : 'border-l-2 border-l-warn'
+                  item.is_replied ? '' : 'border-l-2 border-l-warn hover:border-l-warn'
                 }`}
               >
                 <div className="px-3.5 py-[13px] sm:p-4">
                   <div className="flex gap-3.5">
-                    {/* Avatar */}
+                    {/* Avatar — reviewer initials */}
                     <div className="w-[34px] h-[34px] rounded-[7px] shrink-0 flex items-center justify-center bg-panel border border-line text-dim font-bold font-mono text-xs">
-                      {getProductInitial(item.product)}
+                      {getInitials(item.reviewer_name)}
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      {/* Product + Status */}
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <Tag size={12} className="flex-shrink-0 text-accent" />
-                          <p className="text-[11.5px] font-semibold text-accent truncate">{item.product}</p>
-                        </div>
+                      {/* Name + Status + Date */}
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[13px] font-semibold text-body truncate">{item.reviewer_name}</span>
                         {item.is_replied ? (
-                          <span className="flex-shrink-0 inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-pos bg-pos/[.13] border border-pos/[.28]">
-                            <CheckCircle2 size={10} /> Replied
+                          <span className="flex-shrink-0 inline-flex items-center gap-[5px] font-mono text-[10px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-pos bg-pos/[.13] border border-pos/[.28]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-pos" /> Replied
                           </span>
                         ) : (
-                          <span className="flex-shrink-0 inline-flex items-center gap-[5px] font-mono text-[10.5px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-warn bg-warn/[.13] border border-warn/[.28]">
-                            <Clock size={10} /> Pending
+                          <span className="flex-shrink-0 inline-flex items-center gap-[5px] font-mono text-[10px] font-semibold uppercase tracking-[.05em] whitespace-nowrap px-2 py-[3px] rounded-[5px] text-warn bg-warn/[.13] border border-warn/[.28]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-warn" /> Unreplied
                           </span>
                         )}
+                        <span className="ml-auto flex-shrink-0 font-mono text-[10.5px] text-mute">{formatDate(item.date)}</span>
                       </div>
 
-                      {/* Rating */}
-                      <div className="mb-2 flex items-center gap-2">
+                      {/* Rating + Product on the same line */}
+                      <div className="flex items-center gap-2 mb-2 min-w-0">
                         <StarRating rating={item.rating} />
-                        <span className="font-mono text-[11px] text-mute">{item.rating}/5</span>
+                        <Package size={12} className="flex-shrink-0 text-accent" />
+                        <p className="text-[11.5px] font-semibold text-accent truncate">{item.product}</p>
                       </div>
 
                       {/* Comment */}
-                      <p className="text-[13.5px] leading-[1.55] text-dim mb-2">
-                        &ldquo;{item.comment}&rdquo;
-                      </p>
+                      <p className="text-[13.5px] leading-[1.55] text-dim">&ldquo;{item.comment}&rdquo;</p>
 
-                      {/* Meta + Reply button */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 text-[11px] text-mute">
-                          <span className="font-semibold text-[12px] text-body">{item.reviewer_name}</span>
-                          <span>·</span>
-                          <span className="font-mono">{new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</span>
+                      {/* Footer — Reply button (open) or reply (replied) */}
+                      {item.is_replied ? (
+                        <div className="mt-2.5">
+                          <div className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-pos">
+                            <CheckCircle2 size={12} /> Replied by Admin
+                          </div>
+                          {item.reply && (
+                            <div className="mt-2 flex gap-3 rounded-[7px] border border-line bg-panel px-3 py-2.5">
+                              <p className="min-w-0 flex-1 text-[12.5px] leading-[1.55] text-dim">{item.reply}</p>
+                              {item.replied_at && (
+                                <p className="flex-shrink-0 font-mono text-[10px] text-mute">{formatDate(item.replied_at)}</p>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        {!item.is_replied && (
+                      ) : (
+                        <div className="mt-2.5">
                           <button
                             onClick={() => handleReply(item.id)}
                             disabled={submitting && replyingTo === item.id}
-                            className={`inline-flex items-center gap-[7px] px-2.5 py-1.5 text-xs font-bold rounded-[7px] border transition whitespace-nowrap ${
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-[7px] border transition whitespace-nowrap ${
                               replyingTo === item.id
                                 ? 'bg-accent/15 text-accent border-accent/30'
                                 : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
                             }`}
                           >
+                            <Send size={12} />
                             {replyingTo === item.id ? 'Cancel' : 'Reply'}
                           </button>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
