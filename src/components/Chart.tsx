@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { authenticatedFetch } from '../lib/api';
+import ChartPeriodToggle, { ChartPeriod } from './ChartPeriodToggle';
 
 const formatRand = (value: number): string => {
   if (value >= 1000000000) {
@@ -16,17 +17,24 @@ const formatRand = (value: number): string => {
 const HEIGHT = 186;
 const GAP = 0.34; // fraction of each slot left empty (mockup BarChart)
 
+const PERIOD_TITLE: Record<ChartPeriod, string> = {
+  monthly: 'Revenue · 12M',
+  '30days': 'Revenue · 30D',
+  '7days': 'Revenue · 7D',
+};
+
 const Chart: React.FC = () => {
   const [hover, setHover] = useState<number | null>(null);
   const [chartData, setChartData] = useState<Array<{ month: string; value: number }>>([]);
+  const [period, setPeriod] = useState<ChartPeriod>('monthly');
 
   useEffect(() => {
     fetchRevenueChart();
-  }, []);
+  }, [period]);
 
   const fetchRevenueChart = async () => {
     try {
-      const response = await authenticatedFetch('/analytics/revenue-chart/?period=monthly');
+      const response = await authenticatedFetch(`/analytics/revenue-chart/?period=${period}`);
 
       if (response.ok) {
         const data = await response.json();
@@ -41,7 +49,6 @@ const Chart: React.FC = () => {
   };
 
   const data = chartData;
-  const totalRevenue = data.reduce((sum, d) => sum + d.value, 0);
   const max = data.length ? Math.max(...data.map(d => d.value)) : 1;
   const n = data.length;
   const slot = n ? 100 / n : 100;
@@ -52,13 +59,9 @@ const Chart: React.FC = () => {
       {/* Panel header */}
       <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-[11px]">
         <span className="font-mono text-[11px] font-semibold uppercase tracking-[.12em] text-dim">
-          Revenue · 12M
+          {PERIOD_TITLE[period]}
         </span>
-        {data.length > 0 && (
-          <span className="font-mono text-xs font-bold text-accent">
-            {formatRand(totalRevenue)}
-          </span>
-        )}
+        <ChartPeriodToggle value={period} onChange={setPeriod} />
       </div>
 
       <div className="min-w-0 flex-1 p-4">
@@ -112,18 +115,23 @@ const Chart: React.FC = () => {
               })}
             </svg>
 
-            {/* X labels */}
+            {/* X labels — thin out when there are many bars so they don't collide */}
             <div className="mt-1.5 flex">
-              {data.map((d, i) => (
-                <div
-                  key={i}
-                  className={`flex-1 text-center font-mono text-[10px] font-semibold transition-colors duration-150 ${
-                    hover === i ? 'text-accent' : 'text-mute'
-                  }`}
-                >
-                  {d.month}
-                </div>
-              ))}
+              {data.map((d, i) => {
+                // Aim for roughly ≤12 visible labels
+                const step = Math.ceil(n / 12);
+                const show = hover === i || i % step === 0 || i === n - 1;
+                return (
+                  <div
+                    key={i}
+                    className={`flex-1 text-center font-mono text-[10px] font-semibold transition-colors duration-150 truncate ${
+                      hover === i ? 'text-accent' : 'text-mute'
+                    }`}
+                  >
+                    {show ? d.month : ''}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Tooltip */}

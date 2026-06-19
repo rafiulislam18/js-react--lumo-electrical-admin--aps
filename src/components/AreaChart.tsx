@@ -120,16 +120,20 @@ const AreaChart: React.FC<AreaChartProps> = ({
         )}
       </svg>
 
-      {/* X labels (every 2nd) */}
+      {/* X labels — thinned to ~10 so dense (daily) ranges don't collide */}
       <div className="mt-1 flex">
-        {data.map((d, i) => (
-          <div
-            key={i}
-            className="flex-1 text-center font-mono text-[9.5px] font-semibold text-mute"
-          >
-            {i % 2 === 0 ? d.label : ''}
-          </div>
-        ))}
+        {data.map((d, i) => {
+          const step = Math.max(1, Math.ceil(data.length / 10));
+          const show = i % step === 0 || i === data.length - 1;
+          return (
+            <div
+              key={i}
+              className="flex-1 text-center font-mono text-[9.5px] font-semibold text-mute truncate"
+            >
+              {show ? d.label : ''}
+            </div>
+          );
+        })}
       </div>
 
       {/* Tooltip */}
