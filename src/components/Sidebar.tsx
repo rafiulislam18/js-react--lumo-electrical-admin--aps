@@ -95,7 +95,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Brand */}
         <div className="px-[18px] pt-[18px] pb-4 border-b border-line">
-          <img src="/images/logo-light.png" alt="Lumo Electrical Logo" className="h-7 w-auto" />
+          <img src={`${import.meta.env.BASE_URL}images/logo-light.png`} alt="Lumo Electrical Logo" className="h-7 w-auto" />
         </div>
         <div className="px-[18px] pt-3 pb-2">
           <span className="font-mono text-[9.5px] tracking-[.18em] uppercase text-mute">Admin Console</span>

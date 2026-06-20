@@ -16,7 +16,7 @@ function clearSessionAndRedirect() {
   localStorage.removeItem('refresh_token');
   localStorage.removeItem('role');
   localStorage.removeItem('user');
-  window.location.href = '/login';
+  window.location.href = '/dashboard/login';
 }
 
 async function refreshAccessToken(): Promise<boolean> {
