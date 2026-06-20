@@ -31,7 +31,7 @@ function CourierRoute({ children }: ProtectedRouteProps) {
 
 function App() {
   return (
-    <Router>
+    <Router basename="/dashboard">
       <Routes>
         {/* Public */}
         <Route path="/login" element={<Login />} />
