@@ -86,7 +86,7 @@ const Chart: React.FC = () => {
                   x2={100}
                   y1={HEIGHT - t * HEIGHT}
                   y2={HEIGHT - t * HEIGHT}
-                  stroke="#23262d"
+                  stroke="rgb(var(--c-line))"
                   strokeWidth={0.5}
                   vectorEffect="non-scaling-stroke"
                 />
@@ -105,7 +105,7 @@ const Chart: React.FC = () => {
                     width={bw}
                     height={h}
                     rx={1.33}
-                    fill="#f6a821"
+                    fill="rgb(var(--c-accent))"
                     opacity={hover === null || active ? 1 : 0.4}
                     onMouseEnter={() => setHover(i)}
                     onMouseLeave={() => setHover(null)}
@@ -137,7 +137,7 @@ const Chart: React.FC = () => {
             {/* Tooltip */}
             {hover !== null && (
               <div
-                className="pointer-events-none absolute z-[5] -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-[7px] border border-white/10 bg-[#0a0a0c] px-[9px] py-[5px] text-[11px] font-bold text-body shadow-[0_6px_20px_rgba(0,0,0,.5)]"
+                className="pointer-events-none absolute z-[5] -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-[7px] border border-line bg-bg2 px-[9px] py-[5px] text-[11px] font-bold text-body shadow-[0_6px_20px_rgba(0,0,0,.5)]"
                 style={{ left: `${hover * slot + slot / 2}%`, top: -6 }}
               >
                 <div className="font-mono text-[9.5px] font-semibold text-mute">

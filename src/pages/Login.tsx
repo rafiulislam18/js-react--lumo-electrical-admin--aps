@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle, Lock, User } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -62,7 +64,7 @@ const Login: React.FC = () => {
         <div className="bg-panel border border-line rounded-card overflow-hidden">
           {/* Header */}
           <div className="px-7 pt-9 pb-7 text-center border-b border-line">
-            <img src={`${import.meta.env.BASE_URL}images/logo-light.png`} alt="Lumo Electrical" className="h-14 mx-auto mb-5" />
+            <img src={`${import.meta.env.BASE_URL}images/${theme === 'dark' ? 'logo-light.png' : 'logo.png'}`} alt="Lumo Electrical" className="h-14 mx-auto mb-5" />
 
             <div className="flex items-center justify-center gap-2">
               <span className="w-[7px] h-[7px] rounded-full bg-pos shadow-[0_0_8px_#5fcf80]" />

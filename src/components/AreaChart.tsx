@@ -15,7 +15,7 @@ interface AreaChartProps {
 /** Compact area/line chart with hover crosshair + tooltip (Command theme). */
 const AreaChart: React.FC<AreaChartProps> = ({
   data,
-  color = '#f6a821',
+  color = 'rgb(var(--c-accent))',
   height = 74,
   format = (v) => String(v),
 }) => {
@@ -79,7 +79,7 @@ const AreaChart: React.FC<AreaChartProps> = ({
             x2={W}
             y1={(H - 18) * t + 6}
             y2={(H - 18) * t + 6}
-            stroke="#23262d"
+            stroke="rgb(var(--c-line))"
             strokeWidth={1}
             vectorEffect="non-scaling-stroke"
           />
@@ -112,7 +112,7 @@ const AreaChart: React.FC<AreaChartProps> = ({
               cy={pts[hover][1]}
               r={3.5}
               fill={color}
-              stroke="#0a0a0c"
+              stroke="rgb(var(--c-bg))"
               strokeWidth={2}
               vectorEffect="non-scaling-stroke"
             />
@@ -139,7 +139,7 @@ const AreaChart: React.FC<AreaChartProps> = ({
       {/* Tooltip */}
       {hover !== null && (
         <div
-          className="pointer-events-none absolute top-0 z-[5] -translate-x-1/2 -translate-y-[110%] whitespace-nowrap rounded-[7px] border border-white/10 bg-[#0a0a0c] px-2 py-1 text-[11px] font-bold text-body shadow-[0_6px_20px_rgba(0,0,0,.5)]"
+          className="pointer-events-none absolute top-0 z-[5] -translate-x-1/2 -translate-y-[110%] whitespace-nowrap rounded-[7px] border border-line bg-bg2 px-2 py-1 text-[11px] font-bold text-body shadow-[0_6px_20px_rgba(0,0,0,.5)]"
           style={{ left: `${(pts[hover][0] / W) * 100}%` }}
         >
           <div className="font-mono text-[9.5px] font-semibold text-mute">{data[hover].label}</div>

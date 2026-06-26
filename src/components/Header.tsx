@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, CalendarDays, Bell, ChevronRight, Truck, AlertTriangle, HelpCircle, Star, LucideIcon } from 'lucide-react';
+import { Menu, CalendarDays, Bell, ChevronRight, Truck, AlertTriangle, HelpCircle, Star, Sun, Moon, LucideIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { authenticatedFetch } from '../lib/api';
+import { useTheme } from '../context/ThemeContext';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -23,6 +24,7 @@ interface NotificationItem {
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const bellRef = useRef<HTMLDivElement>(null);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
 
@@ -85,11 +87,11 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-10 flex h-[60px] shrink-0 items-center gap-3.5 border-b border-line bg-[#08090b] px-4 sm:px-[18px]">
+    <header className="sticky top-0 z-10 flex h-[60px] shrink-0 items-center gap-3.5 border-b border-line bg-bg2 px-4 sm:px-[18px]">
       {/* Hamburger — mobile only */}
       <button
         onClick={onMenuClick}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line bg-panel text-dim transition hover:border-[#3a3d44] hover:text-body lg:hidden"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line bg-panel text-dim transition hover:border-line2 hover:text-body lg:hidden"
       >
         <Menu size={16} />
       </button>
@@ -100,6 +102,16 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
       </p>
 
       <div className="ml-auto flex items-center gap-2.5">
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label="Toggle theme"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-panel text-dim transition hover:border-line2 hover:text-body"
+        >
+          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+
         {/* Date chip */}
         <span className="items-center gap-[7px] rounded-lg border border-line bg-panel px-[11px] py-2 font-mono text-[11px] text-dim flex">
           <CalendarDays size={13} className="text-accent" />
@@ -110,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         <div className="relative" ref={bellRef}>
           <button
             onClick={() => setIsNotifOpen(o => !o)}
-            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-panel text-dim transition hover:border-[#3a3d44] hover:text-body"
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-panel text-dim transition hover:border-line2 hover:text-body"
           >
             <Bell size={16} />
             {total > 0 && (

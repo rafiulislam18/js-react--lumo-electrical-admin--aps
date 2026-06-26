@@ -59,9 +59,9 @@ const CustomerOrderChart: React.FC = () => {
   // the cumulative length of the segments before it. Negative dashoffset
   // advances the dash clockwise around the (already -90°-rotated) circle.
   const segments = [
-    { data: returningData, color: '#f6a821' }, // accent (amber)
-    { data: newData, color: '#6aa9ff' },       // blue
-    { data: noOrderData, color: '#3a3d44' },   // muted grey
+    { data: returningData, color: 'rgb(var(--c-accent))' }, // accent (amber / rust)
+    { data: newData, color: '#6aa9ff' },                    // blue
+    { data: noOrderData, color: 'rgb(var(--c-line2))' },    // muted, theme-aware
   ];
   let cumulative = 0;
   const arcs = segments.map((seg) => {
@@ -72,9 +72,9 @@ const CustomerOrderChart: React.FC = () => {
   });
 
   const legend = [
-    { label: returningData.type, count: returningData.count, percentage: returningData.percentage, swatch: 'bg-[#f6a821]' },
+    { label: returningData.type, count: returningData.count, percentage: returningData.percentage, swatch: 'bg-accent' },
     { label: newData.type, count: newData.count, percentage: newData.percentage, swatch: 'bg-[#6aa9ff]' },
-    { label: noOrderData.type, count: noOrderData.count, percentage: noOrderData.percentage, swatch: 'bg-[#3a3d44]' },
+    { label: noOrderData.type, count: noOrderData.count, percentage: noOrderData.percentage, swatch: 'bg-line2' },
   ];
 
   return (
@@ -97,7 +97,7 @@ const CustomerOrderChart: React.FC = () => {
                 cy={size / 2}
                 r={radius}
                 fill="none"
-                stroke="#181b21"
+                stroke="rgb(var(--c-panel2))"
                 strokeWidth={thickness}
               />
               {arcs.map((arc, i) => (

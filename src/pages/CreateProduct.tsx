@@ -398,7 +398,7 @@ const CreateProduct: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/products')}
-              className="flex-1 inline-flex items-center justify-center px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel2 text-dim border border-line hover:border-[#3a3d44] hover:text-body transition"
+              className="flex-1 inline-flex items-center justify-center px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel2 text-dim border border-line hover:border-line2 hover:text-body transition"
             >
               Cancel
             </button>

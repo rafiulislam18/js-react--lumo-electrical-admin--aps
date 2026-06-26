@@ -198,7 +198,7 @@ const Dashboard: React.FC = () => {
             )}
             <button
               onClick={() => setModal(null)}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[7px] border border-line bg-panel text-dim transition hover:border-[#3a3d44] hover:text-body"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[7px] border border-line bg-panel text-dim transition hover:border-line2 hover:text-body"
             >
               <X size={15} />
             </button>

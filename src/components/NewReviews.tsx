@@ -138,7 +138,7 @@ const NewReviews: React.FC<NewReviewsProps> = ({ bare = false, onCountChange }) 
               className={`inline-flex items-center gap-1.5 rounded-[7px] border px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-[.05em] transition ${
                 replyingTo === item.id
                   ? 'border-accent/[.28] bg-accent/[.13] text-accent'
-                  : 'border-line bg-panel text-dim hover:border-[#3a3d44] hover:text-body'
+                  : 'border-line bg-panel text-dim hover:border-line2 hover:text-body'
               }`}
             >
               <Send size={11} />
@@ -166,7 +166,7 @@ const NewReviews: React.FC<NewReviewsProps> = ({ bare = false, onCountChange }) 
             <button
               onClick={() => handleReply(item.id)}
               disabled={submitting}
-              className="rounded-[7px] border border-line bg-panel px-3 py-1.5 text-xs font-bold text-dim transition hover:border-[#3a3d44] hover:text-body disabled:opacity-50"
+              className="rounded-[7px] border border-line bg-panel px-3 py-1.5 text-xs font-bold text-dim transition hover:border-line2 hover:text-body disabled:opacity-50"
             >
               Cancel
             </button>

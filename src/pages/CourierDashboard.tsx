@@ -70,7 +70,7 @@ const CourierDashboard: React.FC = () => {
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] bg-panel border border-line font-mono text-[11px] uppercase tracking-[.05em] text-dim hover:text-body hover:border-[#3a3d44] transition shrink-0"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[7px] bg-panel border border-line font-mono text-[11px] uppercase tracking-[.05em] text-dim hover:text-body hover:border-line2 transition shrink-0"
           >
             <LogOut size={13} />
             <span>Logout</span>
@@ -116,7 +116,7 @@ const CourierDashboard: React.FC = () => {
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="bg-panel border border-line rounded-card p-4 hover:border-[#3a3d44] transition-colors"
+                className="bg-panel border border-line rounded-card p-4 hover:border-line2 transition-colors"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">

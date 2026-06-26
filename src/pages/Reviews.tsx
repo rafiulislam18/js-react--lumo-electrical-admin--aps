@@ -217,7 +217,7 @@ const Reviews: React.FC = () => {
                 key={label}
                 onClick={() => { setStatusFilter(value); setCurrentPage(1); }}
                 className={on
-                  ? 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md bg-panel2 text-body shadow-[inset_0_0_0_1px_#23262d] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'
+                  ? 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md bg-panel2 text-body shadow-[inset_0_0_0_1px_rgb(var(--c-line))] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'
                   : 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md text-mute hover:text-dim font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'}
               >
                 {label}
@@ -252,7 +252,7 @@ const Reviews: React.FC = () => {
               className={`inline-flex items-center justify-center gap-[7px] px-2.5 sm:px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
                 showFilterMenu || ratingFilter
                   ? 'bg-panel2 text-body border-accent/40'
-                  : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
+                  : 'bg-panel text-dim border-line hover:border-line2 hover:text-body'
               }`}
             >
               <SlidersHorizontal size={14} />
@@ -314,7 +314,7 @@ const Reviews: React.FC = () => {
               className={`inline-flex items-center justify-center gap-[7px] px-2.5 sm:px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
                 showSortMenu || sortBy !== 'date' || sortOrder !== 'desc'
                   ? 'bg-panel2 text-body border-accent/40'
-                  : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
+                  : 'bg-panel text-dim border-line hover:border-line2 hover:text-body'
               }`}
             >
               <ArrowUpDown size={14} />
@@ -377,7 +377,7 @@ const Reviews: React.FC = () => {
             {reviews.map((item) => (
               <div
                 key={item.id}
-                className={`border border-line rounded-lg bg-panel2 transition-colors hover:border-[#3a3d44] ${
+                className={`border border-line rounded-lg bg-panel2 transition-colors hover:border-line2 ${
                   item.is_replied ? '' : 'border-l-2 border-l-warn hover:border-l-warn'
                 }`}
               >
@@ -437,7 +437,7 @@ const Reviews: React.FC = () => {
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-[7px] border transition whitespace-nowrap ${
                               replyingTo === item.id
                                 ? 'bg-accent/15 text-accent border-accent/30'
-                                : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
+                                : 'bg-panel text-dim border-line hover:border-line2 hover:text-body'
                             }`}
                           >
                             <Send size={12} />
@@ -465,7 +465,7 @@ const Reviews: React.FC = () => {
                         <button
                           onClick={() => handleReply(item.id)}
                           disabled={submitting}
-                          className="inline-flex items-center justify-center gap-[7px] px-2.5 py-1.5 text-xs font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-[#3a3d44] hover:text-body transition disabled:opacity-50"
+                          className="inline-flex items-center justify-center gap-[7px] px-2.5 py-1.5 text-xs font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-line2 hover:text-body transition disabled:opacity-50"
                         >
                           Cancel
                         </button>
@@ -497,7 +497,7 @@ const Reviews: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 transition disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -509,7 +509,7 @@ const Reviews: React.FC = () => {
                       className={`min-w-8 h-8 px-2 rounded-[7px] font-mono text-xs font-semibold transition ${
                         currentPage === page
                           ? 'bg-accent text-accent-ink border border-accent'
-                          : 'bg-panel text-dim border border-line hover:text-body hover:border-[#3a3d44]'
+                          : 'bg-panel text-dim border border-line hover:text-body hover:border-line2'
                       }`}
                     >
                       {page}
@@ -519,7 +519,7 @@ const Reviews: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 transition disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <ChevronRight size={16} />
                 </button>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 interface QuestionStats {
   total: number;
@@ -21,6 +21,9 @@ const Card: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 /** Inline SVG sparkline (line + soft area fill). Null values render as 0 baseline. */
 const Sparkline: React.FC<{ data: (number | null)[]; color: string }> = ({ data, color }) => {
+  // useId() — stable, always-valid gradient id. (Deriving it from `color` broke
+  // once colors became rgb(var(--…)) strings, yielding invalid url(#…) refs.)
+  const gid = useId();
   const series = data.map((v) => v ?? 0);
   if (series.length < 2) return null;
   const w = 100;
@@ -30,7 +33,6 @@ const Sparkline: React.FC<{ data: (number | null)[]; color: string }> = ({ data,
   const pts = series.map((v, i) => [i * step, h - (v / max) * h]);
   const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
   const area = `0,${h} ${line} ${w},${h}`;
-  const gid = `qspark-${color.replace('#', '')}`;
 
   return (
     <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-9 w-full">
@@ -76,7 +78,7 @@ const QuestionsPageStats: React.FC<QuestionsPageStatsProps> = ({ stats }) => {
           {fmtResponse(stats?.avg_response_hours ?? null)}
         </p>
         {/* 13-week response-time trend (oldest -> newest) */}
-        <Sparkline data={weekly} color="#f6a821" />
+        <Sparkline data={weekly} color="rgb(var(--c-accent))" />
       </Card>
 
       {/* UNANSWERED QUESTIONS */}
@@ -88,9 +90,9 @@ const QuestionsPageStats: React.FC<QuestionsPageStatsProps> = ({ stats }) => {
             <p className="mt-2 font-mono text-[10.5px] text-mute">of {total} total</p>
           </div>
           <svg width="58" height="58" viewBox="0 0 58 58" className="shrink-0">
-            <circle cx="29" cy="29" r={R} fill="none" stroke="#23262d" strokeWidth="5" />
+            <circle cx="29" cy="29" r={R} fill="none" stroke="rgb(var(--c-line))" strokeWidth="5" />
             <circle
-              cx="29" cy="29" r={R} fill="none" stroke="#fbb845" strokeWidth="5" strokeLinecap="round"
+              cx="29" cy="29" r={R} fill="none" stroke="rgb(var(--c-warn))" strokeWidth="5" strokeLinecap="round"
               strokeDasharray={C}
               strokeDashoffset={C - (unansweredRingPct / 100) * C}
               transform="rotate(-90 29 29)"

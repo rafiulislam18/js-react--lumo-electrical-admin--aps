@@ -2,21 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Theme tokens. Values are space-separated RGB triples so Tailwind's
+  `rgb(var(--c-x) / <alpha-value>)` tokens (tailwind.config.js) resolve with
+  opacity modifiers intact. :root holds the LIGHT theme; .dark overrides with
+  the original command-theme dark values. The app defaults to .dark.
+*/
 :root {
-  --bg: #0a0b0d;
-  --bg2: #0c0d10;
-  --panel: #101216;
-  --panel2: #181b21;
-  --border: #23262d;
-  --text: #e9ebef;
-  --dim: #9aa0aa;
-  --mute: #5f6670;
-  --accent: #f6a821;
-  --accent-ink: #1a1205;
-  --pos: #5fcf80;
-  --neg: #f0726f;
-  --warn: #fbb845;
-  --info: #6aa6f5;
+  /* Light — warm cream / rust-orange (matches the dashboard light reference) */
+  --c-bg: 247 246 243;        /* #f7f6f3 */
+  --c-bg2: 251 250 248;       /* #fbfaf8 — sidebar/header */
+  --c-panel: 255 255 255;     /* #ffffff */
+  --c-panel2: 244 242 238;    /* #f4f2ee */
+  --c-line: 231 227 218;      /* #e7e3da */
+  --c-line2: 212 207 196;     /* #d4cfc4 — hover/active border */
+  --c-body: 28 29 34;         /* #1c1d22 */
+  --c-dim: 91 97 108;         /* #5b616c */
+  --c-mute: 138 143 153;      /* #8a8f99 */
+  --c-accent: 194 65 12;      /* #c2410c — rust/orange */
+  --c-accent-ink: 255 255 255;/* #ffffff — text on accent */
+  --c-pos: 22 163 74;         /* #16a34a */
+  --c-neg: 220 76 73;         /* #dc4c49 */
+  --c-warn: 217 119 6;        /* #d97706 */
+  --c-info: 37 99 235;        /* #2563eb */
+
+  --scrollbar-thumb: #00000026;
+  --scrollbar-thumb-hover: #0000003d;
+  --select-option-bg: #ffffff;
+}
+
+.dark {
+  /* Dark — original command theme */
+  --c-bg: 10 11 13;           /* #0a0b0d */
+  --c-bg2: 12 13 16;          /* #0c0d10 */
+  --c-panel: 16 18 22;        /* #101216 */
+  --c-panel2: 24 27 33;       /* #181b21 */
+  --c-line: 35 38 45;         /* #23262d */
+  --c-line2: 58 61 68;        /* #3a3d44 — hover/active border */
+  --c-body: 233 235 239;      /* #e9ebef */
+  --c-dim: 154 160 170;       /* #9aa0aa */
+  --c-mute: 95 102 112;       /* #5f6670 */
+  --c-accent: 246 168 33;     /* #f6a821 */
+  --c-accent-ink: 26 18 5;    /* #1a1205 */
+  --c-pos: 95 207 128;        /* #5fcf80 */
+  --c-neg: 240 114 111;       /* #f0726f */
+  --c-warn: 251 184 69;       /* #fbb845 */
+  --c-info: 106 166 245;      /* #6aa6f5 */
+
+  --scrollbar-thumb: #ffffff1a;
+  --scrollbar-thumb-hover: #ffffff2e;
+  --select-option-bg: #14171c;
 }
 
 html,
@@ -35,13 +70,13 @@ table {
 }
 
 select option {
-  background: #14171c;
-  color: var(--text);
+  background: var(--select-option-bg);
+  color: rgb(var(--c-body));
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--mute);
+  color: rgb(var(--c-mute));
 }
 
 ::-webkit-scrollbar {
@@ -52,12 +87,12 @@ textarea::placeholder {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #ffffff1a;
+  background: var(--scrollbar-thumb);
   border-radius: 10px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ffffff2e;
+  background: var(--scrollbar-thumb-hover);
   background-clip: padding-box;
 }

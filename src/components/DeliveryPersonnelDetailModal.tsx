@@ -133,7 +133,7 @@ const DeliveryPersonnelDetailModal: React.FC<DeliveryPersonnelDetailModalProps> 
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition shrink-0"
+            className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 transition shrink-0"
           >
             <X size={15} />
           </button>

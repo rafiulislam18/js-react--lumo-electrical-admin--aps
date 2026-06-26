@@ -213,7 +213,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ productId, onClose,
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition shrink-0"
+            className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 transition shrink-0"
           >
             <X size={15} />
           </button>
@@ -421,7 +421,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ productId, onClose,
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 inline-flex items-center justify-center px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel2 text-dim border border-line hover:border-[#3a3d44] hover:text-body transition"
+                    className="flex-1 inline-flex items-center justify-center px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel2 text-dim border border-line hover:border-line2 hover:text-body transition"
                   >
                     Cancel
                   </button>

@@ -246,7 +246,7 @@ const Orders: React.FC = () => {
                   setShowFilterMenu(false);
                 }}
                 className={on
-                  ? 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md bg-panel2 text-body shadow-[inset_0_0_0_1px_#23262d] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'
+                  ? 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md bg-panel2 text-body shadow-[inset_0_0_0_1px_rgb(var(--c-line))] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'
                   : 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md text-mute hover:text-dim font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'}
               >
                 {t.label}
@@ -280,7 +280,7 @@ const Orders: React.FC = () => {
               className={`inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
                 showSortMenu || sortBy !== 'created_at'
                   ? 'bg-accent/15 text-accent border-accent/40'
-                  : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
+                  : 'bg-panel text-dim border-line hover:border-line2 hover:text-body'
               }`}
             >
               <ArrowUpDown size={14} />
@@ -501,7 +501,7 @@ const Orders: React.FC = () => {
                     setSelectedOrderId(order.id);
                   }
                 }}
-                className="border border-line rounded-card bg-panel hover:bg-panel2/60 hover:border-[#3a3d44] transition-colors cursor-pointer outline-none focus-visible:border-accent/60 focus-visible:ring-1 focus-visible:ring-accent/40"
+                className="border border-line rounded-card bg-panel hover:bg-panel2/60 hover:border-line2 transition-colors cursor-pointer outline-none focus-visible:border-accent/60 focus-visible:ring-1 focus-visible:ring-accent/40"
               >
                 <div className="p-3.5 flex items-start gap-3">
                   <div className="w-[34px] h-[34px] rounded-[7px] shrink-0 flex items-center justify-center bg-panel2 border border-line text-dim font-bold font-mono text-xs">
@@ -562,7 +562,7 @@ const Orders: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 disabled:opacity-40 disabled:cursor-not-allowed transition"
                   title="Previous page"
                 >
                   <ChevronLeft size={15} />
@@ -576,7 +576,7 @@ const Orders: React.FC = () => {
                       className={`min-w-8 h-8 px-2 rounded-[7px] font-mono text-xs font-semibold transition ${
                         currentPage === page
                           ? 'bg-accent text-accent-ink border border-accent font-bold'
-                          : 'bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44]'
+                          : 'bg-panel border border-line text-dim hover:text-body hover:border-line2'
                       }`}
                     >
                       {page}
@@ -587,7 +587,7 @@ const Orders: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 disabled:opacity-40 disabled:cursor-not-allowed transition"
                   title="Next page"
                 >
                   <ChevronRight size={15} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { authenticatedFetch } from '../lib/api';
 
@@ -21,6 +21,9 @@ interface TrendPoint {
 
 /** Inline SVG sparkline from a series of values. */
 const Sparkline: React.FC<{ data: number[]; color: string }> = ({ data, color }) => {
+  // useId() — stable, always-valid gradient id. (Deriving it from `color` broke
+  // once colors became rgb(var(--…)) strings, yielding invalid url(#…) refs.)
+  const gid = useId();
   if (data.length < 2) return null;
   const w = 100;
   const h = 32;
@@ -31,7 +34,6 @@ const Sparkline: React.FC<{ data: number[]; color: string }> = ({ data, color })
   const pts = data.map((v, i) => [i * step, h - ((v - min) / range) * h]);
   const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
   const area = `0,${h} ${line} ${w},${h}`;
-  const gid = `spark-${color.replace('#', '')}`;
 
   return (
     <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-9 w-full">
@@ -133,7 +135,7 @@ const OrdersPageStats: React.FC<OrdersPageStatsProps> = ({ stats }) => {
         <p className="font-mono text-[28px] font-semibold leading-none tracking-[-.02em] text-body">
           {fmtCompact(orders12m)}
         </p>
-        <Sparkline data={orderSeries} color="#e0a23b" />
+        <Sparkline data={orderSeries} color="rgb(var(--c-accent))" />
       </Card>
 
       {/* REVENUE · 12M */}
@@ -145,7 +147,7 @@ const OrdersPageStats: React.FC<OrdersPageStatsProps> = ({ stats }) => {
         <p className="font-mono text-[28px] font-semibold leading-none tracking-[-.02em] text-accent">
           R{fmtCompact(revenue12m)}
         </p>
-        <Sparkline data={revenueSeries} color="#e0a23b" />
+        <Sparkline data={revenueSeries} color="rgb(var(--c-accent))" />
       </Card>
 
       {/* AWAITING COURIER */}
@@ -157,9 +159,9 @@ const OrdersPageStats: React.FC<OrdersPageStatsProps> = ({ stats }) => {
             <p className="mt-2 font-mono text-[10.5px] text-mute">of {open} open orders</p>
           </div>
           <svg width="58" height="58" viewBox="0 0 58 58" className="shrink-0">
-            <circle cx="29" cy="29" r={R} fill="none" stroke="#23262d" strokeWidth="5" />
+            <circle cx="29" cy="29" r={R} fill="none" stroke="rgb(var(--c-line))" strokeWidth="5" />
             <circle
-              cx="29" cy="29" r={R} fill="none" stroke="#e0a23b" strokeWidth="5" strokeLinecap="round"
+              cx="29" cy="29" r={R} fill="none" stroke="rgb(var(--c-accent))" strokeWidth="5" strokeLinecap="round"
               strokeDasharray={C}
               strokeDashoffset={C - (ringPct / 100) * C}
               transform="rotate(-90 29 29)"

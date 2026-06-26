@@ -55,7 +55,7 @@ const Modal = ({ title, onClose, children }: { title: string; onClose: () => voi
         <h3 className="flex-1 min-w-0 font-mono font-semibold text-sm tracking-[.08em] uppercase text-body">{title}</h3>
         <button
           onClick={onClose}
-          className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition"
+          className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 transition"
         >
           <X size={15} />
         </button>
@@ -92,7 +92,7 @@ const CategoryRow = ({
   return (
     <>
       <div
-        className={`group relative flex items-center gap-3 rounded-lg border border-line transition-colors hover:border-[#3a3d44] ${
+        className={`group relative flex items-center gap-3 rounded-lg border border-line transition-colors hover:border-line2 ${
           depth === 0 ? 'bg-panel px-4 py-3' : 'bg-panel2 px-3 py-2.5'
         }`}
         style={{ marginLeft: depth > 0 ? `${depth * 1.5}rem` : undefined }}
@@ -611,7 +611,7 @@ const Categories: React.FC = () => {
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex-1 inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-[#3a3d44] hover:text-body transition whitespace-nowrap"
+                className="flex-1 inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-line2 hover:text-body transition whitespace-nowrap"
               >
                 Cancel
               </button>
@@ -652,7 +652,7 @@ const Categories: React.FC = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => setDeleteConfirm(null)}
-                  className="flex-1 inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-[#3a3d44] hover:text-body transition whitespace-nowrap"
+                  className="flex-1 inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-line2 hover:text-body transition whitespace-nowrap"
                 >
                   Cancel
                 </button>

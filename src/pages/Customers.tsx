@@ -224,7 +224,7 @@ const Customers: React.FC = () => {
             className={`inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
               showFilterMenu || customerTypeFilter !== 'all'
                 ? 'bg-accent/15 text-accent border-accent/40'
-                : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
+                : 'bg-panel text-dim border-line hover:border-line2 hover:text-body'
             }`}
           >
             <SlidersHorizontal size={14} />
@@ -247,7 +247,7 @@ const Customers: React.FC = () => {
                       className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         customerTypeFilter === 'all'
                           ? 'bg-accent/15 text-accent border border-accent/40'
-                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-line2'
                       }`}
                     >
                       All Customers
@@ -261,7 +261,7 @@ const Customers: React.FC = () => {
                       className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         customerTypeFilter === 'trade'
                           ? 'bg-accent/15 text-accent border border-accent/40'
-                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-line2'
                       }`}
                     >
                       Trade
@@ -275,7 +275,7 @@ const Customers: React.FC = () => {
                       className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         customerTypeFilter === 'retail'
                           ? 'bg-accent/15 text-accent border border-accent/40'
-                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-line2'
                       }`}
                     >
                       Retail
@@ -295,7 +295,7 @@ const Customers: React.FC = () => {
             className={`inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] border transition whitespace-nowrap ${
               showSortMenu || sortBy !== 'joined_newest'
                 ? 'bg-accent/15 text-accent border-accent/40'
-                : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
+                : 'bg-panel text-dim border-line hover:border-line2 hover:text-body'
             }`}
           >
             <ArrowUpDown size={14} />
@@ -318,7 +318,7 @@ const Customers: React.FC = () => {
                       className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         sortBy === 'joined_newest'
                           ? 'bg-accent/15 text-accent border border-accent/40'
-                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-line2'
                       }`}
                     >
                       Joined: Newest
@@ -332,7 +332,7 @@ const Customers: React.FC = () => {
                       className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         sortBy === 'joined_oldest'
                           ? 'bg-accent/15 text-accent border border-accent/40'
-                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-line2'
                       }`}
                     >
                       Joined: Oldest
@@ -346,7 +346,7 @@ const Customers: React.FC = () => {
                       className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         sortBy === 'orders'
                           ? 'bg-accent/15 text-accent border border-accent/40'
-                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-line2'
                       }`}
                     >
                       Most Orders
@@ -360,7 +360,7 @@ const Customers: React.FC = () => {
                       className={`w-full text-left px-3 py-2 rounded-[7px] text-[12.5px] transition-colors ${
                         sortBy === 'spent'
                           ? 'bg-accent/15 text-accent border border-accent/40'
-                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-[#3a3d44]'
+                          : 'bg-panel2 text-dim border border-line hover:text-body hover:border-line2'
                       }`}
                     >
                       Highest Spent
@@ -403,7 +403,7 @@ const Customers: React.FC = () => {
               return (
                 <div
                   key={customer.id}
-                  className="overflow-hidden rounded-card border border-line bg-panel transition-colors hover:border-[#3a3d44]"
+                  className="overflow-hidden rounded-card border border-line bg-panel transition-colors hover:border-line2"
                 >
                   {/* Main row */}
                   <div
@@ -604,7 +604,7 @@ const Customers: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 disabled:opacity-40 disabled:cursor-not-allowed transition"
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -616,7 +616,7 @@ const Customers: React.FC = () => {
                       className={`min-w-8 h-8 px-2 rounded-[7px] font-mono text-xs font-semibold transition ${
                         currentPage === page
                           ? 'bg-accent text-accent-ink border border-accent'
-                          : 'bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44]'
+                          : 'bg-panel border border-line text-dim hover:text-body hover:border-line2'
                       }`}
                     >
                       {page}
@@ -626,7 +626,7 @@ const Customers: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 disabled:opacity-40 disabled:cursor-not-allowed transition"
                 >
                   <ChevronRight size={16} />
                 </button>

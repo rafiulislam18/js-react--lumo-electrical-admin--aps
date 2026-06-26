@@ -1,26 +1,32 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        // Command theme tokens (dark terminal aesthetic)
-        bg: '#0a0b0d',
-        bg2: '#0c0d10',
-        panel: '#101216',
-        panel2: '#181b21',
-        line: '#23262d',
-        body: '#e9ebef',
-        dim: '#9aa0aa',
-        mute: '#5f6670',
+        // Theme tokens driven by CSS variables (see index.css).
+        // Light values live on :root, dark values under .dark — every
+        // bg-panel / text-body / border-line usage flips automatically.
+        // The `<alpha-value>` form keeps opacity modifiers (bg-accent/15,
+        // border-accent/[.28], …) working in both themes.
+        bg: 'rgb(var(--c-bg) / <alpha-value>)',
+        bg2: 'rgb(var(--c-bg2) / <alpha-value>)',
+        panel: 'rgb(var(--c-panel) / <alpha-value>)',
+        panel2: 'rgb(var(--c-panel2) / <alpha-value>)',
+        line: 'rgb(var(--c-line) / <alpha-value>)',
+        line2: 'rgb(var(--c-line2) / <alpha-value>)', // hover/active border (was #3a3d44)
+        body: 'rgb(var(--c-body) / <alpha-value>)',
+        dim: 'rgb(var(--c-dim) / <alpha-value>)',
+        mute: 'rgb(var(--c-mute) / <alpha-value>)',
         accent: {
-          DEFAULT: '#f6a821',
-          ink: '#1a1205',
+          DEFAULT: 'rgb(var(--c-accent) / <alpha-value>)',
+          ink: 'rgb(var(--c-accent-ink) / <alpha-value>)',
         },
-        pos: '#5fcf80',
-        neg: '#f0726f',
-        warn: '#fbb845',
-        info: '#6aa6f5',
+        pos: 'rgb(var(--c-pos) / <alpha-value>)',
+        neg: 'rgb(var(--c-neg) / <alpha-value>)',
+        warn: 'rgb(var(--c-warn) / <alpha-value>)',
+        info: 'rgb(var(--c-info) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],

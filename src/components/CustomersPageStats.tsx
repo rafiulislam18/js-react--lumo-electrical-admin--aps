@@ -157,7 +157,7 @@ const CustomersPageStats: React.FC<CustomersPageStatsProps> = ({ stats }) => {
           </div>
           {/* Ring gauge */}
           <svg width="56" height="56" viewBox="0 0 56 56" className="shrink-0 -rotate-90">
-            <circle cx="28" cy="28" r={R} fill="none" stroke="#23262d" strokeWidth="6" />
+            <circle cx="28" cy="28" r={R} fill="none" stroke="rgb(var(--c-line))" strokeWidth="6" />
             <circle
               cx="28"
               cy="28"

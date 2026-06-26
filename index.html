@@ -17,6 +17,17 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Apply saved theme before paint to avoid a flash. Admin defaults to dark. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('admin-theme') || 'dark';
+          if (t === 'dark') document.documentElement.classList.add('dark');
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

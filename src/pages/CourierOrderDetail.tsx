@@ -98,7 +98,7 @@ const CourierOrderDetail: React.FC = () => {
         <div className="max-w-2xl mx-auto px-4 py-3.5 flex items-center gap-3">
           <button
             onClick={() => navigate('/courier/dashboard')}
-            className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition shrink-0"
+            className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 transition shrink-0"
           >
             <ArrowLeft size={16} />
           </button>
@@ -232,7 +232,7 @@ const CourierOrderDetail: React.FC = () => {
               <button
                 onClick={() => setConfirming(false)}
                 disabled={marking}
-                className="flex-1 inline-flex items-center justify-center py-2.5 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-[#3a3d44] hover:text-body transition disabled:opacity-50"
+                className="flex-1 inline-flex items-center justify-center py-2.5 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-line2 hover:text-body transition disabled:opacity-50"
               >
                 Cancel
               </button>

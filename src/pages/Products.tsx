@@ -361,7 +361,7 @@ const Products: React.FC = () => {
                 key={value}
                 onClick={() => { setStockFilter(value); setCurrentPage(1); }}
                 className={on
-                  ? 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md bg-panel2 text-body shadow-[inset_0_0_0_1px_#23262d] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'
+                  ? 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md bg-panel2 text-body shadow-[inset_0_0_0_1px_rgb(var(--c-line))] font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'
                   : 'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md text-mute hover:text-dim font-mono text-[11.5px] font-semibold uppercase tracking-[.03em] whitespace-nowrap transition-colors'}
               >
                 {label}
@@ -383,7 +383,7 @@ const Products: React.FC = () => {
             className={`inline-flex items-center justify-between gap-[7px] w-full sm:w-[280px] px-3 py-2 rounded-[7px] border text-[12.5px] font-bold transition ${
               showCategoryMenu || categoryFilter
                 ? 'bg-panel2 text-body border-accent/40'
-                : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
+                : 'bg-panel text-dim border-line hover:border-line2 hover:text-body'
             }`}
           >
             <span className="inline-flex items-center gap-[7px] min-w-0">
@@ -465,7 +465,7 @@ const Products: React.FC = () => {
               className={`inline-flex items-center justify-center gap-[7px] px-2.5 sm:px-3.5 py-2 rounded-[7px] border text-[12.5px] font-bold transition whitespace-nowrap ${
                 showSortMenu || sortBy !== 'newest'
                   ? 'bg-panel2 text-body border-accent/40'
-                  : 'bg-panel text-dim border-line hover:border-[#3a3d44] hover:text-body'
+                  : 'bg-panel text-dim border-line hover:border-line2 hover:text-body'
               }`}
             >
               <ArrowUpDown size={14} />
@@ -551,7 +551,7 @@ const Products: React.FC = () => {
             {products.map((product) => (
               <div
                 key={product.id}
-                className="group relative flex flex-col overflow-hidden rounded-card border border-line bg-panel transition-colors hover:border-[#3a3d44]"
+                className="group relative flex flex-col overflow-hidden rounded-card border border-line bg-panel transition-colors hover:border-line2"
               >
                 {/* Square Image */}
                 <button
@@ -862,7 +862,7 @@ const Products: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   title="Previous page"
                 >
                   <ChevronLeft size={16} />
@@ -876,7 +876,7 @@ const Products: React.FC = () => {
                       className={`min-w-8 h-8 px-2 rounded-[7px] font-mono text-xs font-bold transition-colors ${
                         currentPage === page
                           ? 'bg-accent text-accent-ink border border-accent'
-                          : 'border border-line bg-panel text-dim hover:text-body hover:border-[#3a3d44]'
+                          : 'border border-line bg-panel text-dim hover:text-body hover:border-line2'
                       }`}
                     >
                       {page}
@@ -887,7 +887,7 @@ const Products: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   title="Next page"
                 >
                   <ChevronRight size={16} />
@@ -916,7 +916,7 @@ const Products: React.FC = () => {
             <div className="px-4 py-3 border-t border-line flex justify-end gap-2.5">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-[#3a3d44] hover:text-body transition"
+                className="inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-line2 hover:text-body transition"
               >
                 Cancel
               </button>

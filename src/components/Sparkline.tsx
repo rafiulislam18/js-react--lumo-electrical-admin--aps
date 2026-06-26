@@ -8,7 +8,7 @@ interface SparklineProps {
 }
 
 /** Tiny inline area sparkline (Command theme KPI tiles). */
-const Sparkline: React.FC<SparklineProps> = ({ data, color = '#f6a821', height = 30, width = 120 }) => {
+const Sparkline: React.FC<SparklineProps> = ({ data, color = 'rgb(var(--c-accent))', height = 30, width = 120 }) => {
   const gid = useId();
 
   if (data.length < 2) {

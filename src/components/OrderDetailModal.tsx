@@ -185,7 +185,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, onClose, o
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition shrink-0"
+            className="w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 transition shrink-0"
           >
             <X size={15} />
           </button>
@@ -440,7 +440,7 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, onClose, o
         <div className="px-4 py-3 border-t border-line flex justify-end gap-2.5">
           <button
             onClick={onClose}
-            className="inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-[#3a3d44] hover:text-body transition whitespace-nowrap"
+            className="inline-flex items-center justify-center gap-[7px] px-3.5 py-2 text-[12.5px] font-bold rounded-[7px] bg-panel text-dim border border-line hover:border-line2 hover:text-body transition whitespace-nowrap"
           >
             Close
           </button>

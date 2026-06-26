@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { logout } from '../lib/api';
+import { useTheme } from '../context/ThemeContext';
 import {
   Home,
   Package,
@@ -22,6 +23,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const menuItems = [
@@ -88,14 +90,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {/* Mobile close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-[#3a3d44] transition lg:hidden z-10"
+          className="absolute top-4 right-4 w-8 h-8 rounded-[7px] flex items-center justify-center bg-panel border border-line text-dim hover:text-body hover:border-line2 transition lg:hidden z-10"
         >
           <X size={15} />
         </button>
 
         {/* Brand */}
         <div className="px-[18px] pt-[18px] pb-4 border-b border-line">
-          <img src={`${import.meta.env.BASE_URL}images/logo-light.png`} alt="Lumo Electrical Logo" className="h-7 w-auto" />
+          <img src={`${import.meta.env.BASE_URL}images/${theme === 'dark' ? 'logo-light.png' : 'logo.png'}`} alt="Lumo Electrical Logo" className="h-7 w-auto" />
         </div>
         <div className="px-[18px] pt-3 pb-2">
           <span className="font-mono text-[9.5px] tracking-[.18em] uppercase text-mute">Admin Console</span>
