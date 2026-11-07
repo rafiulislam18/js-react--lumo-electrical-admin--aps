@@ -4,8 +4,8 @@ import { authenticatedFetch } from '../lib/api';
 
 const CustomerStats: React.FC = () => {
   const [totalCustomers, setTotalCustomers] = useState(0);
-  const [newCustomersThisMonth, setNewCustomersThisMonth] = useState(0);
-  const [newCustomersLastMonth, setNewCustomersLastMonth] = useState(0);
+  const [newCustomersLast30, setNewCustomersLast30] = useState(0);
+  const [newCustomersPrev30, setNewCustomersPrev30] = useState(0);
 
   useEffect(() => {
     fetchCustomerStats();
@@ -18,23 +18,23 @@ const CustomerStats: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setTotalCustomers(data.customers.total);
-        setNewCustomersThisMonth(data.customers.this_month);
-        setNewCustomersLastMonth(data.customers.last_month);
+        setNewCustomersLast30(data.customers.last_30_days);
+        setNewCustomersPrev30(data.customers.prev_30_days);
       }
     } catch (error) {
       console.error('Failed to fetch customer stats:', error);
     }
   };
 
-  const percentageChange = newCustomersLastMonth > 0
-    ? ((newCustomersThisMonth - newCustomersLastMonth) / newCustomersLastMonth * 100).toFixed(1)
+  const percentageChange = newCustomersPrev30 > 0
+    ? ((newCustomersLast30 - newCustomersPrev30) / newCustomersPrev30 * 100).toFixed(1)
     : '0';
   const isPositive = parseFloat(percentageChange) >= 0;
 
-  // Relative bar widths: the larger of the two months fills the bar
-  const peak = Math.max(newCustomersThisMonth, newCustomersLastMonth, 1);
-  const thisPct = (newCustomersThisMonth / peak) * 100;
-  const lastPct = (newCustomersLastMonth / peak) * 100;
+  // Relative bar widths: the larger of the two windows fills the bar
+  const peak = Math.max(newCustomersLast30, newCustomersPrev30, 1);
+  const thisPct = (newCustomersLast30 / peak) * 100;
+  const lastPct = (newCustomersPrev30 / peak) * 100;
 
   return (
     <div className="flex flex-col gap-3 rounded-card border border-line bg-panel px-4 py-3.5">
@@ -67,12 +67,12 @@ const CustomerStats: React.FC = () => {
         </span>
       </p>
 
-      {/* This month / Last month progress bars */}
+      {/* Last 30 days / prior 30 days progress bars */}
       <div className="flex flex-col gap-2.5 border-t border-line pt-3">
         <div>
           <div className="mb-1 flex items-center justify-between font-mono">
-            <span className="text-[10px] uppercase tracking-[.12em] text-mute">This Month</span>
-            <span className="text-[11px] font-bold text-body">+{newCustomersThisMonth.toLocaleString()}</span>
+            <span className="text-[10px] uppercase tracking-[.12em] text-mute">Last 30 Days</span>
+            <span className="text-[11px] font-bold text-body">+{newCustomersLast30.toLocaleString()}</span>
           </div>
           <div className="h-[5px] overflow-hidden rounded-full bg-panel2">
             <div className="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${thisPct}%` }} />
@@ -80,8 +80,8 @@ const CustomerStats: React.FC = () => {
         </div>
         <div>
           <div className="mb-1 flex items-center justify-between font-mono">
-            <span className="text-[10px] uppercase tracking-[.12em] text-mute">Last Month</span>
-            <span className="text-[11px] font-bold text-dim">+{newCustomersLastMonth.toLocaleString()}</span>
+            <span className="text-[10px] uppercase tracking-[.12em] text-mute">Prior 30 Days</span>
+            <span className="text-[11px] font-bold text-dim">+{newCustomersPrev30.toLocaleString()}</span>
           </div>
           <div className="h-[5px] overflow-hidden rounded-full bg-panel2">
             <div className="h-full rounded-full bg-mute transition-all duration-500" style={{ width: `${lastPct}%` }} />

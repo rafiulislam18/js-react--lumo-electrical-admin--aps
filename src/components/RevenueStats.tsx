@@ -16,8 +16,8 @@ const formatCurrency = (value: number): string => {
 
 const RevenueStats: React.FC = () => {
   const [overallTotal, setOverallTotal] = useState(0);
-  const [revenueThisMonth, setRevenueThisMonth] = useState(0);
-  const [revenueLastMonth, setRevenueLastMonth] = useState(0);
+  const [revenueLast30, setRevenueLast30] = useState(0);
+  const [revenuePrev30, setRevenuePrev30] = useState(0);
 
   useEffect(() => {
     fetchRevenueStats();
@@ -30,23 +30,23 @@ const RevenueStats: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setOverallTotal(parseFloat(data.revenue.total));
-        setRevenueThisMonth(parseFloat(data.revenue.this_month));
-        setRevenueLastMonth(parseFloat(data.revenue.last_month));
+        setRevenueLast30(parseFloat(data.revenue.last_30_days));
+        setRevenuePrev30(parseFloat(data.revenue.prev_30_days));
       }
     } catch (error) {
       console.error('Failed to fetch revenue stats:', error);
     }
   };
 
-  const percentageChange = revenueLastMonth > 0
-    ? ((revenueThisMonth - revenueLastMonth) / revenueLastMonth * 100).toFixed(1)
+  const percentageChange = revenuePrev30 > 0
+    ? ((revenueLast30 - revenuePrev30) / revenuePrev30 * 100).toFixed(1)
     : '0';
   const isPositive = parseFloat(percentageChange) >= 0;
 
-  // Relative bar widths: the larger of the two months fills the bar
-  const peak = Math.max(revenueThisMonth, revenueLastMonth, 1);
-  const thisPct = (revenueThisMonth / peak) * 100;
-  const lastPct = (revenueLastMonth / peak) * 100;
+  // Relative bar widths: the larger of the two windows fills the bar
+  const peak = Math.max(revenueLast30, revenuePrev30, 1);
+  const thisPct = (revenueLast30 / peak) * 100;
+  const lastPct = (revenuePrev30 / peak) * 100;
 
   return (
     <div className="flex flex-col gap-3 rounded-card border border-line bg-panel px-4 py-3.5">
@@ -79,12 +79,12 @@ const RevenueStats: React.FC = () => {
         </span>
       </p>
 
-      {/* This month / Last month progress bars */}
+      {/* Last 30 days / prior 30 days progress bars */}
       <div className="flex flex-col gap-2.5 border-t border-line pt-3">
         <div>
           <div className="mb-1 flex items-center justify-between font-mono">
-            <span className="text-[10px] uppercase tracking-[.12em] text-mute">This Month</span>
-            <span className="text-[11px] font-bold text-body">R{formatCurrency(revenueThisMonth)}</span>
+            <span className="text-[10px] uppercase tracking-[.12em] text-mute">Last 30 Days</span>
+            <span className="text-[11px] font-bold text-body">R{formatCurrency(revenueLast30)}</span>
           </div>
           <div className="h-[5px] overflow-hidden rounded-full bg-panel2">
             <div className="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${thisPct}%` }} />
@@ -92,8 +92,8 @@ const RevenueStats: React.FC = () => {
         </div>
         <div>
           <div className="mb-1 flex items-center justify-between font-mono">
-            <span className="text-[10px] uppercase tracking-[.12em] text-mute">Last Month</span>
-            <span className="text-[11px] font-bold text-dim">R{formatCurrency(revenueLastMonth)}</span>
+            <span className="text-[10px] uppercase tracking-[.12em] text-mute">Prior 30 Days</span>
+            <span className="text-[11px] font-bold text-dim">R{formatCurrency(revenuePrev30)}</span>
           </div>
           <div className="h-[5px] overflow-hidden rounded-full bg-panel2">
             <div className="h-full rounded-full bg-mute transition-all duration-500" style={{ width: `${lastPct}%` }} />

@@ -4,8 +4,8 @@ import { authenticatedFetch } from '../lib/api';
 
 const OrderStats: React.FC = () => {
   const [overallTotal, setOverallTotal] = useState(0);
-  const [ordersThisMonth, setOrdersThisMonth] = useState(0);
-  const [ordersLastMonth, setOrdersLastMonth] = useState(0);
+  const [ordersLast30, setOrdersLast30] = useState(0);
+  const [ordersPrev30, setOrdersPrev30] = useState(0);
 
   useEffect(() => {
     fetchOrderStats();
@@ -18,23 +18,23 @@ const OrderStats: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setOverallTotal(data.orders.total);
-        setOrdersThisMonth(data.orders.this_month);
-        setOrdersLastMonth(data.orders.last_month);
+        setOrdersLast30(data.orders.last_30_days);
+        setOrdersPrev30(data.orders.prev_30_days);
       }
     } catch (error) {
       console.error('Failed to fetch order stats:', error);
     }
   };
 
-  const percentageChange = ordersLastMonth > 0
-    ? ((ordersThisMonth - ordersLastMonth) / ordersLastMonth * 100).toFixed(1)
+  const percentageChange = ordersPrev30 > 0
+    ? ((ordersLast30 - ordersPrev30) / ordersPrev30 * 100).toFixed(1)
     : '0';
   const isPositive = parseFloat(percentageChange) >= 0;
 
-  // Relative bar widths: the larger of the two months fills the bar
-  const peak = Math.max(ordersThisMonth, ordersLastMonth, 1);
-  const thisPct = (ordersThisMonth / peak) * 100;
-  const lastPct = (ordersLastMonth / peak) * 100;
+  // Relative bar widths: the larger of the two windows fills the bar
+  const peak = Math.max(ordersLast30, ordersPrev30, 1);
+  const thisPct = (ordersLast30 / peak) * 100;
+  const lastPct = (ordersPrev30 / peak) * 100;
 
   return (
     <div className="flex flex-col gap-3 rounded-card border border-line bg-panel px-4 py-3.5">
@@ -67,12 +67,12 @@ const OrderStats: React.FC = () => {
         </span>
       </p>
 
-      {/* This month / Last month progress bars */}
+      {/* Last 30 days / prior 30 days progress bars */}
       <div className="flex flex-col gap-2.5 border-t border-line pt-3">
         <div>
           <div className="mb-1 flex items-center justify-between font-mono">
-            <span className="text-[10px] uppercase tracking-[.12em] text-mute">This Month</span>
-            <span className="text-[11px] font-bold text-body">{ordersThisMonth.toLocaleString()}</span>
+            <span className="text-[10px] uppercase tracking-[.12em] text-mute">Last 30 Days</span>
+            <span className="text-[11px] font-bold text-body">{ordersLast30.toLocaleString()}</span>
           </div>
           <div className="h-[5px] overflow-hidden rounded-full bg-panel2">
             <div className="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${thisPct}%` }} />
@@ -80,8 +80,8 @@ const OrderStats: React.FC = () => {
         </div>
         <div>
           <div className="mb-1 flex items-center justify-between font-mono">
-            <span className="text-[10px] uppercase tracking-[.12em] text-mute">Last Month</span>
-            <span className="text-[11px] font-bold text-dim">{ordersLastMonth.toLocaleString()}</span>
+            <span className="text-[10px] uppercase tracking-[.12em] text-mute">Prior 30 Days</span>
+            <span className="text-[11px] font-bold text-dim">{ordersPrev30.toLocaleString()}</span>
           </div>
           <div className="h-[5px] overflow-hidden rounded-full bg-panel2">
             <div className="h-full rounded-full bg-mute transition-all duration-500" style={{ width: `${lastPct}%` }} />

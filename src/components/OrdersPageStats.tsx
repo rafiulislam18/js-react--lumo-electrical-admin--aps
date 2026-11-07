@@ -61,20 +61,27 @@ const fmtCompact = (n: number) => {
   return n.toLocaleString();
 };
 
+/** Last 30 days vs the prior 30 days, captioned so it isn't read as a 12-month change. */
 const Delta: React.FC<{ pct: number }> = ({ pct }) => {
   const positive = pct >= 0;
   return (
-    <span className={`inline-flex shrink-0 items-center gap-[3px] font-mono text-[11.5px] font-semibold ${positive ? 'text-pos' : 'text-neg'}`}>
+    <span
+      title="Last 30 days vs the prior 30 days"
+      className={`inline-flex shrink-0 items-center gap-[3px] font-mono text-[11.5px] font-semibold ${positive ? 'text-pos' : 'text-neg'}`}
+    >
       {positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
       {positive ? '+' : ''}{pct.toFixed(1)}%
+      <span className="ml-1 text-[10px] font-medium text-mute">vs prior 30d</span>
     </span>
   );
 };
 
-const growth = (series: number[]) => {
-  if (series.length < 2) return 0;
-  const last = series[series.length - 1];
-  const prev = series[series.length - 2];
+interface Window30 {
+  last: number;
+  prev: number;
+}
+
+const change = ({ last, prev }: Window30) => {
   if (prev <= 0) return last > 0 ? 100 : 0;
   return ((last - prev) / prev) * 100;
 };
@@ -82,14 +89,25 @@ const growth = (series: number[]) => {
 const OrdersPageStats: React.FC<OrdersPageStatsProps> = ({ stats }) => {
   const [orderTrend, setOrderTrend] = useState<TrendPoint[]>([]);
   const [revenueTrend, setRevenueTrend] = useState<TrendPoint[]>([]);
+  const [orders30, setOrders30] = useState<Window30>({ last: 0, prev: 0 });
+  const [revenue30, setRevenue30] = useState<Window30>({ last: 0, prev: 0 });
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [ordersRes, revenueRes] = await Promise.all([
+        const [ordersRes, revenueRes, statsRes] = await Promise.all([
           authenticatedFetch('/analytics/orders-chart/?period=monthly'),
           authenticatedFetch('/analytics/revenue-chart/?period=monthly'),
+          authenticatedFetch('/analytics/dashboard/stats/'),
         ]);
+        if (statsRes.ok) {
+          const d = await statsRes.json();
+          setOrders30({ last: d.orders.last_30_days, prev: d.orders.prev_30_days });
+          setRevenue30({
+            last: parseFloat(d.revenue.last_30_days) || 0,
+            prev: parseFloat(d.revenue.prev_30_days) || 0,
+          });
+        }
         if (ordersRes.ok) {
           const d = await ordersRes.json();
           setOrderTrend((d.data || []).map((p: { label: string; orders: number }) => ({ label: p.label, value: p.orders })));
@@ -130,7 +148,7 @@ const OrdersPageStats: React.FC<OrdersPageStatsProps> = ({ stats }) => {
       <Card>
         <div className="flex items-center justify-between gap-2">
           <span className="truncate font-mono text-[10.5px] uppercase tracking-[.12em] text-mute">Orders · 12M</span>
-          <Delta pct={growth(orderSeries)} />
+          <Delta pct={change(orders30)} />
         </div>
         <p className="font-mono text-[28px] font-semibold leading-none tracking-[-.02em] text-body">
           {fmtCompact(orders12m)}
@@ -142,7 +160,7 @@ const OrdersPageStats: React.FC<OrdersPageStatsProps> = ({ stats }) => {
       <Card>
         <div className="flex items-center justify-between gap-2">
           <span className="truncate font-mono text-[10.5px] uppercase tracking-[.12em] text-mute">Revenue · 12M</span>
-          <Delta pct={growth(revenueSeries)} />
+          <Delta pct={change(revenue30)} />
         </div>
         <p className="font-mono text-[28px] font-semibold leading-none tracking-[-.02em] text-accent">
           R{fmtCompact(revenue12m)}
